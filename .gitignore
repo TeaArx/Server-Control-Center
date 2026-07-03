@@ -1,0 +1,56 @@
+# Build
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# Publish
+publish/
+
+# Test
+TestResults/
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Local settings
+appsettings.Development.json
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Database
+server_control_center.db
+
+# EF Core migrations snapshot cache
+*.db-journal
+
+# SSH keys
+*.pem
+*.ppk
+id_rsa
+id_ed25519
+
+# Local data
+Data/*.db

@@ -1,0 +1,430 @@
+<Window x:Class="ServerControlCenter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Server Control Center"
+        Width="1280"
+        Height="780"
+        MinWidth="1080"
+        MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource AppBackgroundBrush}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="310"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 1 0" Padding="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0 0 0 14">
+                    <TextBlock Text="Server Control Center" Style="{StaticResource TitleTextStyle}"/>
+                    <TextBlock Text="SSH, мониторинг, логи и файлы" Style="{StaticResource SmallMutedTextStyle}" Margin="0 4 0 0"/>
+                </StackPanel>
+
+                <TextBox Grid.Row="1" Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}" Margin="0 0 0 12" ToolTip="Поиск по имени, хосту, логину и заметкам"/>
+
+                <ListBox Grid.Row="2" ItemsSource="{Binding FilteredServers}" SelectedItem="{Binding SelectedServer}" MouseDoubleClick="ServersListBox_MouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ContextMenu>
+                        <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                            <MenuItem Header="Редактировать" Command="{Binding EditServerCommand}"/>
+                            <MenuItem Header="Проверить SSH" Command="{Binding TestConnectionCommand}"/>
+                            <Separator/>
+                            <MenuItem Header="Удалить" Command="{Binding DeleteServerCommand}"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="10" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Grid.Column="0" Width="9" Height="9" Margin="0 5 10 0" VerticalAlignment="Top">
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Fill" Value="#94A3B8"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsOnline}" Value="True">
+                                                        <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Style="{StaticResource SmallMutedTextStyle}" Margin="0 2 0 0">
+                                            <Run Text="{Binding Host}"/><Run Text=":"/><Run Text="{Binding Port}"/><Run Text="  ·  "/><Run Text="{Binding Username}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Notes}" Style="{StaticResource SmallMutedTextStyle}" Margin="0 3 0 0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Grid Grid.Row="3" Margin="0 12 0 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Content="Добавить" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AddServerCommand}"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="Изменить" Command="{Binding EditServerCommand}"/>
+                    <Button Grid.Row="2" Grid.Column="0" Content="Проверить" Command="{Binding CheckAllServersCommand}"/>
+                    <Button Grid.Row="2" Grid.Column="2" Content="Удалить" Style="{StaticResource DangerButtonStyle}" Command="{Binding DeleteServerCommand}"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="18 14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock FontWeight="SemiBold" FontSize="18" Text="{Binding SelectedServer.Name, TargetNullValue=Сервер не выбран, FallbackValue=Сервер не выбран}"/>
+                        <TextBlock Style="{StaticResource SmallMutedTextStyle}" Margin="0 4 0 0" Text="{Binding SelectedServer.Host, TargetNullValue=Выберите или добавьте сервер слева, FallbackValue=Выберите или добавьте сервер слева}"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" Background="{StaticResource SubtleBackgroundBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="8" Padding="10 7" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="9" Height="9" Margin="0 0 8 0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#94A3B8"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedServer.IsOnline}" Value="True">
+                                                <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding MonitoringStatus}" Style="{StaticResource SmallMutedTextStyle}" MaxWidth="360" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <TabControl Grid.Row="1" Margin="16">
+                <TabItem Header="Обзор">
+                    <Grid Margin="0 14 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="12"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <UniformGrid Grid.Row="0" Columns="4">
+                            <Border Style="{StaticResource MetricCardStyle}" Margin="0 0 10 0">
+                                <StackPanel>
+                                    <TextBlock Text="CPU" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}" FontSize="22" FontWeight="SemiBold" Margin="0 8 0 6"/>
+                                    <ProgressBar Value="{Binding MonitorCpuPercent}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource MetricCardStyle}" Margin="0 0 10 0">
+                                <StackPanel>
+                                    <TextBlock Text="RAM" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}" FontSize="22" FontWeight="SemiBold" Margin="0 8 0 6"/>
+                                    <ProgressBar Value="{Binding MonitorRamPercent}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource MetricCardStyle}" Margin="0 0 10 0">
+                                <StackPanel>
+                                    <TextBlock Text="Disk /" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}" FontSize="22" FontWeight="SemiBold" Margin="0 8 0 6"/>
+                                    <ProgressBar Value="{Binding MonitorDiskPercent}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource MetricCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Uptime" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorUptimeShort}" FontSize="16" FontWeight="SemiBold" Margin="0 10 0 0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </UniformGrid>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="270"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource PagePanelStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Быстрые команды" Style="{StaticResource SectionTitleTextStyle}" Margin="0 0 0 12"/>
+                                    <Button Content="Проверить SSH" Command="{Binding TestConnectionCommand}" Margin="0 0 0 8"/>
+                                    <Button Content="uptime" Command="{Binding RunUptimeCommand}" Margin="0 0 0 8"/>
+                                    <Button Content="df -h" Command="{Binding RunDiskCommand}" Margin="0 0 0 8"/>
+                                    <Button Content="free -h" Command="{Binding RunMemoryCommand}" Margin="0 0 0 8"/>
+                                    <Button Content="top" Command="{Binding RunProcessesCommand}" Margin="0 0 0 8"/>
+                                    <Button Content="Обновить мониторинг" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding RefreshMonitoringCommand}"/>
+                                    <TextBlock Text="{Binding MonitorLoad}" Style="{StaticResource SmallMutedTextStyle}" Margin="0 14 0 0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBox Grid.Column="2" Text="{Binding SshOutput}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Терминал">
+                    <Grid Margin="0 14 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="12"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBox Grid.Row="0" Text="{Binding TerminalOutput}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}"/>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Grid.Column="2" Content="Отправить" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding SendTerminalCommandCommand}"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Команды">
+                    <Grid Margin="0 14 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="330"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource PagePanelStyle}" Padding="0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Margin="14 14 14 10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Text="{Binding CustomCommand, UpdateSourceTrigger=PropertyChanged}" ToolTip="Разовая SSH-команда"/>
+                                    <Button Grid.Column="2" Content="Выполнить" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding RunCustomCommandCommand}"/>
+                                </Grid>
+                                <TextBox Grid.Row="1" Text="{Binding SshOutput}" IsReadOnly="True" BorderThickness="0" Style="{StaticResource ConsoleTextBoxStyle}"/>
+                                <TextBlock Grid.Row="2" Text="Опасные команды требуют подтверждения." Style="{StaticResource SmallMutedTextStyle}" Margin="14 8"/>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource PagePanelStyle}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Сохранённые команды" Style="{StaticResource SectionTitleTextStyle}" Margin="0 0 0 10"/>
+                                <ListBox Grid.Row="1" ItemsSource="{Binding SavedCommands}" SelectedItem="{Binding SelectedSavedCommand}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0 0 0 8">
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Command}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <StackPanel Grid.Row="2" Margin="0 12 0 0">
+                                    <TextBox Text="{Binding CommandTitle, UpdateSourceTrigger=PropertyChanged}" Margin="0 0 0 8" ToolTip="Название команды"/>
+                                    <TextBox Text="{Binding CommandText, UpdateSourceTrigger=PropertyChanged}" Height="72" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Margin="0 0 0 10" ToolTip="Команда"/>
+                                    <UniformGrid Columns="2">
+                                        <Button Content="Добавить" Margin="0 0 8 8" Command="{Binding AddSavedCommandCommand}"/>
+                                        <Button Content="Сохранить" Style="{StaticResource PrimaryButtonStyle}" Margin="0 0 0 8" Command="{Binding UpdateSavedCommandCommand}"/>
+                                        <Button Content="Запустить" Margin="0 0 8 0" Command="{Binding RunSavedCommandCommand}"/>
+                                        <Button Content="Удалить" Style="{StaticResource DangerButtonStyle}" Command="{Binding DeleteSavedCommandCommand}"/>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Мониторинг">
+                    <Grid Margin="0 14 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="12"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <Button Content="Обновить" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding RefreshMonitoringCommand}"/>
+                            <Button Content="{Binding AutoMonitoringButtonText}" Margin="8 0 0 0" Command="{Binding ToggleAutoMonitoringCommand}"/>
+                            <TextBlock Text="{Binding MonitoringStatus}" Style="{StaticResource SmallMutedTextStyle}" Margin="14 0 0 0" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource PagePanelStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="CPU" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorCpu}" FontSize="16" FontWeight="SemiBold" Margin="0 8 0 8"/>
+                                    <ProgressBar Value="{Binding MonitorCpuPercent}" Margin="0 0 0 14"/>
+                                    <TextBlock Text="RAM" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorRam}" FontSize="16" FontWeight="SemiBold" Margin="0 8 0 8"/>
+                                    <ProgressBar Value="{Binding MonitorRamPercent}" Margin="0 0 0 14"/>
+                                    <TextBlock Text="Disk" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorDiskUsage}" FontSize="16" FontWeight="SemiBold" Margin="0 8 0 8"/>
+                                    <ProgressBar Value="{Binding MonitorDiskPercent}" Margin="0 0 0 14"/>
+                                    <TextBlock Text="Load average" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Text="{Binding MonitorLoad}" FontSize="14" FontWeight="SemiBold" Margin="0 8 0 0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBox Grid.Column="2" Text="{Binding MonitorProcesses}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}"/>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Логи">
+                    <Grid Margin="0 14 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="12"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Style="{StaticResource SoftCardBorderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBox Text="{Binding LogPath, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0 8 0 0">
+                                        <Button Content="nginx error" Style="{StaticResource CompactButtonStyle}" Margin="0 0 8 0" Command="{Binding UseNginxLogCommand}"/>
+                                        <Button Content="syslog" Style="{StaticResource CompactButtonStyle}" Margin="0 0 8 0" Command="{Binding UseSyslogCommand}"/>
+                                        <Button Content="auth.log" Style="{StaticResource CompactButtonStyle}" Command="{Binding UseAuthLogCommand}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button Grid.Column="2" Content="Обновить" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding LoadLogCommand}"/>
+                            </Grid>
+                        </Border>
+                        <TextBox Grid.Row="2" Text="{Binding LogContent}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}"/>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Файлы">
+                    <Grid Margin="0 14 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="12"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Style="{StaticResource SoftCardBorderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="82"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Папка" Style="{StaticResource SmallMutedTextStyle}"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding RemoteFolderPath, UpdateSourceTrigger=PropertyChanged}"/>
+                                <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
+                                    <Button Content="Открыть" Margin="0 0 8 0" Command="{Binding LoadRemoteFilesCommand}"/>
+                                    <Button Content="Назад" Command="{Binding GoBackRemoteFolderCommand}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Локально" Style="{StaticResource SmallMutedTextStyle}"/>
+                                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LocalFilePath, UpdateSourceTrigger=PropertyChanged}"/>
+                                <StackPanel Grid.Row="2" Grid.Column="3" Orientation="Horizontal">
+                                    <Button Content="Файл" Margin="0 0 8 0" Command="{Binding PickLocalFileCommand}"/>
+                                    <Button Content="Папка" Margin="0 0 8 0" Command="{Binding PickLocalFolderCommand}"/>
+                                    <Button Content="Сохранить" Margin="0 0 8 0" Command="{Binding PickSaveFileCommand}"/>
+                                    <Button Content="Открыть" Command="{Binding OpenLocalFolderCommand}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Сервер" Style="{StaticResource SmallMutedTextStyle}"/>
+                                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RemoteFilePath, UpdateSourceTrigger=PropertyChanged}"/>
+                                <StackPanel Grid.Row="4" Grid.Column="3" Orientation="Horizontal">
+                                    <Button Content="Скачать" Margin="0 0 8 0" Command="{Binding DownloadFileCommand}"/>
+                                    <Button Content="Редакт." Margin="0 0 8 0" Command="{Binding EditRemoteFileCommand}"/>
+                                    <Button Content="Загрузить" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding UploadFileCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="2" Style="{StaticResource PagePanelStyle}" Padding="0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Padding="14 10" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock FontWeight="SemiBold"><Run Text="Файлы сервера"/><Run Text="  ·  "/><Run Text="{Binding RemoteFiles.Count, Mode=OneWay}"/></TextBlock>
+                                        <TextBlock Grid.Column="1" Text="Двойной клик открывает папку или выбирает файл" Style="{StaticResource SmallMutedTextStyle}"/>
+                                    </Grid>
+                                </Border>
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding RemoteFiles}" SelectedItem="{Binding SelectedRemoteFile}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" AllowDrop="True" DragOver="RemoteFilesListView_DragOver" Drop="RemoteFilesListView_Drop" MouseDoubleClick="RemoteFilesListView_MouseDoubleClick">
+                                    <DataGrid.ContextMenu>
+                                        <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Header="Открыть" Click="RemoteFileOpenMenuItem_Click"/>
+                                            <MenuItem Header="Редактировать" Click="RemoteFileEditMenuItem_Click"/>
+                                            <MenuItem Header="Скачать" Click="RemoteFileDownloadMenuItem_Click"/>
+                                            <Separator/>
+                                            <MenuItem Header="Создать папку" Click="RemoteFileCreateFolderMenuItem_Click"/>
+                                            <MenuItem Header="Переименовать" Click="RemoteFileRenameMenuItem_Click"/>
+                                            <Separator/>
+                                            <MenuItem Header="Удалить" Click="RemoteFileDeleteMenuItem_Click"/>
+                                        </ContextMenu>
+                                    </DataGrid.ContextMenu>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="*" MinWidth="260"/>
+                                        <DataGridTextColumn Header="Тип" Binding="{Binding TypeText}" Width="90"/>
+                                        <DataGridTextColumn Header="Размер" Binding="{Binding SizeText}" Width="110"/>
+                                        <DataGridTextColumn Header="Изменён" Binding="{Binding LastWriteTimeText}" Width="160"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <Border Grid.Row="2" Padding="14 9" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 1 0 0" Background="{StaticResource SubtleBackgroundBrush}">
+                                    <TextBlock Text="{Binding SftpOutput}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>
