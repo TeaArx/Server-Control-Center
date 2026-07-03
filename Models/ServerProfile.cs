@@ -7,6 +7,7 @@ namespace ServerControlCenter.Models;
 public class ServerProfile : INotifyPropertyChanged
 {
     private bool isOnline;
+    private bool isFavorite;
 
     public int Id { get; set; }
 
@@ -23,6 +24,37 @@ public class ServerProfile : INotifyPropertyChanged
     public string? PrivateKeyPath { get; set; }
 
     public string? Notes { get; set; }
+
+    public string GroupName { get; set; } = "Production";
+
+    public string? OsName { get; set; }
+
+    public string? IpAddressDisplay { get; set; }
+
+    public bool IsFavorite
+    {
+        get => isFavorite;
+        set
+        {
+            if (isFavorite == value)
+            {
+                return;
+            }
+
+            isFavorite = value;
+            OnPropertyChanged();
+        }
+    }
+
+    [NotMapped]
+    public string DisplayAddress => string.IsNullOrWhiteSpace(IpAddressDisplay)
+        ? Host
+        : IpAddressDisplay;
+
+    [NotMapped]
+    public string DisplayOs => string.IsNullOrWhiteSpace(OsName)
+        ? "Ubuntu 22.04"
+        : OsName;
 
     [NotMapped]
     public bool IsOnline

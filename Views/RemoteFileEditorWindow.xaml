@@ -30,6 +30,7 @@
                         Content="Сохранить"
                         MinWidth="110"
                         Style="{StaticResource PrimaryButtonStyle}"
+                        ToolTip="Сохранить файл на сервере"
                         Command="{Binding SaveCommand}"/>
             </Grid>
         </Border>

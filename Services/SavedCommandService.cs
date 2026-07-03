@@ -11,7 +11,8 @@ public class SavedCommandService
         using var db = new AppDbContext();
 
         return await db.SavedCommands
-            .OrderBy(x => x.Title)
+            .OrderBy(x => x.SortOrder)
+            .ThenBy(x => x.Title)
             .ToListAsync();
     }
 

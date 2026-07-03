@@ -80,7 +80,11 @@ public class ServerStorageService
             Username = server.Username.Trim(),
             Password = SecretProtector.Protect(server.Password),
             PrivateKeyPath = string.IsNullOrWhiteSpace(server.PrivateKeyPath) ? null : server.PrivateKeyPath.Trim(),
-            Notes = string.IsNullOrWhiteSpace(server.Notes) ? null : server.Notes.Trim()
+            Notes = string.IsNullOrWhiteSpace(server.Notes) ? null : server.Notes.Trim(),
+            GroupName = string.IsNullOrWhiteSpace(server.GroupName) ? "Production" : server.GroupName.Trim(),
+            OsName = string.IsNullOrWhiteSpace(server.OsName) ? null : server.OsName.Trim(),
+            IpAddressDisplay = string.IsNullOrWhiteSpace(server.IpAddressDisplay) ? null : server.IpAddressDisplay.Trim(),
+            IsFavorite = server.IsFavorite
         };
     }
 }

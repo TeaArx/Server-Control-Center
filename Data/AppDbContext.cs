@@ -25,6 +25,12 @@ public class AppDbContext : DbContext
 
     public DbSet<SavedCommand> SavedCommands => Set<SavedCommand>();
 
+    public DbSet<AppSettings> AppSettings => Set<AppSettings>();
+
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+
+    public DbSet<ActivityLogEntry> ActivityLogs => Set<ActivityLogEntry>();
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

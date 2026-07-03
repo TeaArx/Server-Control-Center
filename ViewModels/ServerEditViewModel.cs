@@ -36,6 +36,18 @@ public partial class ServerEditViewModel : ObservableObject
     private string notes = "";
 
     [ObservableProperty]
+    private string groupName = "Production";
+
+    [ObservableProperty]
+    private string osName = "";
+
+    [ObservableProperty]
+    private string ipAddressDisplay = "";
+
+    [ObservableProperty]
+    private bool isFavorite;
+
+    [ObservableProperty]
     private string statusMessage = "";
 
     public bool IsSaved { get; private set; }
@@ -54,6 +66,10 @@ public partial class ServerEditViewModel : ObservableObject
         Password = server.Password ?? "";
         PrivateKeyPath = server.PrivateKeyPath ?? "";
         Notes = server.Notes ?? "";
+        GroupName = string.IsNullOrWhiteSpace(server.GroupName) ? "Production" : server.GroupName;
+        OsName = server.OsName ?? "";
+        IpAddressDisplay = server.IpAddressDisplay ?? "";
+        IsFavorite = server.IsFavorite;
     }
 
     [RelayCommand]
@@ -97,6 +113,10 @@ public partial class ServerEditViewModel : ObservableObject
         Server.Password = string.IsNullOrWhiteSpace(Password) ? null : Password;
         Server.PrivateKeyPath = string.IsNullOrWhiteSpace(PrivateKeyPath) ? null : PrivateKeyPath;
         Server.Notes = string.IsNullOrWhiteSpace(Notes) ? null : Notes;
+        Server.GroupName = string.IsNullOrWhiteSpace(GroupName) ? "Production" : GroupName.Trim();
+        Server.OsName = string.IsNullOrWhiteSpace(OsName) ? null : OsName.Trim();
+        Server.IpAddressDisplay = string.IsNullOrWhiteSpace(IpAddressDisplay) ? null : IpAddressDisplay.Trim();
+        Server.IsFavorite = IsFavorite;
 
         IsSaved = true;
 
@@ -150,7 +170,11 @@ public partial class ServerEditViewModel : ObservableObject
             Username = Username.Trim(),
             Password = string.IsNullOrWhiteSpace(Password) ? null : Password,
             PrivateKeyPath = string.IsNullOrWhiteSpace(PrivateKeyPath) ? null : PrivateKeyPath,
-            Notes = string.IsNullOrWhiteSpace(Notes) ? null : Notes
+            Notes = string.IsNullOrWhiteSpace(Notes) ? null : Notes,
+            GroupName = string.IsNullOrWhiteSpace(GroupName) ? "Production" : GroupName.Trim(),
+            OsName = string.IsNullOrWhiteSpace(OsName) ? null : OsName.Trim(),
+            IpAddressDisplay = string.IsNullOrWhiteSpace(IpAddressDisplay) ? null : IpAddressDisplay.Trim(),
+            IsFavorite = IsFavorite
         };
     }
 }

@@ -32,10 +32,12 @@
             <Button Content="Отмена"
                     MinWidth="90"
                     Margin="0 0 8 0"
+                    ToolTip="Отменить ввод"
                     IsCancel="True"/>
             <Button Content="ОК"
                     MinWidth="90"
                     Style="{StaticResource PrimaryButtonStyle}"
+                    ToolTip="Подтвердить"
                     IsDefault="True"
                     Click="OkButton_Click"/>
         </StackPanel>
