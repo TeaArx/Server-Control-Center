@@ -1,6 +1,7 @@
 <Window x:Class="ServerControlCenter.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:ServerControlCenter.Controls"
         Title="Server Control Center"
         Width="1536"
         Height="920"
@@ -24,38 +25,54 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.RowSpan="2" Grid.Column="0" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 1 0">
+        <Border Grid.RowSpan="2"
+                Grid.Column="0"
+                Background="{StaticResource ShellPanelBrush}"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="0 0 1 0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="62"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="116"/>
+                    <RowDefinition Height="178"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="64"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Padding="16 0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1">
+                <Border Grid.Row="0" Padding="18 0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="27" Height="27" CornerRadius="6" Background="{StaticResource AccentBrush}" Margin="0 0 10 0">
-                            <TextBlock Text="S" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                        <Border Width="26" Height="26" CornerRadius="6" Background="{StaticResource AccentBrush}" Margin="0 0 10 0">
+                            <Grid>
+                                <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="12" Height="12" CornerRadius="3" BorderBrush="White" BorderThickness="1.2" Opacity="0.78" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
                         </Border>
                         <TextBlock Text="ServerControl" FontSize="16" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Border>
 
-                <StackPanel Grid.Row="1" Margin="14 16 14 12">
-                    <Button Content="+  Add Server" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AddServerCommand}" Height="40" ToolTip="Добавить сервер" Margin="0 0 0 14"/>
-                    <TextBox Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Search servers..." Margin="0 0 0 14"/>
-
-                    <Grid Margin="2 0 2 8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="GROUPS" Style="{StaticResource SmallMutedTextStyle}"/>
-                        <TextBlock Text="+" Grid.Column="1" HorizontalAlignment="Right" Foreground="{StaticResource MutedTextBrush}"/>
+                <StackPanel Grid.Row="1" Margin="14 14 14 12">
+                    <Button Style="{StaticResource PrimaryButtonStyle}" Command="{Binding AddServerCommand}" Height="38" ToolTip="Add server" Margin="0 0 0 14">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="0 0 8 0"/>
+                            <TextBlock Text="Add Server" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                    <Grid>
+                        <TextBox Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}" Padding="34 5 54 5" ToolTip="Search servers"/>
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource MutedTextBrush}" Margin="12 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Border Background="#101B28" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="4" Padding="5 1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 6 0">
+                            <TextBlock Text="Ctrl F" Style="{StaticResource TinyMutedTextStyle}"/>
+                        </Border>
                     </Grid>
+                </StackPanel>
 
-                    <ListBox ItemsSource="{Binding Groups}" MaxHeight="162">
+                <StackPanel Grid.Row="2" Margin="14 0 14 10">
+                    <Grid Margin="4 0 2 8">
+                        <TextBlock Text="GROUPS" Style="{StaticResource SmallMutedTextStyle}"/>
+                        <TextBlock Text="&#xE710;" Grid.Column="1" FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Right" Foreground="{StaticResource MutedTextBrush}"/>
+                    </Grid>
+                    <ListBox ItemsSource="{Binding Groups}" MaxHeight="142">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Button Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -65,7 +82,7 @@
                                         Background="Transparent"
                                         BorderThickness="0"
                                         Padding="0">
-                                    <Border Padding="10 8" CornerRadius="6">
+                                    <Border Padding="8 7" CornerRadius="6">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="Transparent"/>
@@ -78,11 +95,13 @@
                                         </Border.Style>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="22"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Count}" Foreground="{StaticResource MutedTextBrush}"/>
+                                            <TextBlock Grid.Column="0" Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource MutedTextBrush}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Count}" Foreground="{StaticResource AccentBrush}" Margin="8 0 0 0"/>
                                         </Grid>
                                     </Border>
                                 </Button>
@@ -91,21 +110,24 @@
                     </ListBox>
                 </StackPanel>
 
-                <StackPanel Grid.Row="2" Margin="14 0">
-                    <TextBlock Text="SERVERS" Style="{StaticResource SmallMutedTextStyle}" Margin="2 0 0 10"/>
-                    <ListBox ItemsSource="{Binding FilteredServers}" SelectedItem="{Binding SelectedServer}" MouseDoubleClick="ServersListBox_MouseDoubleClick" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <StackPanel Grid.Row="3" Margin="14 0">
+                    <TextBlock Text="SERVERS" Style="{StaticResource SmallMutedTextStyle}" Margin="4 0 0 10"/>
+                    <ListBox ItemsSource="{Binding FilteredServers}"
+                             SelectedItem="{Binding SelectedServer}"
+                             MouseDoubleClick="ServersListBox_MouseDoubleClick"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                <MenuItem Header="Редактировать" Command="{Binding EditServerCommand}"/>
-                                <MenuItem Header="Проверить SSH" Command="{Binding TestConnectionCommand}"/>
-                                <MenuItem Header="В избранное / убрать" Command="{Binding ToggleSelectedServerFavoriteCommand}"/>
+                                <MenuItem Header="Edit" Command="{Binding EditServerCommand}"/>
+                                <MenuItem Header="Test SSH" Command="{Binding TestConnectionCommand}"/>
+                                <MenuItem Header="Toggle favorite" Command="{Binding ToggleSelectedServerFavoriteCommand}"/>
                                 <Separator/>
-                                <MenuItem Header="Удалить" Command="{Binding DeleteServerCommand}"/>
+                                <MenuItem Header="Delete" Command="{Binding DeleteServerCommand}"/>
                             </ContextMenu>
                         </ListBox.ContextMenu>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="9" CornerRadius="6" Background="#0B141D" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1">
+                                <Border Padding="10" CornerRadius="6" Background="{StaticResource CardPanelBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -115,7 +137,7 @@
                                         <Ellipse Grid.Column="0" Width="9" Height="9" Margin="0 5 10 0" VerticalAlignment="Top">
                                             <Ellipse.Style>
                                                 <Style TargetType="Ellipse">
-                                                    <Setter Property="Fill" Value="#6B7C8F"/>
+                                                    <Setter Property="Fill" Value="#8CA0B2"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsOnline}" Value="True">
                                                             <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
@@ -129,14 +151,12 @@
                                             <TextBlock Text="{Binding DisplayOs}" Style="{StaticResource SmallMutedTextStyle}" Margin="0 2 0 0"/>
                                             <TextBlock Text="{Binding DisplayAddress}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="2" FontSize="16" Margin="8 0 0 0">
+                                        <TextBlock Grid.Column="2" FontFamily="Segoe MDL2 Assets" FontSize="14" Margin="10 0 0 0" Text="&#xE734;">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                                                    <Setter Property="Text" Value="☆"/>
                                                     <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsFavorite}" Value="True">
-                                                            <Setter Property="Text" Value="★"/>
                                                             <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
@@ -150,7 +170,7 @@
                     </ListBox>
                 </StackPanel>
 
-                <Border Grid.Row="3" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 1 0 0" Padding="14 10">
+                <Border Grid.Row="4" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 1 0 0" Padding="14 10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -158,16 +178,21 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="+ Add Server" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Command="{Binding AddServerCommand}" ToolTip="Добавить сервер"/>
-                        <Button Grid.Column="1" Content="&#xE734;" Style="{StaticResource IconButtonStyle}" ToolTip="Избранное" Command="{Binding OpenFavoritesPanelCommand}" Margin="4 0"/>
-                        <Button Grid.Column="2" Content="&#xE713;" Style="{StaticResource IconButtonStyle}" ToolTip="Настройки" Command="{Binding OpenSettingsPanelCommand}" Margin="4 0"/>
-                        <Button Grid.Column="3" Content="&#xE8A5;" Style="{StaticResource IconButtonStyle}" ToolTip="Журнал" Command="{Binding OpenActivityPanelCommand}" Margin="4 0 0 0"/>
+                        <Button Grid.Column="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" Command="{Binding AddServerCommand}" ToolTip="Add server">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" Margin="0 0 8 0"/>
+                                <TextBlock Text="Add Server"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="1" Content="&#xE734;" Style="{StaticResource IconButtonStyle}" ToolTip="Favorites" Command="{Binding OpenFavoritesPanelCommand}" Margin="4 0"/>
+                        <Button Grid.Column="2" Content="&#xE713;" Style="{StaticResource IconButtonStyle}" ToolTip="Settings" Command="{Binding OpenSettingsPanelCommand}" Margin="4 0"/>
+                        <Button Grid.Column="3" Content="&#xE8A5;" Style="{StaticResource IconButtonStyle}" ToolTip="Activity" Command="{Binding OpenActivityPanelCommand}" Margin="4 0 0 0"/>
                     </Grid>
                 </Border>
             </Grid>
         </Border>
 
-        <Border Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="18 0">
+        <Border Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="18 0" Background="#070E15">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -175,18 +200,11 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid VerticalAlignment="Center" Margin="0 0 18 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Ellipse Grid.Column="0" Width="7" Height="7" Margin="0 0 14 0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 18 0">
+                    <Ellipse Width="7" Height="7" Margin="0 0 14 0">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="#6B7C8F"/>
+                                <Setter Property="Fill" Value="#8CA0B2"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedServer.IsOnline}" Value="True">
                                         <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
@@ -195,12 +213,12 @@
                             </Style>
                         </Ellipse.Style>
                     </Ellipse>
-                    <TextBlock Grid.Column="1" Text="{Binding SelectedServerTitle}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="2" Text="  •  " Foreground="{StaticResource MutedTextBrush}"/>
-                    <Ellipse Grid.Column="3" Width="7" Height="7" Margin="0 0 8 0">
+                    <TextBlock Text="{Binding SelectedServerTitle}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="&#x2022;" Foreground="{StaticResource MutedTextBrush}" Margin="18 0 14 0"/>
+                    <Ellipse Width="7" Height="7" Margin="0 0 8 0">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="#6B7C8F"/>
+                                <Setter Property="Fill" Value="#8CA0B2"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedServer.IsOnline}" Value="True">
                                         <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
@@ -209,7 +227,7 @@
                             </Style>
                         </Ellipse.Style>
                     </Ellipse>
-                    <TextBlock Grid.Column="4" Text="{Binding OnlineText}">
+                    <TextBlock Text="{Binding OnlineText}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
                                 <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
@@ -221,13 +239,19 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
+                </StackPanel>
+                <Grid Grid.Column="1" Width="230" VerticalAlignment="Center" Margin="0 0 16 0">
+                    <TextBox Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}" Padding="34 5 54 5" ToolTip="Search"/>
+                    <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource MutedTextBrush}" Margin="12 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Border Background="#101B28" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="4" Padding="5 1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 6 0">
+                        <TextBlock Text="Ctrl K" Style="{StaticResource TinyMutedTextStyle}"/>
+                    </Border>
                 </Grid>
-                <TextBox Grid.Column="1" Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}" Width="230" ToolTip="Search..." Margin="0 0 16 0" VerticalAlignment="Center"/>
-                <Button Grid.Column="2" Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Проверить все серверы" Command="{Binding CheckAllServersCommand}" Margin="0 0 8 0"/>
+                <Button Grid.Column="2" Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Check all servers" Command="{Binding CheckAllServersCommand}" Margin="0 0 8 0"/>
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="&#xEA8F;" Style="{StaticResource IconButtonStyle}" ToolTip="Журнал" Command="{Binding OpenActivityPanelCommand}" Margin="0 0 8 0"/>
-                    <Button Content="&#xE713;" Style="{StaticResource IconButtonStyle}" ToolTip="Настройки" Command="{Binding OpenSettingsPanelCommand}" Margin="0 0 8 0"/>
-                    <Button Command="{Binding OpenProfilePanelCommand}" Style="{StaticResource AvatarButtonStyle}" ToolTip="Профиль и меню пользователя">
+                    <Button Content="&#xEA8F;" Style="{StaticResource IconButtonStyle}" ToolTip="Activity" Command="{Binding OpenActivityPanelCommand}" Margin="0 0 8 0"/>
+                    <Button Content="&#xE713;" Style="{StaticResource IconButtonStyle}" ToolTip="Settings" Command="{Binding OpenSettingsPanelCommand}" Margin="0 0 8 0"/>
+                    <Button Command="{Binding OpenProfilePanelCommand}" Style="{StaticResource AvatarButtonStyle}" ToolTip="Profile">
                         <Grid Width="40" Height="40">
                             <Border Width="32" Height="32" CornerRadius="16" Background="{StaticResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding UserProfile.Initials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
@@ -240,287 +264,324 @@
         </Border>
 
         <Grid Grid.Column="1" Grid.Row="1" Margin="14">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="126"/>
-                    <RowDefinition Height="12"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="12"/>
-                    <RowDefinition Height="314"/>
-                </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="124"/>
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="12"/>
+                <RowDefinition Height="316"/>
+            </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="220"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*" MinWidth="220"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*" MinWidth="220"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="160" MinWidth="150"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="CPU" Style="{StaticResource SectionTitleTextStyle}"/>
-                                <TextBlock Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}" FontSize="30" Margin="0 12 0 2"/>
-                                <TextBlock Text="{Binding MonitorCpu}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Width="124" VerticalAlignment="Bottom" Margin="10 0 0 8">
-                                <ProgressBar Value="{Binding MonitorCpuPercent}" Foreground="{StaticResource AccentBrush}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="RAM" Style="{StaticResource SectionTitleTextStyle}"/>
-                                <TextBlock Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}" FontSize="30" Margin="0 12 0 2"/>
-                                <TextBlock Text="{Binding MonitorRam}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Width="124" VerticalAlignment="Bottom" Margin="10 0 0 8">
-                                <ProgressBar Value="{Binding MonitorRamPercent}" Foreground="{StaticResource PurpleBrush}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="4" Style="{StaticResource MetricCardStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="DISK" Style="{StaticResource SectionTitleTextStyle}"/>
-                                <TextBlock Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}" FontSize="30" Margin="0 12 0 2"/>
-                                <TextBlock Text="{Binding MonitorDiskUsage}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Width="124" VerticalAlignment="Bottom" Margin="10 0 0 8">
-                                <ProgressBar Value="{Binding MonitorDiskPercent}" Foreground="{StaticResource SuccessBrush}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Column="6" Style="{StaticResource MetricCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="UPTIME" Style="{StaticResource SectionTitleTextStyle}"/>
-                            <TextBlock Text="{Binding MonitorUptimeShort}" FontSize="17" FontWeight="SemiBold" Margin="0 16 0 6" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding MonitoringStatus}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MinWidth="222"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*" MinWidth="222"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*" MinWidth="222"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="160" MinWidth="150"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="118"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}" Margin="0 0 10 0">
+                                <TextBlock Text="&#xE950;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="CPU" Style="{StaticResource SectionTitleTextStyle}"/>
                         </StackPanel>
-                    </Border>
-                </Grid>
+                        <TextBlock Grid.Row="1" Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}" FontSize="30" Margin="44 6 0 0"/>
+                        <TextBlock Grid.Row="2" Text="{Binding MonitorCpu}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+                        <controls:SparklineChart Grid.Column="1" Grid.RowSpan="3" Values="{Binding CpuHistory}" Stroke="{StaticResource AccentBrush}" Fill="{StaticResource AccentChartFillBrush}" ShowGrid="False" Height="76" VerticalAlignment="Bottom"/>
+                    </Grid>
+                </Border>
 
-                <Border Grid.Row="2" Style="{StaticResource PagePanelStyle}" Padding="0">
+                <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="118"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}" Background="#1C1441" BorderBrush="#3E2673" Margin="0 0 10 0">
+                                <TextBlock Text="&#xE964;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource PurpleBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="RAM" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}" FontSize="30" Margin="44 6 0 0"/>
+                        <TextBlock Grid.Row="2" Text="{Binding MonitorRam}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+                        <controls:SparklineChart Grid.Column="1" Grid.RowSpan="3" Values="{Binding RamHistory}" Stroke="{StaticResource PurpleBrush}" Fill="{StaticResource PurpleChartFillBrush}" ShowGrid="False" Height="76" VerticalAlignment="Bottom"/>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource MetricCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="118"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}" Background="#0C3629" BorderBrush="#1F6049" Margin="0 0 10 0">
+                                <TextBlock Text="&#xE958;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="DISK" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}" FontSize="30" Margin="44 6 0 0"/>
+                        <TextBlock Grid.Row="2" Text="{Binding MonitorDiskUsage}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+                        <controls:SparklineChart Grid.Column="1" Grid.RowSpan="3" Values="{Binding DiskHistory}" Stroke="{StaticResource SuccessBrush}" Fill="{StaticResource SuccessChartFillBrush}" ShowGrid="False" Height="76" VerticalAlignment="Bottom"/>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="6" Style="{StaticResource MetricCardStyle}" Padding="14 12">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Style="{StaticResource IconBadgeStyle}" Margin="0 0 10 0">
+                                <TextBlock Text="&#xE121;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="UPTIME" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding MonitorUptimeShort}" FontSize="18" FontWeight="SemiBold" Margin="0 14 0 7" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding MonitoringStatus}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Style="{StaticResource PagePanelStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="42"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="44"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="14 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}" Margin="0 0 10 0"/>
+                                <TextBlock Text="Terminal" Style="{StaticResource SectionTitleTextStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="SSH" FontWeight="SemiBold" Margin="0 0 14 0"/>
+                                <Button Content="&#xE710;" Style="{StaticResource IconButtonStyle}" ToolTip="Add server" Command="{Binding AddServerCommand}" Margin="0 0 8 0"/>
+                                <Button Content="&#xE8B7;" Style="{StaticResource IconButtonStyle}" ToolTip="Files" Command="{Binding LoadRemoteFilesCommand}" Margin="0 0 8 0"/>
+                                <Button Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Refresh monitoring" Command="{Binding RefreshMonitoringCommand}" Margin="0 0 8 0"/>
+                                <Button Content="&#xE712;" Style="{StaticResource IconButtonStyle}" ToolTip="Settings" Command="{Binding OpenSettingsPanelCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <TextBox Grid.Row="1" Text="{Binding TerminalOutput}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}" BorderThickness="0"/>
+                    <Grid Grid.Row="2" Margin="12 6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}" ToolTip="SSH command"/>
+                        <Button Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Send SSH command" Command="{Binding SendTerminalCommandCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Send" FontWeight="SemiBold" Margin="0 0 8 0"/>
+                                <TextBlock Text="&#xE724;" FontFamily="Segoe MDL2 Assets"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.05*" MinWidth="280"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="1.1*" MinWidth="300"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="0.95*" MinWidth="260"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource PagePanelStyle}" Padding="0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="42"/>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="44"/>
+                            <RowDefinition Height="34"/>
                         </Grid.RowDefinitions>
-                        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="14 0">
+                        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
                             <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Ellipse Width="7" Height="7" Fill="{StaticResource SuccessBrush}" Margin="0 0 10 0"/>
-                                    <TextBlock Text="Terminal" Style="{StaticResource SectionTitleTextStyle}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="SSH" FontWeight="SemiBold" Margin="0 0 14 0"/>
-                                    <Button Content="&#xE710;" Style="{StaticResource IconButtonStyle}" ToolTip="Добавить сервер" Command="{Binding AddServerCommand}" Margin="0 0 8 0"/>
-                                    <Button Content="&#xE8B7;" Style="{StaticResource IconButtonStyle}" ToolTip="Файлы" Command="{Binding LoadRemoteFilesCommand}" Margin="0 0 8 0"/>
-                                    <Button Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Обновить мониторинг" Command="{Binding RefreshMonitoringCommand}" Margin="0 0 8 0"/>
-                                    <Button Content="&#xE712;" Style="{StaticResource IconButtonStyle}" ToolTip="Настройки" Command="{Binding OpenSettingsPanelCommand}"/>
+                                <TextBlock Text="Files" Style="{StaticResource SectionTitleTextStyle}"/>
+                                <TextBox Grid.Column="1" Text="{Binding RemoteFolderPath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Remote folder" Margin="12 5"/>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                    <Button Content="&#xE710;" Style="{StaticResource IconButtonStyle}" ToolTip="Create folder" Click="RemoteFileCreateFolderMenuItem_Click" Margin="0 0 5 0"/>
+                                    <Button Content="&#xE898;" Style="{StaticResource IconButtonStyle}" ToolTip="Upload" Command="{Binding UploadFileCommand}" Margin="0 0 5 0"/>
+                                    <Button Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Refresh" Command="{Binding LoadRemoteFilesCommand}"/>
                                 </StackPanel>
                             </Grid>
                         </Border>
-                        <TextBox Grid.Row="1" Text="{Binding TerminalOutput}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}" BorderThickness="0"/>
-                        <Grid Grid.Row="2" Margin="12 6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}" ToolTip="SSH command"/>
-                            <Button Grid.Column="2" Content="Send" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Отправить SSH-команду" Command="{Binding SendTerminalCommandCommand}"/>
-                        </Grid>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding RemoteFiles}"
+                                  SelectedItem="{Binding SelectedRemoteFile}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  AllowDrop="True"
+                                  DragOver="RemoteFilesListView_DragOver"
+                                  Drop="RemoteFilesListView_Drop"
+                                  MouseDoubleClick="RemoteFilesListView_MouseDoubleClick">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                    <MenuItem Header="Open" Click="RemoteFileOpenMenuItem_Click"/>
+                                    <MenuItem Header="Edit" Click="RemoteFileEditMenuItem_Click"/>
+                                    <MenuItem Header="Download" Click="RemoteFileDownloadMenuItem_Click"/>
+                                    <Separator/>
+                                    <MenuItem Header="Create folder" Click="RemoteFileCreateFolderMenuItem_Click"/>
+                                    <MenuItem Header="Rename" Click="RemoteFileRenameMenuItem_Click"/>
+                                    <Separator/>
+                                    <MenuItem Header="Delete" Click="RemoteFileDeleteMenuItem_Click"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Name" Width="*" MinWidth="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="22"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="FileIcon"
+                                                           Grid.Column="0"
+                                                           Text="&#xE7C3;"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="15"
+                                                           Foreground="{StaticResource MutedTextBrush}"
+                                                           HorizontalAlignment="Left"/>
+                                                <TextBlock x:Name="FileName"
+                                                           Grid.Column="1"
+                                                           Text="{Binding Name}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </Grid>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsDirectory}" Value="True">
+                                                    <Setter TargetName="FileIcon" Property="Text" Value="&#xE8B7;"/>
+                                                    <Setter TargetName="FileIcon" Property="Foreground" Value="{StaticResource AccentBrush}"/>
+                                                    <Setter TargetName="FileName" Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Size" Binding="{Binding SizeText}" Width="80"/>
+                                <DataGridTextColumn Header="Modified" Binding="{Binding LastWriteTimeText}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock Grid.Row="2" Text="{Binding RemoteFilesSummary}" Style="{StaticResource SmallMutedTextStyle}" Margin="12 0"/>
                     </Grid>
                 </Border>
 
-                <Grid Grid.Row="4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.05*" MinWidth="280"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="1.1*" MinWidth="300"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="0.95*" MinWidth="260"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource PagePanelStyle}" Padding="0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="34"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Files" Style="{StaticResource SectionTitleTextStyle}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding RemoteFolderPath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Текущая папка на сервере" Margin="12 5"/>
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                        <Button Content="&#xE710;" Style="{StaticResource IconButtonStyle}" ToolTip="Создать папку" Click="RemoteFileCreateFolderMenuItem_Click" Margin="0 0 5 0"/>
-                                        <Button Content="&#xE898;" Style="{StaticResource IconButtonStyle}" ToolTip="Загрузить" Command="{Binding UploadFileCommand}" Margin="0 0 5 0"/>
-                                        <Button Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Обновить" Command="{Binding LoadRemoteFilesCommand}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                            <DataGrid Grid.Row="1"
-                                      ItemsSource="{Binding RemoteFiles}"
-                                      SelectedItem="{Binding SelectedRemoteFile}"
-                                      AutoGenerateColumns="False"
-                                      IsReadOnly="True"
-                                      CanUserAddRows="False"
-                                      AllowDrop="True"
-                                      DragOver="RemoteFilesListView_DragOver"
-                                      Drop="RemoteFilesListView_Drop"
-                                      MouseDoubleClick="RemoteFilesListView_MouseDoubleClick">
-                                <DataGrid.ContextMenu>
-                                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Открыть" Click="RemoteFileOpenMenuItem_Click"/>
-                                        <MenuItem Header="Редактировать" Click="RemoteFileEditMenuItem_Click"/>
-                                        <MenuItem Header="Скачать" Click="RemoteFileDownloadMenuItem_Click"/>
-                                        <Separator/>
-                                        <MenuItem Header="Создать папку" Click="RemoteFileCreateFolderMenuItem_Click"/>
-                                        <MenuItem Header="Переименовать" Click="RemoteFileRenameMenuItem_Click"/>
-                                        <Separator/>
-                                        <MenuItem Header="Удалить" Click="RemoteFileDeleteMenuItem_Click"/>
-                                    </ContextMenu>
-                                </DataGrid.ContextMenu>
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="Name" Width="*" MinWidth="150">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="22"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock x:Name="FileIcon"
-                                                               Grid.Column="0"
-                                                               Text="&#xE7C3;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="15"
-                                                               Foreground="{StaticResource MutedTextBrush}"
-                                                               HorizontalAlignment="Left"/>
-                                                    <TextBlock x:Name="FileName"
-                                                               Grid.Column="1"
-                                                               Text="{Binding Name}"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                </Grid>
-                                                <DataTemplate.Triggers>
-                                                    <DataTrigger Binding="{Binding IsDirectory}" Value="True">
-                                                        <Setter TargetName="FileIcon" Property="Text" Value="&#xE8B7;"/>
-                                                        <Setter TargetName="FileIcon" Property="Foreground" Value="{StaticResource AccentBrush}"/>
-                                                        <Setter TargetName="FileName" Property="FontWeight" Value="SemiBold"/>
-                                                    </DataTrigger>
-                                                </DataTemplate.Triggers>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="Size" Binding="{Binding SizeText}" Width="80"/>
-                                    <DataGridTextColumn Header="Modified" Binding="{Binding LastWriteTimeText}" Width="120"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                            <TextBlock Grid.Row="2" Text="{Binding RemoteFilesSummary}" Style="{StaticResource SmallMutedTextStyle}" Margin="12 0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Grid.Column="2" Style="{StaticResource PagePanelStyle}" Padding="0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Logs" Style="{StaticResource SectionTitleTextStyle}"/>
-                                    <TextBox Grid.Column="1" Text="{Binding LogPath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Путь к лог-файлу" Margin="12 5"/>
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                        <Button Content="nginx" Style="{StaticResource CompactButtonStyle}" ToolTip="Открыть nginx log" Command="{Binding UseNginxLogCommand}" Margin="0 0 5 0"/>
-                                        <Button Content="syslog" Style="{StaticResource CompactButtonStyle}" ToolTip="Открыть syslog" Command="{Binding UseSyslogCommand}" Margin="0 0 5 0"/>
-                                        <Button Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Обновить логи" Command="{Binding LoadLogCommand}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                            <TextBox Grid.Row="1" Text="{Binding LogContent}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}" BorderThickness="0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Grid.Column="4" Style="{StaticResource PagePanelStyle}" Padding="0">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="42"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
-                                <TextBlock Text="Commands" Style="{StaticResource SectionTitleTextStyle}"/>
-                            </Border>
-                            <ListBox Grid.Row="1" ItemsSource="{Binding SavedCommands}" SelectedItem="{Binding SelectedSavedCommand}" Margin="8">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Padding="9" CornerRadius="6" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" Background="{StaticResource TableRowBrush}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding Command}" Style="{StaticResource SmallMutedTextStyle}" FontFamily="Consolas" TextTrimming="CharacterEllipsis"/>
-                                                </StackPanel>
-                                                <TextBlock Grid.Column="1" Text="›" Foreground="{StaticResource MutedTextBrush}" FontSize="18"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <Grid Grid.Row="2" Margin="10 0">
+                <Border Grid.Column="2" Style="{StaticResource PagePanelStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Content="+  Add Command" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" ToolTip="Добавить сохранённую команду" Command="{Binding AddSavedCommandCommand}"/>
-                                <Button Grid.Column="1" Content="&#xE734;" Style="{StaticResource IconButtonStyle}" ToolTip="Добавить или убрать из избранного" Command="{Binding ToggleSavedCommandFavoriteCommand}" Margin="0 0 6 0"/>
-                                <Button Grid.Column="2" Content="Run" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Запустить выбранную команду" Command="{Binding RunSavedCommandCommand}"/>
+                                <TextBlock Text="Logs" Style="{StaticResource SectionTitleTextStyle}"/>
+                                <TextBox Grid.Column="1" Text="{Binding LogPath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Log path" Margin="12 5"/>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                    <Button Content="nginx" Style="{StaticResource CompactButtonStyle}" ToolTip="Open nginx log" Command="{Binding UseNginxLogCommand}" Margin="0 0 5 0"/>
+                                    <Button Content="syslog" Style="{StaticResource CompactButtonStyle}" ToolTip="Open syslog" Command="{Binding UseSyslogCommand}" Margin="0 0 5 0"/>
+                                    <Button Content="&#xE72C;" Style="{StaticResource IconButtonStyle}" ToolTip="Refresh logs" Command="{Binding LoadLogCommand}"/>
+                                </StackPanel>
                             </Grid>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Grid>
+                        </Border>
+                        <TextBox Grid.Row="1" Text="{Binding LogContent}" IsReadOnly="True" Style="{StaticResource ConsoleTextBoxStyle}" BorderThickness="0"/>
+                    </Grid>
+                </Border>
 
-        <Border Grid.Column="2" Grid.Row="1" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1 0 0 0" Padding="12">
+                <Border Grid.Column="4" Style="{StaticResource PagePanelStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="42"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
+                            <TextBlock Text="Commands" Style="{StaticResource SectionTitleTextStyle}"/>
+                        </Border>
+                        <ListBox Grid.Row="1" ItemsSource="{Binding SavedCommands}" SelectedItem="{Binding SelectedSavedCommand}" Margin="8">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="9" CornerRadius="6" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" Background="{StaticResource TableRowBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Command}" Style="{StaticResource SmallMutedTextStyle}" FontFamily="Consolas" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Text="&#xE72A;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource MutedTextBrush}" FontSize="13" Margin="10 0 0 0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Grid Grid.Row="2" Margin="10 0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Left" ToolTip="Add saved command" Command="{Binding AddSavedCommandCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE710;" FontFamily="Segoe MDL2 Assets" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Add Command"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="1" Content="&#xE734;" Style="{StaticResource IconButtonStyle}" ToolTip="Toggle favorite" Command="{Binding ToggleSavedCommandFavoriteCommand}" Margin="0 0 6 0"/>
+                            <Button Grid.Column="2" Content="Run" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Run selected command" Command="{Binding RunSavedCommandCommand}"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Column="2" Grid.Row="1" Background="{StaticResource ShellPanelBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1 0 0 0" Padding="12">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="62"/>
+                    <RowDefinition Height="52"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="12"/>
                     <RowDefinition Height="*"/>
@@ -533,94 +594,78 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Monitoring" Style="{StaticResource SectionTitleTextStyle}"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="{Binding AutoMonitoringButtonText}" Style="{StaticResource CompactButtonStyle}" ToolTip="Включить или выключить автомониторинг" Command="{Binding ToggleAutoMonitoringCommand}" Margin="0 0 8 0"/>
-                        <Button Content="&#xE712;" Style="{StaticResource IconButtonStyle}" ToolTip="Настройки мониторинга" Command="{Binding OpenSettingsPanelCommand}"/>
+                        <Button Content="{Binding AutoMonitoringButtonText}" Style="{StaticResource CompactButtonStyle}" ToolTip="Toggle auto monitoring" Command="{Binding ToggleAutoMonitoringCommand}" Margin="0 0 8 0"/>
+                        <Button Content="&#xE712;" Style="{StaticResource IconButtonStyle}" ToolTip="Monitoring settings" Command="{Binding OpenSettingsPanelCommand}"/>
                     </StackPanel>
                 </Grid>
 
                 <StackPanel Grid.Row="1">
-                    <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10">
+                    <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10" Padding="12">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="58"/>
+                                <RowDefinition Height="66"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid>
                                 <TextBlock Text="CPU Usage"/>
                                 <TextBlock Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}" HorizontalAlignment="Right"/>
                             </Grid>
-                            <ProgressBar Grid.Row="1"
-                                         Value="{Binding MonitorCpuPercent}"
-                                         Foreground="{StaticResource AccentBrush}"
-                                         VerticalAlignment="Center"
-                                         Margin="0 8 0 0"/>
+                            <controls:SparklineChart Grid.Row="1" Values="{Binding CpuHistory}" Stroke="{StaticResource AccentBrush}" Fill="{StaticResource AccentChartFillBrush}" ShowGrid="True" Margin="0 8 0 0"/>
                             <Grid Grid.Row="2" Margin="0 4 0 0">
-                                <TextBlock Text="0%" Style="{StaticResource SmallMutedTextStyle}"/>
-                                <TextBlock Text="100%" Style="{StaticResource SmallMutedTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Text="09:15" Style="{StaticResource TinyMutedTextStyle}"/>
+                                <TextBlock Text="10:00" Style="{StaticResource TinyMutedTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10">
+                    <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10" Padding="12">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="58"/>
+                                <RowDefinition Height="66"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid>
                                 <TextBlock Text="Memory Usage"/>
                                 <TextBlock Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}" HorizontalAlignment="Right"/>
                             </Grid>
-                            <ProgressBar Grid.Row="1"
-                                         Value="{Binding MonitorRamPercent}"
-                                         Foreground="{StaticResource PurpleBrush}"
-                                         VerticalAlignment="Center"
-                                         Margin="0 8 0 0"/>
+                            <controls:SparklineChart Grid.Row="1" Values="{Binding RamHistory}" Stroke="{StaticResource PurpleBrush}" Fill="{StaticResource PurpleChartFillBrush}" ShowGrid="True" Margin="0 8 0 0"/>
                             <Grid Grid.Row="2" Margin="0 4 0 0">
-                                <TextBlock Text="0%" Style="{StaticResource SmallMutedTextStyle}"/>
-                                <TextBlock Text="100%" Style="{StaticResource SmallMutedTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Text="09:15" Style="{StaticResource TinyMutedTextStyle}"/>
+                                <TextBlock Text="10:00" Style="{StaticResource TinyMutedTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10">
+                    <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10" Padding="12">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="58"/>
+                                <RowDefinition Height="66"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid>
                                 <TextBlock Text="Disk I/O"/>
                                 <TextBlock Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}" HorizontalAlignment="Right"/>
                             </Grid>
-                            <ProgressBar Grid.Row="1"
-                                         Value="{Binding MonitorDiskPercent}"
-                                         Foreground="{StaticResource SuccessBrush}"
-                                         VerticalAlignment="Center"
-                                         Margin="0 8 0 0"/>
+                            <controls:SparklineChart Grid.Row="1" Values="{Binding DiskHistory}" Stroke="{StaticResource SuccessBrush}" Fill="{StaticResource SuccessChartFillBrush}" ShowGrid="True" Margin="0 8 0 0"/>
                             <Grid Grid.Row="2" Margin="0 4 0 0">
-                                <TextBlock Text="0%" Style="{StaticResource SmallMutedTextStyle}"/>
-                                <TextBlock Text="100%" Style="{StaticResource SmallMutedTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Text="09:15" Style="{StaticResource TinyMutedTextStyle}"/>
+                                <TextBlock Text="10:00" Style="{StaticResource TinyMutedTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Grid>
                     </Border>
-                    <Border Style="{StaticResource SoftCardBorderStyle}">
+                    <Border Style="{StaticResource SoftCardBorderStyle}" Padding="12">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="58"/>
+                                <RowDefinition Height="66"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid>
                                 <TextBlock Text="Network I/O"/>
                                 <TextBlock Text="{Binding MonitorNetworkPercent, StringFormat={}{0:0}%}" HorizontalAlignment="Right"/>
                             </Grid>
-                            <ProgressBar Grid.Row="1"
-                                         Value="{Binding MonitorNetworkPercent}"
-                                         Foreground="{StaticResource AccentBrush}"
-                                         VerticalAlignment="Center"
-                                         Margin="0 8 0 0"/>
+                            <controls:SparklineChart Grid.Row="1" Values="{Binding NetworkHistory}" Stroke="{StaticResource AccentBrush}" Fill="{StaticResource AccentChartFillBrush}" ShowGrid="True" Margin="0 8 0 0"/>
                             <TextBlock Grid.Row="2" Text="{Binding MonitorNetwork}" Style="{StaticResource SmallMutedTextStyle}" TextTrimming="CharacterEllipsis" Margin="0 4 0 0"/>
                         </Grid>
                     </Border>
@@ -635,7 +680,10 @@
                         <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0 0 0 1" Padding="12 0">
                             <Grid>
                                 <TextBlock Text="Recent Logs" Style="{StaticResource SectionTitleTextStyle}"/>
-                                <Button Content="View all" HorizontalAlignment="Right" BorderThickness="0" Background="Transparent" Foreground="{StaticResource AccentBrush}" ToolTip="Открыть журнал действий" Command="{Binding OpenActivityPanelCommand}"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="View all" BorderThickness="0" Background="Transparent" Foreground="{StaticResource AccentBrush}" ToolTip="Open activity log" Command="{Binding OpenActivityPanelCommand}" Padding="4 0"/>
+                                    <TextBlock Text="&#xE712;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource MutedTextBrush}" Margin="8 0 0 0"/>
+                                </StackPanel>
                             </Grid>
                         </Border>
                         <ListBox Grid.Row="1" ItemsSource="{Binding RecentLogs}" Margin="8">
@@ -645,8 +693,8 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="54"/>
-                                                <ColumnDefinition Width="58"/>
+                                                <ColumnDefinition Width="50"/>
+                                                <ColumnDefinition Width="56"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <Ellipse Grid.Column="0" Width="8" Height="8" Margin="0 5 8 0">
@@ -682,8 +730,8 @@
             <Border Style="{StaticResource PagePanelStyle}" Width="520" Padding="18" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel>
                     <Grid Margin="0 0 0 14">
-                        <TextBlock Text="Профиль" Style="{StaticResource TitleTextStyle}"/>
-                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Закрыть" Command="{Binding CloseOverlayPanelsCommand}"/>
+                        <TextBlock Text="Profile" Style="{StaticResource TitleTextStyle}"/>
+                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Close" Command="{Binding CloseOverlayPanelsCommand}"/>
                     </Grid>
                     <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 14">
                         <Grid>
@@ -701,15 +749,15 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-                    <TextBlock Text="Имя" Style="{StaticResource SmallMutedTextStyle}"/>
+                    <TextBlock Text="Name" Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.DisplayName, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 12"/>
-                    <TextBlock Text="Инициалы" Style="{StaticResource SmallMutedTextStyle}"/>
+                    <TextBlock Text="Initials" Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Initials, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 12"/>
-                    <TextBlock Text="Роль" Style="{StaticResource SmallMutedTextStyle}"/>
+                    <TextBlock Text="Role" Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Role, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 12"/>
                     <TextBlock Text="Email" Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Email, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 16"/>
-                    <Button Content="Сохранить профиль" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Сохранить изменения профиля" Command="{Binding SaveProfileCommand}"/>
+                    <Button Content="Save Profile" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Save profile changes" Command="{Binding SaveProfileCommand}"/>
                 </StackPanel>
             </Border>
         </Border>
@@ -719,17 +767,17 @@
             <Border Style="{StaticResource PagePanelStyle}" Width="560" Padding="18" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <StackPanel>
                     <Grid Margin="0 0 0 14">
-                        <TextBlock Text="Настройки" Style="{StaticResource TitleTextStyle}"/>
-                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Закрыть" Command="{Binding CloseOverlayPanelsCommand}"/>
+                        <TextBlock Text="Settings" Style="{StaticResource TitleTextStyle}"/>
+                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Close" Command="{Binding CloseOverlayPanelsCommand}"/>
                     </Grid>
-                    <TextBlock Text="Интервал мониторинга, сек." Style="{StaticResource SmallMutedTextStyle}"/>
+                    <TextBlock Text="Monitoring interval, sec." Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding AppSettings.MonitoringIntervalSeconds, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 12"/>
-                    <TextBlock Text="Папка сервера по умолчанию" Style="{StaticResource SmallMutedTextStyle}"/>
+                    <TextBlock Text="Default remote folder" Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding AppSettings.DefaultRemoteFolder, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 12"/>
-                    <TextBlock Text="Лог по умолчанию" Style="{StaticResource SmallMutedTextStyle}"/>
+                    <TextBlock Text="Default log path" Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding AppSettings.DefaultLogPath, UpdateSourceTrigger=PropertyChanged}" Margin="0 6 0 12"/>
-                    <CheckBox Content="Автообновление мониторинга" IsChecked="{Binding AppSettings.AutoRefreshMonitoring}" Margin="0 0 0 16"/>
-                    <Button Content="Сохранить настройки" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Сохранить настройки" Command="{Binding SaveSettingsCommand}"/>
+                    <CheckBox Content="Auto-refresh monitoring" IsChecked="{Binding AppSettings.AutoRefreshMonitoring}" Margin="0 0 0 16"/>
+                    <Button Content="Save Settings" Style="{StaticResource PrimaryButtonStyle}" ToolTip="Save settings" Command="{Binding SaveSettingsCommand}"/>
                 </StackPanel>
             </Border>
         </Border>
@@ -743,8 +791,8 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid Margin="0 0 0 14">
-                        <TextBlock Text="Избранное" Style="{StaticResource TitleTextStyle}"/>
-                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Закрыть" Command="{Binding CloseOverlayPanelsCommand}"/>
+                        <TextBlock Text="Favorites" Style="{StaticResource TitleTextStyle}"/>
+                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Close" Command="{Binding CloseOverlayPanelsCommand}"/>
                     </Grid>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
@@ -753,7 +801,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Серверы" Style="{StaticResource SectionTitleTextStyle}" Margin="0 0 0 10"/>
+                            <TextBlock Text="Servers" Style="{StaticResource SectionTitleTextStyle}" Margin="0 0 0 10"/>
                             <ListBox ItemsSource="{Binding FavoriteServers}" SelectedItem="{Binding SelectedServer}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -768,7 +816,7 @@
                             </ListBox>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Команды" Style="{StaticResource SectionTitleTextStyle}" Margin="0 0 0 10"/>
+                            <TextBlock Text="Commands" Style="{StaticResource SectionTitleTextStyle}" Margin="0 0 0 10"/>
                             <ListBox ItemsSource="{Binding FavoriteCommands}" SelectedItem="{Binding SelectedSavedCommand}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -797,18 +845,18 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid Margin="0 0 0 14">
-                        <TextBlock Text="Журнал действий" Style="{StaticResource TitleTextStyle}"/>
-                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Закрыть" Command="{Binding CloseOverlayPanelsCommand}"/>
+                        <TextBlock Text="Activity Log" Style="{StaticResource TitleTextStyle}"/>
+                        <Button Content="&#xE711;" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" ToolTip="Close" Command="{Binding CloseOverlayPanelsCommand}"/>
                     </Grid>
                     <DataGrid Grid.Row="1" ItemsSource="{Binding ActivityLogs}" AutoGenerateColumns="False" IsReadOnly="True" RowHeight="36">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Время" Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM HH:mm:ss}}" Width="130"/>
-                            <DataGridTextColumn Header="Действие" Binding="{Binding Action}" Width="120"/>
-                            <DataGridTextColumn Header="Объект" Binding="{Binding Target}" Width="150"/>
-                            <DataGridTextColumn Header="Детали" Binding="{Binding Details}" Width="*"/>
+                            <DataGridTextColumn Header="Time" Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM HH:mm:ss}}" Width="130"/>
+                            <DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="120"/>
+                            <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="150"/>
+                            <DataGridTextColumn Header="Details" Binding="{Binding Details}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <Button Grid.Row="2" Content="Очистить журнал" Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Right" Margin="0 12 0 0" ToolTip="Очистить журнал действий" Command="{Binding ClearActivityLogsCommand}"/>
+                    <Button Grid.Row="2" Content="Clear Log" Style="{StaticResource DangerButtonStyle}" HorizontalAlignment="Right" Margin="0 12 0 0" ToolTip="Clear activity log" Command="{Binding ClearActivityLogsCommand}"/>
                 </Grid>
             </Border>
         </Border>

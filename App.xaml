@@ -3,29 +3,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <Color x:Key="AppBackgroundColor">#071018</Color>
-        <Color x:Key="PanelBackgroundColor">#0B1520</Color>
-        <Color x:Key="PanelAltColor">#101C29</Color>
-        <Color x:Key="SubtleBackgroundColor">#152436</Color>
-        <Color x:Key="BorderColor">#1E3144</Color>
-        <Color x:Key="StrongBorderColor">#2C435A</Color>
-        <Color x:Key="TextColor">#EEF6FF</Color>
-        <Color x:Key="MutedTextColor">#93A4B8</Color>
-        <Color x:Key="AccentColor">#1479F8</Color>
-        <Color x:Key="AccentHoverColor">#1E8BFF</Color>
-        <Color x:Key="AccentSoftColor">#0B2C55</Color>
-        <Color x:Key="ButtonHoverColor">#17283A</Color>
-        <Color x:Key="ButtonPressedColor">#1E344A</Color>
-        <Color x:Key="TableRowColor">#08131D</Color>
-        <Color x:Key="TableAltRowColor">#0C1823</Color>
-        <Color x:Key="TableHoverColor">#13283D</Color>
-        <Color x:Key="TableSelectedColor">#143B66</Color>
-        <Color x:Key="PurpleColor">#9B4DFF</Color>
-        <Color x:Key="DangerColor">#FF5C5C</Color>
-        <Color x:Key="WarningColor">#F7C948</Color>
-        <Color x:Key="SuccessColor">#28D17C</Color>
-        <Color x:Key="ConsoleBackgroundColor">#050D14</Color>
-        <Color x:Key="ConsoleTextColor">#C9D6E2</Color>
+        <Color x:Key="AppBackgroundColor">#050B11</Color>
+        <Color x:Key="PanelBackgroundColor">#0A121B</Color>
+        <Color x:Key="PanelAltColor">#101A25</Color>
+        <Color x:Key="SubtleBackgroundColor">#172637</Color>
+        <Color x:Key="BorderColor">#203142</Color>
+        <Color x:Key="StrongBorderColor">#2E465E</Color>
+        <Color x:Key="TextColor">#F2F7FC</Color>
+        <Color x:Key="MutedTextColor">#9AA8B8</Color>
+        <Color x:Key="AccentColor">#147CFF</Color>
+        <Color x:Key="AccentHoverColor">#2B91FF</Color>
+        <Color x:Key="AccentSoftColor">#0B335F</Color>
+        <Color x:Key="ButtonHoverColor">#182738</Color>
+        <Color x:Key="ButtonPressedColor">#22374D</Color>
+        <Color x:Key="TableRowColor">#0A141E</Color>
+        <Color x:Key="TableAltRowColor">#0D1823</Color>
+        <Color x:Key="TableHoverColor">#13283C</Color>
+        <Color x:Key="TableSelectedColor">#173B60</Color>
+        <Color x:Key="PurpleColor">#A050FF</Color>
+        <Color x:Key="DangerColor">#FF4F5E</Color>
+        <Color x:Key="WarningColor">#FFC247</Color>
+        <Color x:Key="SuccessColor">#28D982</Color>
+        <Color x:Key="ConsoleBackgroundColor">#030A10</Color>
+        <Color x:Key="ConsoleTextColor">#C9D2DD</Color>
 
         <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}"/>
         <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource PanelBackgroundColor}"/>
@@ -50,6 +50,25 @@
         <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
         <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="{StaticResource ConsoleBackgroundColor}"/>
         <SolidColorBrush x:Key="ConsoleTextBrush" Color="{StaticResource ConsoleTextColor}"/>
+        <SolidColorBrush x:Key="MetricGlowBrush" Color="#141B3042"/>
+        <SolidColorBrush x:Key="AccentChartFillBrush" Color="#33147CFF"/>
+        <SolidColorBrush x:Key="PurpleChartFillBrush" Color="#2EA050FF"/>
+        <SolidColorBrush x:Key="SuccessChartFillBrush" Color="#3028D982"/>
+        <SolidColorBrush x:Key="DangerChartFillBrush" Color="#28FF4F5E"/>
+        <SolidColorBrush x:Key="DimTrackBrush" Color="#162434"/>
+        <LinearGradientBrush x:Key="ShellPanelBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0D1722" Offset="0"/>
+            <GradientStop Color="#08111A" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CardPanelBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#111D2A" Offset="0"/>
+            <GradientStop Color="#0B141E" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="MetricPanelBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#132132" Offset="0"/>
+            <GradientStop Color="#0B1520" Offset="0.66"/>
+            <GradientStop Color="#071018" Offset="1"/>
+        </LinearGradientBrush>
         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource TableSelectedColor}"/>
         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{StaticResource TextColor}"/>
         <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource PanelAltColor}"/>
@@ -78,13 +97,18 @@
         </Style>
 
         <Style x:Key="TitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
         <Style x:Key="SectionTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="TinyMutedTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
         </Style>
 
         <Style x:Key="SmallMutedTextStyle" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
@@ -98,7 +122,7 @@
         </Style>
 
         <Style x:Key="PagePanelStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+            <Setter Property="Background" Value="{StaticResource CardPanelBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
@@ -108,17 +132,18 @@
         <Style x:Key="CardBorderStyle" TargetType="Border" BasedOn="{StaticResource PagePanelStyle}"/>
 
         <Style x:Key="SoftCardBorderStyle" TargetType="Border" BasedOn="{StaticResource PagePanelStyle}">
-            <Setter Property="Background" Value="{StaticResource PanelAltBrush}"/>
+            <Setter Property="Background" Value="{StaticResource CardPanelBrush}"/>
         </Style>
 
         <Style x:Key="MetricCardStyle" TargetType="Border" BasedOn="{StaticResource PagePanelStyle}">
-            <Setter Property="MinHeight" Value="100"/>
+            <Setter Property="Background" Value="{StaticResource MetricPanelBrush}"/>
+            <Setter Property="MinHeight" Value="118"/>
             <Setter Property="Padding" Value="14"/>
         </Style>
 
         <Style x:Key="IconBadgeStyle" TargetType="Border">
-            <Setter Property="Width" Value="32"/>
-            <Setter Property="Height" Value="32"/>
+            <Setter Property="Width" Value="31"/>
+            <Setter Property="Height" Value="31"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="Background" Value="{StaticResource AccentSoftBrush}"/>
             <Setter Property="BorderBrush" Value="#164A8A"/>
@@ -131,7 +156,7 @@
             <Setter Property="MinWidth" Value="36"/>
             <Setter Property="Padding" Value="12 0"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="{StaticResource PanelAltBrush}"/>
+            <Setter Property="Background" Value="#101B28"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
@@ -155,11 +180,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
-                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.92"/>
+                                <Setter TargetName="ButtonChrome" Property="Background" Value="{StaticResource ButtonHoverBrush}"/>
+                                <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="#3C5A76"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.78"/>
+                                <Setter TargetName="ButtonChrome" Property="Background" Value="{StaticResource ButtonPressedBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.45"/>
@@ -211,7 +236,7 @@
         <Style TargetType="TextBox">
             <Setter Property="MinHeight" Value="32"/>
             <Setter Property="Padding" Value="9 5"/>
-            <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
+            <Setter Property="Background" Value="#08131D"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
@@ -314,7 +339,7 @@
             <Setter Property="GridLinesVisibility" Value="Horizontal"/>
             <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrushSoft}"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
-            <Setter Property="RowHeight" Value="34"/>
+            <Setter Property="RowHeight" Value="36"/>
             <Setter Property="RowBackground" Value="{StaticResource TableRowBrush}"/>
             <Setter Property="AlternatingRowBackground" Value="{StaticResource TableAltRowBrush}"/>
             <Setter Property="AlternationCount" Value="2"/>
@@ -326,7 +351,7 @@
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="{StaticResource PanelAltBrush}"/>
+            <Setter Property="Background" Value="#0F1A26"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
             <Setter Property="BorderThickness" Value="0 0 0 1"/>
             <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
@@ -384,11 +409,11 @@
         </Style>
 
         <Style TargetType="ProgressBar">
-            <Setter Property="Height" Value="8"/>
+            <Setter Property="Height" Value="7"/>
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="100"/>
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-            <Setter Property="Background" Value="#182738"/>
+            <Setter Property="Background" Value="{StaticResource DimTrackBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ProgressBar}">
