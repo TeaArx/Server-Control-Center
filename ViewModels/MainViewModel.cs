@@ -27,6 +27,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly List<double> ramHistory = new();
     private readonly List<double> diskHistory = new();
     private readonly List<double> networkHistory = new();
+    private readonly LocalizationService localizer = AppServices.Localizer;
 
     private bool isMonitoringRefreshing;
 
@@ -107,7 +108,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private string sshOutput = "";
 
     [ObservableProperty]
-    private string terminalOutput = "Welcome to ServerControl Dashboard.\nВыберите сервер и выполните SSH-команду.";
+    private string terminalOutput = AppServices.Localizer.T("TerminalWelcome");
 
     [ObservableProperty]
     private string terminalCommand = "";
@@ -164,24 +165,28 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private string networkSparkline = "▁▂▃▂▁▃▂▁";
 
     [ObservableProperty]
-    private string autoMonitoringButtonText = "Авто: вкл";
+    private string autoMonitoringButtonText = AppServices.Localizer.T("AutoOn");
 
     [ObservableProperty]
-    private string monitoringStatus = "Автообновление каждые 30 секунд.";
+    private string monitoringStatus = AppServices.Localizer.T("AutoRefreshEvery");
 
-    public string SelectedServerTitle => SelectedServer?.Name ?? "Сервер не выбран";
+    public LocalizationService L => localizer;
+    public IReadOnlyList<LanguageOption> LanguageOptions => localizer.Languages;
+    public string SelectedServerTitle => SelectedServer?.Name ?? L.T("NoServerSelected");
     public string SelectedServerSubtitle => SelectedServer is null
-        ? "Выберите или добавьте сервер"
+        ? L.T("ChooseServer")
         : $"{SelectedServer.Username}@{SelectedServer.Host}:{SelectedServer.Port}";
     public string SelectedServerAddress => SelectedServer?.IpAddressDisplay ?? SelectedServer?.Host ?? "";
     public string SelectedServerOs => SelectedServer?.OsName ?? "Ubuntu 22.04";
     public string OnlineText => SelectedServer?.IsOnline == true ? "Online" : "Offline";
     public int ServerCount => Servers.Count;
-    public string RemoteFilesSummary => $"{RemoteFiles.Count(x => x.IsDirectory)} папок, {RemoteFiles.Count(x => !x.IsDirectory)} файлов";
-    public IReadOnlyList<double> CpuHistory => cpuHistory;
-    public IReadOnlyList<double> RamHistory => ramHistory;
-    public IReadOnlyList<double> DiskHistory => diskHistory;
-    public IReadOnlyList<double> NetworkHistory => networkHistory;
+    public string RemoteFilesSummary => L.LanguageCode == "ru"
+        ? $"{RemoteFiles.Count(x => x.IsDirectory)} папок, {RemoteFiles.Count(x => !x.IsDirectory)} файлов"
+        : $"{RemoteFiles.Count(x => x.IsDirectory)} folders, {RemoteFiles.Count(x => !x.IsDirectory)} files";
+    public double[] CpuHistory { get; private set; } = [];
+    public double[] RamHistory { get; private set; } = [];
+    public double[] DiskHistory { get; private set; } = [];
+    public double[] NetworkHistory { get; private set; } = [];
 
     public MainViewModel()
     {
@@ -201,6 +206,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             AppSettings = await _dashboardData.GetSettingsAsync();
+            L.SetLanguage(AppSettings.LanguageCode);
             UserProfile = await _dashboardData.GetProfileAsync();
             RemoteFolderPath = AppSettings.DefaultRemoteFolder;
             LogPath = AppSettings.DefaultLogPath;
@@ -210,7 +216,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             if (!AppSettings.AutoRefreshMonitoring)
             {
                 _monitoringTimer.Stop();
-                AutoMonitoringButtonText = "Авто: выкл";
+                AutoMonitoringButtonText = L.T("AutoOff");
             }
 
             await LoadServersAsync();
@@ -228,7 +234,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            SshOutput = $"Ошибка инициализации: {ex.Message}";
+            SshOutput = L.Format("InitializationError", ex.Message);
             SftpOutput = SshOutput;
         }
     }
@@ -251,7 +257,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        MonitoringStatus = $"Выбран: {value.Name}";
+        MonitoringStatus = value.Name;
         TerminalOutput = $"Connected target: {value.Username}@{value.Host}\n";
 
         if (_monitoringTimer.IsEnabled)
@@ -296,7 +302,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         SelectedServer.IsFavorite = !SelectedServer.IsFavorite;
         await _storage.UpdateAsync(SelectedServer);
-        await LogActivityAsync("Избранное", SelectedServer.Name, SelectedServer.IsFavorite ? "Сервер добавлен в избранное" : "Сервер удалён из избранного");
+        await LogActivityAsync(L.T("Favorites"), SelectedServer.Name, SelectedServer.IsFavorite ? L.T("Favorite") : L.T("ToggleFavorite"));
         RefreshDashboardCollections();
     }
 
@@ -305,13 +311,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedSavedCommand is null)
         {
-            SshOutput = "Выбери команду.";
+            SshOutput = L.T("ChooseCommand");
             return;
         }
 
         SelectedSavedCommand.IsFavorite = !SelectedSavedCommand.IsFavorite;
         await _commandService.UpdateAsync(SelectedSavedCommand);
-        await LogActivityAsync("Избранное", SelectedSavedCommand.Title, SelectedSavedCommand.IsFavorite ? "Команда добавлена в избранное" : "Команда удалена из избранного");
+        await LogActivityAsync(L.T("Favorites"), SelectedSavedCommand.Title, SelectedSavedCommand.IsFavorite ? L.T("Favorite") : L.T("ToggleFavorite"));
         await LoadSavedCommandsAsync();
     }
 
@@ -319,7 +325,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void OpenProfilePanel()
     {
         CloseOverlayPanels();
-        OverlayTitle = "Профиль";
+        OverlayTitle = L.T("Profile");
         IsProfilePanelOpen = true;
     }
 
@@ -327,7 +333,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void OpenSettingsPanel()
     {
         CloseOverlayPanels();
-        OverlayTitle = "Настройки";
+        OverlayTitle = L.T("Settings");
         IsSettingsPanelOpen = true;
     }
 
@@ -335,7 +341,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void OpenFavoritesPanel()
     {
         CloseOverlayPanels();
-        OverlayTitle = "Избранное";
+        OverlayTitle = L.T("Favorites");
         IsFavoritesPanelOpen = true;
     }
 
@@ -343,7 +349,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private async Task OpenActivityPanelAsync()
     {
         CloseOverlayPanels();
-        OverlayTitle = "Журнал действий";
+        OverlayTitle = L.T("ActivityLog");
         await LoadActivityLogsAsync();
         IsActivityPanelOpen = true;
     }
@@ -366,7 +372,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         UserProfile.DisplayName = string.IsNullOrWhiteSpace(UserProfile.DisplayName) ? "Admin" : UserProfile.DisplayName.Trim();
         UserProfile.Initials = CreateInitials(UserProfile.DisplayName, UserProfile.Initials);
         await _dashboardData.SaveProfileAsync(UserProfile);
-        await LogActivityAsync("Профиль", UserProfile.DisplayName, "Профиль обновлён");
+        await LogActivityAsync(L.T("Profile"), UserProfile.DisplayName, L.T("ProfileUpdated"));
     }
 
     [RelayCommand]
@@ -375,7 +381,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         AppSettings.MonitoringIntervalSeconds = Math.Clamp(AppSettings.MonitoringIntervalSeconds, 5, 3600);
         AppSettings.DefaultRemoteFolder = string.IsNullOrWhiteSpace(AppSettings.DefaultRemoteFolder) ? "/var/www" : AppSettings.DefaultRemoteFolder.Trim();
         AppSettings.DefaultLogPath = string.IsNullOrWhiteSpace(AppSettings.DefaultLogPath) ? "/var/log/nginx/error.log" : AppSettings.DefaultLogPath.Trim();
+        AppSettings.LanguageCode = string.Equals(AppSettings.LanguageCode, "ru", StringComparison.OrdinalIgnoreCase) ? "ru" : "en";
         await _dashboardData.SaveSettingsAsync(AppSettings);
+        L.SetLanguage(AppSettings.LanguageCode);
 
         RemoteFolderPath = AppSettings.DefaultRemoteFolder;
         LogPath = AppSettings.DefaultLogPath;
@@ -390,8 +398,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
             _monitoringTimer.Stop();
         }
 
-        AutoMonitoringButtonText = _monitoringTimer.IsEnabled ? "Авто: вкл" : "Авто: выкл";
-        await LogActivityAsync("Настройки", "Dashboard", "Настройки сохранены");
+        AutoMonitoringButtonText = _monitoringTimer.IsEnabled ? L.T("AutoOn") : L.T("AutoOff");
+        OnLocalizedTextChanged();
+        await LogActivityAsync(L.T("Settings"), "Dashboard", L.T("SettingsSaved"));
+    }
+
+    private void OnLocalizedTextChanged()
+    {
+        OnPropertyChanged(nameof(SelectedServerTitle));
+        OnPropertyChanged(nameof(SelectedServerSubtitle));
+        OnPropertyChanged(nameof(RemoteFilesSummary));
+        OnPropertyChanged(nameof(AutoMonitoringButtonText));
+        OnPropertyChanged(nameof(MonitoringStatus));
     }
 
     [RelayCommand]
@@ -444,7 +462,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         if (string.IsNullOrWhiteSpace(path))
         {
-            SftpOutput = "Укажи локальный путь.";
+            SftpOutput = L.T("EnterLocalPath");
             return;
         }
 
@@ -452,7 +470,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         if (string.IsNullOrWhiteSpace(folderPath) || !Directory.Exists(folderPath))
         {
-            SftpOutput = "Локальная папка не найдена.";
+            SftpOutput = L.T("LocalFolderNotFound");
             return;
         }
 
@@ -464,11 +482,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 UseShellExecute = true
             });
 
-            SftpOutput = $"Открыта папка: {folderPath}";
+            SftpOutput = L.Format("OpenedFolder", folderPath);
         }
         catch (Exception ex)
         {
-            SftpOutput = $"Не удалось открыть папку: {ex.Message}";
+            SftpOutput = L.Format("OpenFolderFailed", ex.Message);
         }
     }
 
@@ -481,7 +499,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             GroupName = SelectedGroupName == "All Servers" ? "Production" : SelectedGroupName
         };
 
-        var viewModel = new ServerEditViewModel(server, "Добавление сервера");
+        var viewModel = new ServerEditViewModel(server, L.T("WindowServerAddTitle"));
         var window = new ServerEditWindow(viewModel)
         {
             Owner = Application.Current.MainWindow
@@ -497,15 +515,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             await _storage.AddAsync(server);
-            await LogActivityAsync("Сервер", server.Name, "Сервер добавлен");
+            await LogActivityAsync(L.T("Servers"), server.Name, L.T("ServerAdded"));
             await LoadServersAsync();
             SelectedServer = Servers.FirstOrDefault(x => x.Id == server.Id);
-            SshOutput = "Сервер добавлен.";
+            SshOutput = L.T("ServerAdded");
         }
         catch (Exception ex)
         {
             SshOutput = $"Не удалось сохранить сервер: {ex.Message}";
-            TerminalOutput += $"\nОшибка сохранения сервера: {ex.Message}\n";
+            TerminalOutput += $"\n{L.Format("ServerSaveError", ex.Message)}\n";
         }
     }
 
@@ -514,7 +532,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SshOutput = "Выбери сервер для редактирования.";
+            SshOutput = L.T("ChooseServerToEdit");
             return;
         }
 
@@ -534,14 +552,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             await _storage.UpdateAsync(SelectedServer);
-            await LogActivityAsync("Сервер", SelectedServer.Name, "Сервер обновлён");
+            await LogActivityAsync(L.T("Servers"), SelectedServer.Name, L.T("ServerUpdated"));
             await LoadServersAsync();
-            SshOutput = "Сервер обновлён.";
+            SshOutput = L.T("ServerUpdated");
         }
         catch (Exception ex)
         {
             SshOutput = $"Не удалось обновить сервер: {ex.Message}";
-            TerminalOutput += $"\nОшибка обновления сервера: {ex.Message}\n";
+            TerminalOutput += $"\n{L.Format("ServerUpdateError", ex.Message)}\n";
         }
     }
 
@@ -554,7 +572,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var serverName = SelectedServer.Name;
-        var confirmed = ConfirmActionRequested?.Invoke($"Удалить сервер {serverName} из списка?") ?? false;
+        var confirmed = ConfirmActionRequested?.Invoke($"{L.T("Delete")} {serverName}?") ?? false;
 
         if (!confirmed)
         {
@@ -562,10 +580,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         await _storage.DeleteAsync(SelectedServer);
-        await LogActivityAsync("Сервер", serverName, "Сервер удалён", "warn");
+        await LogActivityAsync(L.T("Servers"), serverName, L.Format("ServerDeleted", serverName), "warn");
         await LoadServersAsync();
         SelectedServer = FilteredServers.FirstOrDefault();
-        SshOutput = $"Сервер удалён: {serverName}";
+        SshOutput = L.Format("ServerDeleted", serverName);
     }
 
     [RelayCommand]
@@ -573,11 +591,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SshOutput = "Сначала выбери сервер.";
+            SshOutput = L.T("ChooseServerFirst");
             return;
         }
 
-        SshOutput = $"Проверка SSH: {SelectedServer.Name}";
+        SshOutput = $"{L.T("TestSsh")}: {SelectedServer.Name}";
         var result = await _ssh.TestConnectionAsync(SelectedServer);
 
         SshOutput = result;
@@ -607,7 +625,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         });
 
         await Task.WhenAll(checks);
-        await LogActivityAsync("SSH", "All Servers", "Проверка всех серверов завершена");
+        await LogActivityAsync("SSH", "All Servers", L.T("CheckAllServers"));
         OnPropertyChanged(nameof(Servers));
         OnPropertyChanged(nameof(OnlineText));
     }
@@ -622,22 +640,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         if (SelectedServer is null)
         {
-            SshOutput = "Сначала выбери сервер.";
-            MonitoringStatus = "Сервер не выбран.";
+            SshOutput = L.T("ChooseServerFirst");
+            MonitoringStatus = L.T("ServerNotSelected");
             return;
         }
 
         try
         {
             isMonitoringRefreshing = true;
-            MonitoringStatus = $"Обновление: {SelectedServer.Name}";
-            MonitorCpu = "Загрузка...";
-            MonitorLoad = "Загрузка...";
-            MonitorNetwork = "Загрузка...";
-            MonitorRam = "Загрузка...";
-            MonitorDiskUsage = "Загрузка...";
-            MonitorUptimeShort = "Загрузка...";
-            MonitorProcesses = "Загрузка...";
+            MonitoringStatus = L.Format("MonitoringRefreshing", SelectedServer.Name);
+            MonitorCpu = L.T("MonitoringLoading");
+            MonitorLoad = L.T("MonitoringLoading");
+            MonitorNetwork = L.T("MonitoringLoading");
+            MonitorRam = L.T("MonitoringLoading");
+            MonitorDiskUsage = L.T("MonitoringLoading");
+            MonitorUptimeShort = L.T("MonitoringLoading");
+            MonitorProcesses = L.T("MonitoringLoading");
 
             var monitoringCommand =
                 "echo __CPU__; " +
@@ -681,7 +699,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 MonitorRamPercent = 0;
                 MonitorDiskPercent = 0;
                 SelectedServer.IsOnline = false;
-                MonitoringStatus = "Ошибка обновления мониторинга.";
+                MonitoringStatus = L.T("MonitoringError");
                 OnPropertyChanged(nameof(OnlineText));
                 return;
             }
@@ -708,7 +726,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
             AppendMetricHistory();
             SelectedServer.IsOnline = true;
-            MonitoringStatus = $"Обновлено: {DateTime.Now:HH:mm:ss}";
+            MonitoringStatus = L.Format("MonitoringUpdated", DateTime.Now.ToString("HH:mm:ss"));
             OnPropertyChanged(nameof(OnlineText));
         }
         finally
@@ -725,15 +743,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (_monitoringTimer.IsEnabled)
         {
             _monitoringTimer.Stop();
-            AutoMonitoringButtonText = "Авто: выкл";
-            MonitoringStatus = "Автообновление остановлено.";
+            AutoMonitoringButtonText = L.T("AutoOff");
+            MonitoringStatus = L.T("AutoRefreshStopped");
             await SaveSettingsAsync();
             return;
         }
 
         _monitoringTimer.Start();
-        AutoMonitoringButtonText = "Авто: вкл";
-        MonitoringStatus = "Автообновление каждые 30 секунд.";
+        AutoMonitoringButtonText = L.T("AutoOn");
+        MonitoringStatus = L.T("AutoRefreshEvery");
         await SaveSettingsAsync();
         await RefreshMonitoringAsync();
     }
@@ -743,17 +761,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            LogContent = "Выберите сервер.";
+            LogContent = L.T("ChooseServer");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(LogPath))
         {
-            LogContent = "Укажите путь к логу.";
+            LogContent = L.T("EnterLogPath");
             return;
         }
 
-        LogContent = "Загрузка...";
+        LogContent = L.T("LogLoading");
         var safeLogPath = QuoteShellArgument(LogPath);
         LogContent = await _ssh.RunCommandAsync(SelectedServer, $"tail -n 100 {safeLogPath}");
         ParseRecentLogs(LogContent);
@@ -787,7 +805,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         };
 
         await _commandService.AddAsync(command);
-        await LogActivityAsync("Команды", command.Title, "Команда добавлена");
+        await LogActivityAsync(L.T("Commands"), command.Title, L.T("CommandAdded"));
         CommandTitle = "";
         CommandText = "";
         await LoadSavedCommandsAsync();
@@ -798,7 +816,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedSavedCommand is null)
         {
-            SshOutput = "Выбери команду для изменения.";
+            SshOutput = L.T("ChooseCommand");
             return;
         }
 
@@ -811,9 +829,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SelectedSavedCommand.Title = CommandTitle.Trim();
         SelectedSavedCommand.Command = CommandText.Trim();
         await _commandService.UpdateAsync(SelectedSavedCommand);
-        await LogActivityAsync("Команды", SelectedSavedCommand.Title, "Команда обновлена");
+        await LogActivityAsync(L.T("Commands"), SelectedSavedCommand.Title, L.T("CommandUpdated"));
         await LoadSavedCommandsAsync();
-        SshOutput = "Команда обновлена.";
+        SshOutput = L.T("CommandUpdated");
     }
 
     [RelayCommand]
@@ -821,13 +839,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedSavedCommand is null)
         {
-            SshOutput = "Выбери команду для удаления.";
+            SshOutput = L.T("ChooseCommand");
             return;
         }
 
         var title = SelectedSavedCommand.Title;
         await _commandService.DeleteAsync(SelectedSavedCommand);
-        await LogActivityAsync("Команды", title, "Команда удалена", "warn");
+        await LogActivityAsync(L.T("Commands"), title, L.T("CommandDeleted"), "warn");
         await LoadSavedCommandsAsync();
     }
 
@@ -836,12 +854,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedSavedCommand is null)
         {
-            SshOutput = "Выбери сохранённую команду.";
+            SshOutput = L.T("ChooseSavedCommand");
             return;
         }
 
         await RunServerCommandAsync(SelectedSavedCommand.Command);
-        await LogActivityAsync("Команды", SelectedSavedCommand.Title, "Сохранённая команда выполнена");
+        await LogActivityAsync(L.T("Commands"), SelectedSavedCommand.Title, L.T("Run"));
     }
 
     [RelayCommand]
@@ -873,7 +891,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            TerminalOutput += "\nОшибка: сначала выбери сервер.\n";
+            TerminalOutput += $"\n{L.T("ChooseServerFirst")}\n";
             return;
         }
 
@@ -887,7 +905,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             var confirmed = ConfirmCommandRequested?.Invoke(TerminalCommand) ?? false;
             if (!confirmed)
             {
-                TerminalOutput += "\nВыполнение опасной команды отменено.\n";
+                TerminalOutput += $"\n{L.T("DangerousCommandCancelled")}\n";
                 return;
             }
         }
@@ -905,7 +923,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             SelectedServer.IsOnline = false;
-            TerminalOutput += $"\nОшибка: {ex.Message}\n";
+            TerminalOutput += $"\n{L.Format("TerminalError", ex.Message)}\n";
             await LogActivityAsync("Терминал", SelectedServer.Name, ex.Message, "error");
         }
     }
@@ -915,7 +933,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Выберите сервер.";
+            SftpOutput = L.T("ChooseServer");
             return;
         }
 
@@ -930,7 +948,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 RemoteFiles.Add(file);
             }
 
-            SftpOutput = $"Загружено: {files.Count}";
+            SftpOutput = L.Format("RemoteFilesLoaded", files.Count);
             SelectedServer.IsOnline = true;
             OnPropertyChanged(nameof(RemoteFilesSummary));
         }
@@ -938,6 +956,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             SftpOutput = ex.Message;
         }
+    }
+
+    [RelayCommand]
+    private async Task GoRootRemoteFolderAsync()
+    {
+        RemoteFolderPath = "/";
+        await LoadRemoteFilesAsync();
     }
 
     [RelayCommand]
@@ -979,7 +1004,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         RemoteFilePath = SelectedRemoteFile.FullPath;
-        SftpOutput = $"Выбран файл: {SelectedRemoteFile.FullPath}";
+        SftpOutput = L.Format("SelectedFile", SelectedRemoteFile.FullPath);
     }
 
     [RelayCommand]
@@ -987,13 +1012,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
         if (SelectedRemoteFile is null)
         {
-            SftpOutput = "Выбери файл для редактирования.";
+            SftpOutput = L.T("ChooseFileForEdit");
             return;
         }
 
@@ -1016,19 +1041,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(RemoteFilePath) || string.IsNullOrWhiteSpace(LocalFilePath))
         {
-            SftpOutput = "Укажи путь на сервере и локальный путь.";
+            SftpOutput = L.T("EnterPaths");
             return;
         }
 
         var targetLocalPath = ResolveDownloadLocalPath(LocalFilePath, RemoteFilePath);
         LocalFilePath = targetLocalPath;
-        SftpOutput = "Скачивание...";
+        SftpOutput = L.T("DownloadInProgress");
         SftpOutput = await _ssh.DownloadFileAsync(SelectedServer, RemoteFilePath, targetLocalPath);
         await LogActivityAsync("SFTP", SelectedServer.Name, $"Скачивание: {RemoteFilePath}");
     }
@@ -1038,39 +1063,39 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(LocalFilePath) || string.IsNullOrWhiteSpace(RemoteFilePath))
         {
-            SftpOutput = "Укажи локальный путь и путь на сервере.";
+            SftpOutput = L.T("EnterRemoteAndLocalPath");
             return;
         }
 
-        SftpOutput = "Загрузка...";
+        SftpOutput = L.T("UploadInProgress");
         SftpOutput = await _ssh.UploadFileAsync(SelectedServer, LocalFilePath, RemoteFilePath);
-        await LogActivityAsync("SFTP", SelectedServer.Name, $"Загрузка: {RemoteFilePath}");
+        await LogActivityAsync("SFTP", SelectedServer.Name, L.Format("UploadingFile", RemoteFilePath));
     }
 
     public async Task UploadLocalFileToCurrentFolderAsync(string localPath)
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
         if (!File.Exists(localPath))
         {
-            SftpOutput = $"Локальный файл не найден: {localPath}";
+            SftpOutput = L.Format("LocalFileNotFound", localPath);
             return;
         }
 
         var remotePath = CombineRemotePath(RemoteFolderPath, Path.GetFileName(localPath));
         LocalFilePath = localPath;
         RemoteFilePath = remotePath;
-        SftpOutput = $"Загрузка: {Path.GetFileName(localPath)}";
+        SftpOutput = L.Format("UploadingFile", Path.GetFileName(localPath));
         SftpOutput = await _ssh.UploadFileAsync(SelectedServer, localPath, remotePath);
         await LogActivityAsync("SFTP", SelectedServer.Name, $"Drag&drop загрузка: {remotePath}");
         await LoadRemoteFilesAsync();
@@ -1080,7 +1105,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
@@ -1091,9 +1116,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var remotePath = CombineRemotePath(RemoteFolderPath, folderName.Trim());
-        SftpOutput = "Создание папки...";
+        SftpOutput = L.T("FolderCreating");
         SftpOutput = await _ssh.CreateRemoteDirectoryAsync(SelectedServer, remotePath);
-        await LogActivityAsync("SFTP", SelectedServer.Name, $"Создана папка: {remotePath}");
+        await LogActivityAsync("SFTP", SelectedServer.Name, $"{L.T("CreateFolder")}: {remotePath}");
         await LoadRemoteFilesAsync();
     }
 
@@ -1101,13 +1126,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
         if (SelectedRemoteFile is null)
         {
-            SftpOutput = "Выбери файл или папку для переименования.";
+            SftpOutput = L.T("ChooseFileOrFolderForRename");
             return;
         }
 
@@ -1118,7 +1143,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
 
         var newPath = CombineRemotePath(GetRemoteParentPath(SelectedRemoteFile.FullPath), newName.Trim());
-        SftpOutput = "Переименование...";
+        SftpOutput = L.T("Renaming");
         SftpOutput = await _ssh.RenameRemoteItemAsync(SelectedServer, SelectedRemoteFile.FullPath, newPath);
         await LogActivityAsync("SFTP", SelectedServer.Name, $"Переименовано: {newPath}");
         await LoadRemoteFilesAsync();
@@ -1129,19 +1154,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SftpOutput = "Сначала выбери сервер.";
+            SftpOutput = L.T("ChooseServerFirst");
             return;
         }
 
         if (SelectedRemoteFile is null)
         {
-            SftpOutput = "Выбери файл или папку для удаления.";
+            SftpOutput = L.T("ChooseFileOrFolderForDelete");
             return;
         }
 
-        SftpOutput = "Удаление...";
+        SftpOutput = L.T("Delete");
         SftpOutput = await _ssh.DeleteRemoteItemAsync(SelectedServer, SelectedRemoteFile.FullPath, SelectedRemoteFile.IsDirectory);
-        await LogActivityAsync("SFTP", SelectedServer.Name, $"Удалено: {SelectedRemoteFile.FullPath}", "warn");
+        await LogActivityAsync("SFTP", SelectedServer.Name, $"{L.T("Delete")}: {SelectedRemoteFile.FullPath}", "warn");
         await LoadRemoteFilesAsync();
     }
 
@@ -1149,7 +1174,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedServer is null)
         {
-            SshOutput = "Сначала выбери сервер.";
+            SshOutput = L.T("ChooseServerFirst");
             return;
         }
 
@@ -1158,12 +1183,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
             var confirmed = ConfirmCommandRequested?.Invoke(command) ?? false;
             if (!confirmed)
             {
-                SshOutput = "Выполнение опасной команды отменено.";
+                SshOutput = L.T("DangerousCommandCancelled");
                 return;
             }
         }
 
-        SshOutput = $"Выполняется команда: {command}";
+        SshOutput = L.Format("RunningCommand", command);
         SshOutput = await _ssh.RunCommandAsync(SelectedServer, command);
         TerminalOutput += $"\nroot@{SelectedServer.Name}:~# {command}\n{SshOutput}\n";
         SelectedServer.IsOnline = IsSuccessfulSshResult(SshOutput);
@@ -1316,10 +1341,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
         AppendMetricValue(diskHistory, MonitorDiskPercent);
         AppendMetricValue(networkHistory, MonitorNetworkPercent);
 
+        SeedMetricHistory(cpuHistory);
+        SeedMetricHistory(ramHistory);
+        SeedMetricHistory(diskHistory);
+        SeedMetricHistory(networkHistory);
+
         CpuSparkline = BuildSparkline(cpuHistory);
         RamSparkline = BuildSparkline(ramHistory);
         DiskSparkline = BuildSparkline(diskHistory);
         NetworkSparkline = BuildSparkline(networkHistory);
+        CpuHistory = cpuHistory.ToArray();
+        RamHistory = ramHistory.ToArray();
+        DiskHistory = diskHistory.ToArray();
+        NetworkHistory = networkHistory.ToArray();
         OnPropertyChanged(nameof(CpuHistory));
         OnPropertyChanged(nameof(RamHistory));
         OnPropertyChanged(nameof(DiskHistory));
@@ -1333,6 +1367,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (history.Count > MetricHistoryLimit)
         {
             history.RemoveAt(0);
+        }
+    }
+
+    private static void SeedMetricHistory(List<double> history)
+    {
+        if (history.Count != 1)
+        {
+            return;
+        }
+
+        var value = history[0];
+        while (history.Count < 12)
+        {
+            history.Add(value);
         }
     }
 
@@ -1419,7 +1467,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            TerminalOutput += $"\nЖурнал действий недоступен: {ex.Message}\n";
+            TerminalOutput += $"\nActivity log unavailable: {ex.Message}\n";
         }
     }
 

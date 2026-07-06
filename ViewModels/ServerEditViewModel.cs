@@ -9,6 +9,7 @@ public partial class ServerEditViewModel : ObservableObject
 {
     private readonly FileDialogService _fileDialog = new();
     private readonly SshService _ssh = new();
+    private readonly LocalizationService localizer = AppServices.Localizer;
 
     public ServerProfile Server { get; }
 
@@ -54,10 +55,10 @@ public partial class ServerEditViewModel : ObservableObject
 
     public event Action? RequestClose;
 
-    public ServerEditViewModel(ServerProfile server, string windowTitle = "Редактирование сервера")
+    public ServerEditViewModel(ServerProfile server, string? windowTitle = null)
     {
         Server = server;
-        WindowTitle = windowTitle;
+        WindowTitle = windowTitle ?? localizer.T("WindowServerEditTitle");
 
         Name = server.Name;
         Host = server.Host;
@@ -91,7 +92,7 @@ public partial class ServerEditViewModel : ObservableObject
             return;
         }
 
-        StatusMessage = "Проверка подключения...";
+        StatusMessage = localizer.T("TestSsh");
 
         var tempServer = CreateServerFromFields();
 
@@ -127,32 +128,32 @@ public partial class ServerEditViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(Name))
         {
-            StatusMessage = "Укажи название сервера.";
+            StatusMessage = localizer.T("EnterName");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(Host))
         {
-            StatusMessage = "Укажи IP или Host.";
+            StatusMessage = localizer.T("EnterHost");
             return false;
         }
 
         if (Port <= 0 || Port > 65535)
         {
-            StatusMessage = "Порт должен быть от 1 до 65535.";
+            StatusMessage = localizer.T("PortRange");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(Username))
         {
-            StatusMessage = "Укажи логин.";
+            StatusMessage = localizer.T("EnterLogin");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(Password) &&
             string.IsNullOrWhiteSpace(PrivateKeyPath))
         {
-            StatusMessage = "Укажи пароль или SSH-ключ.";
+            StatusMessage = localizer.T("EnterPasswordOrKey");
             return false;
         }
 

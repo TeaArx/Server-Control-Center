@@ -11,4 +11,6 @@ public class AppSettings
     public string DefaultLogPath { get; set; } = "/var/log/nginx/error.log";
 
     public bool AutoRefreshMonitoring { get; set; } = true;
+
+    public string LanguageCode { get; set; } = "en";
 }

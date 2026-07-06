@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServerControlCenter.Data;
 
@@ -10,9 +11,10 @@ using ServerControlCenter.Data;
 namespace ServerControlCenter.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260704152000_AddLanguageCodeToSettings")]
+    partial class AddLanguageCodeToSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.28");
@@ -132,6 +134,9 @@ namespace ServerControlCenter.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("OsName")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Password")
                         .HasColumnType("TEXT");
 
@@ -139,9 +144,6 @@ namespace ServerControlCenter.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("PrivateKeyPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OsName")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Username")

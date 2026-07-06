@@ -111,7 +111,7 @@ public sealed class SshService : IDisposable
 
             if (sshCommand.ExitStatus != 0 && string.IsNullOrWhiteSpace(output))
             {
-                return $"Команда завершилась с кодом {sshCommand.ExitStatus}.";
+                return $"Command exited with code {sshCommand.ExitStatus}.";
             }
 
             return output;
@@ -129,7 +129,7 @@ public sealed class SshService : IDisposable
             }
             catch (Exception ex)
             {
-                return $"Ошибка SSH: {ex.Message}";
+                return $"SSH error: {ex.Message}";
             }
         });
     }
@@ -158,7 +158,9 @@ public sealed class SshService : IDisposable
                 var attributes = sftp.GetAttributes(remotePath);
                 if (attributes.IsDirectory)
                 {
-                    return "Ошибка чтения файла: выбран путь к папке.";
+                    return AppServices.Localizer.LanguageCode == "ru"
+                        ? "Ошибка чтения файла: выбран путь к папке."
+                        : "File read error: selected path is a folder.";
                 }
 
                 using var stream = new MemoryStream();
@@ -168,7 +170,9 @@ public sealed class SshService : IDisposable
             }
             catch (Exception ex)
             {
-                return $"Ошибка чтения файла: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru"
+                    ? $"Ошибка чтения файла: {ex.Message}"
+                    : $"File read error: {ex.Message}";
             }
         });
     }
@@ -197,11 +201,11 @@ public sealed class SshService : IDisposable
                 using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
                 sftp.UploadFile(contentStream, remotePath, true);
 
-                return $"Файл сохранён: {remotePath}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Файл сохранён: {remotePath}" : $"File saved: {remotePath}";
             }
             catch (Exception ex)
             {
-                return $"Ошибка сохранения файла: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка сохранения файла: {ex.Message}" : $"File save error: {ex.Message}";
             }
         });
     }
@@ -227,11 +231,11 @@ public sealed class SshService : IDisposable
                 using var fileStream = File.Create(localPath);
                 sftp.DownloadFile(remotePath, fileStream);
 
-                return $"Файл скачан: {localPath}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Файл скачан: {localPath}" : $"File downloaded: {localPath}";
             }
             catch (Exception ex)
             {
-                return $"Ошибка скачивания: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка скачивания: {ex.Message}" : $"Download error: {ex.Message}";
             }
         });
     }
@@ -247,7 +251,7 @@ public sealed class SshService : IDisposable
 
                 if (!File.Exists(localPath))
                 {
-                    return $"Ошибка загрузки: локальный файл не найден: {localPath}";
+                    return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка загрузки: локальный файл не найден: {localPath}" : $"Upload error: local file not found: {localPath}";
                 }
 
                 using var sftp = CreateSftpClient(server);
@@ -256,11 +260,11 @@ public sealed class SshService : IDisposable
                 using var fileStream = File.OpenRead(localPath);
                 sftp.UploadFile(fileStream, remotePath, true);
 
-                return $"Файл загружен: {remotePath}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Файл загружен: {remotePath}" : $"File uploaded: {remotePath}";
             }
             catch (Exception ex)
             {
-                return $"Ошибка загрузки: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка загрузки: {ex.Message}" : $"Upload error: {ex.Message}";
             }
         });
     }
@@ -277,11 +281,11 @@ public sealed class SshService : IDisposable
                 sftp.Connect();
                 sftp.CreateDirectory(remotePath);
 
-                return $"Папка создана: {remotePath}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Папка создана: {remotePath}" : $"Folder created: {remotePath}";
             }
             catch (Exception ex)
             {
-                return $"Ошибка создания папки: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка создания папки: {ex.Message}" : $"Create folder error: {ex.Message}";
             }
         });
     }
@@ -299,11 +303,11 @@ public sealed class SshService : IDisposable
                 sftp.Connect();
                 sftp.RenameFile(oldPath, newPath);
 
-                return $"Переименовано: {newPath}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Переименовано: {newPath}" : $"Renamed: {newPath}";
             }
             catch (Exception ex)
             {
-                return $"Ошибка переименования: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка переименования: {ex.Message}" : $"Rename error: {ex.Message}";
             }
         });
     }
@@ -328,11 +332,11 @@ public sealed class SshService : IDisposable
                     sftp.DeleteFile(remotePath);
                 }
 
-                return $"Удалено: {remotePath}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Удалено: {remotePath}" : $"Deleted: {remotePath}";
             }
             catch (Exception ex)
             {
-                return $"Ошибка удаления: {ex.Message}";
+                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка удаления: {ex.Message}" : $"Delete error: {ex.Message}";
             }
         });
     }
@@ -392,17 +396,17 @@ public sealed class SshService : IDisposable
     {
         if (string.IsNullOrWhiteSpace(server.Host))
         {
-            throw new InvalidOperationException("Укажи IP или Host.");
+            throw new InvalidOperationException(AppServices.Localizer.T("EnterHost"));
         }
 
         if (server.Port <= 0 || server.Port > 65535)
         {
-            throw new InvalidOperationException("Порт должен быть от 1 до 65535.");
+            throw new InvalidOperationException(AppServices.Localizer.T("PortRange"));
         }
 
         if (string.IsNullOrWhiteSpace(server.Username))
         {
-            throw new InvalidOperationException("Укажи логин.");
+            throw new InvalidOperationException(AppServices.Localizer.T("EnterLogin"));
         }
 
         AuthenticationMethod authMethod;
@@ -411,7 +415,7 @@ public sealed class SshService : IDisposable
         {
             if (!File.Exists(server.PrivateKeyPath))
             {
-                throw new InvalidOperationException($"SSH-ключ не найден: {server.PrivateKeyPath}");
+                throw new InvalidOperationException(AppServices.Localizer.LanguageCode == "ru" ? $"SSH-ключ не найден: {server.PrivateKeyPath}" : $"SSH key not found: {server.PrivateKeyPath}");
             }
 
             authMethod = new PrivateKeyAuthenticationMethod(
@@ -425,7 +429,7 @@ public sealed class SshService : IDisposable
 
             if (string.IsNullOrWhiteSpace(password))
             {
-                throw new InvalidOperationException("Укажи SSH-ключ или пароль.");
+                throw new InvalidOperationException(AppServices.Localizer.T("EnterPasswordOrKey"));
             }
 
             authMethod = new PasswordAuthenticationMethod(server.Username, password);
@@ -504,7 +508,7 @@ public sealed class SshService : IDisposable
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new ArgumentException("Укажи путь на сервере.", nameof(path));
+            throw new ArgumentException(AppServices.Localizer.T("EnterPaths"), nameof(path));
         }
     }
 
@@ -512,7 +516,7 @@ public sealed class SshService : IDisposable
     {
         if (string.IsNullOrWhiteSpace(path))
         {
-            throw new ArgumentException("Укажи локальный путь.", nameof(path));
+            throw new ArgumentException(AppServices.Localizer.T("EnterLocalPath"), nameof(path));
         }
     }
 

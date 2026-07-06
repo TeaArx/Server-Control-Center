@@ -9,6 +9,7 @@ public partial class RemoteFileEditorViewModel : ObservableObject
 {
     private readonly ServerProfile server;
     private readonly SshService ssh;
+    private readonly LocalizationService localizer = AppServices.Localizer;
 
     public string RemotePath { get; }
 
@@ -44,11 +45,12 @@ public partial class RemoteFileEditorViewModel : ObservableObject
         {
             IsBusy = true;
             HasLoadedSuccessfully = false;
-            StatusMessage = "Загрузка файла...";
+            StatusMessage = localizer.T("FileLoading");
 
             var loadedContent = await ssh.ReadTextFileAsync(server, RemotePath);
 
-            if (loadedContent.StartsWith("Ошибка чтения файла:", StringComparison.OrdinalIgnoreCase))
+            if (loadedContent.StartsWith("Ошибка чтения файла:", StringComparison.OrdinalIgnoreCase) ||
+                loadedContent.StartsWith("File read error:", StringComparison.OrdinalIgnoreCase))
             {
                 StatusMessage = loadedContent;
                 return;
@@ -56,7 +58,7 @@ public partial class RemoteFileEditorViewModel : ObservableObject
 
             Content = loadedContent;
             HasLoadedSuccessfully = true;
-            StatusMessage = "Файл загружен.";
+            StatusMessage = localizer.T("FileLoaded");
         }
         finally
         {
@@ -69,14 +71,14 @@ public partial class RemoteFileEditorViewModel : ObservableObject
     {
         if (!HasLoadedSuccessfully)
         {
-            StatusMessage = "Сначала файл должен быть успешно загружен.";
+            StatusMessage = localizer.T("FileMustLoadFirst");
             return;
         }
 
         try
         {
             IsBusy = true;
-            StatusMessage = "Сохранение файла...";
+            StatusMessage = localizer.T("FileSaving");
 
             StatusMessage = await ssh.SaveTextFileAsync(server, RemotePath, Content);
         }
