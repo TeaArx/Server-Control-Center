@@ -852,7 +852,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
                                  Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="SSH command"/>
+                                 ToolTip="SSH command"
+                                 VerticalContentAlignment="Center"
+                                 KeyDown="TerminalCommandTextBox_KeyDown"/>
                         <Button Grid.Column="2"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 ToolTip="Send SSH command"

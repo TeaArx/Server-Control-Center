@@ -935,9 +935,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+
     [RelayCommand]
     private async Task DownloadSelectedRemoteFileAsync()
     {
+
+
         if (SelectedServer is null)
         {
             SftpOutput = L.T("ChooseServerFirst");
@@ -956,7 +959,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var localPath = _fileDialog.PickSaveFile();
+        var fileName = Path.GetFileName(SelectedRemoteFile.FullPath);
+
+        var localPath = _fileDialog.PickSaveFile(fileName);
 
         if (string.IsNullOrWhiteSpace(localPath))
         {

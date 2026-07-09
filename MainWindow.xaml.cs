@@ -9,6 +9,7 @@ using ServerControlCenter.Models;
 using ServerControlCenter.Services;
 using ServerControlCenter.ViewModels;
 
+
 namespace ServerControlCenter;
 
 public partial class MainWindow : Window
@@ -37,6 +38,22 @@ public partial class MainWindow : Window
         ServerSearchBox.Focus();
         ServerSearchBox.SelectAll();
         e.Handled = true;
+    }
+
+    private void TerminalCommandTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter)
+        {
+            return;
+        }
+
+        e.Handled = true;
+
+        if (DataContext is MainViewModel vm &&
+            vm.SendTerminalCommandCommand.CanExecute(null))
+        {
+            vm.SendTerminalCommandCommand.Execute(null);
+        }
     }
 
     private void ServersListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
