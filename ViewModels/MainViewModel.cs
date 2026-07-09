@@ -887,6 +887,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private async Task RunProcessesAsync() => await RunServerCommandAsync("ps aux --sort=-%cpu | head -20");
 
     [RelayCommand]
+    private void ClearTerminal()
+    {
+        TerminalOutput = SelectedServer is null
+            ? L.T("TerminalWelcome")
+            : $"Connected target: {SelectedServer.Username}@{SelectedServer.Host}\n";
+    }
+    [RelayCommand]
     private async Task SendTerminalCommandAsync()
     {
         if (SelectedServer is null)

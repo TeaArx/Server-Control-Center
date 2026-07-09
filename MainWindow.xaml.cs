@@ -111,6 +111,16 @@ public partial class MainWindow : Window
         }
     }
 
+    private void OpenButtonContextMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement element || element.ContextMenu is null)
+        {
+            return;
+        }
+
+        element.ContextMenu.PlacementTarget = element;
+        element.ContextMenu.IsOpen = true;
+    }
     private void RemoteFileOpenMenuItem_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel viewModel &&
