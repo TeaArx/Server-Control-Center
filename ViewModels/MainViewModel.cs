@@ -936,6 +936,47 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     [RelayCommand]
+    private async Task DownloadSelectedRemoteFileAsync()
+    {
+        if (SelectedServer is null)
+        {
+            SftpOutput = L.T("ChooseServerFirst");
+            return;
+        }
+
+        if (SelectedRemoteFile is null)
+        {
+            SftpOutput = "Выбери файл на сервере для скачивания.";
+            return;
+        }
+
+        if (SelectedRemoteFile.IsDirectory)
+        {
+            SftpOutput = "Папку скачать нельзя. Выбери файл.";
+            return;
+        }
+
+        var localPath = _fileDialog.PickSaveFile();
+
+        if (string.IsNullOrWhiteSpace(localPath))
+        {
+            return;
+        }
+
+        RemoteFilePath = SelectedRemoteFile.FullPath;
+        LocalFilePath = localPath;
+
+        SftpOutput = L.T("DownloadInProgress");
+        SftpOutput = await _ssh.DownloadFileAsync(
+            SelectedServer,
+            SelectedRemoteFile.FullPath,
+            localPath
+        );
+
+        await LogActivityAsync("SFTP", SelectedServer.Name, $"Скачивание: {SelectedRemoteFile.FullPath}");
+    }
+
+    [RelayCommand]
     private async Task LoadRemoteFilesAsync()
     {
         if (SelectedServer is null)
@@ -1505,6 +1546,39 @@ public partial class MainViewModel : ObservableObject, IDisposable
         };
     }
 
+    [RelayCommand]
+    private async Task UploadFileToCurrentFolderAsync()
+    {
+        if (SelectedServer is null)
+        {
+            SftpOutput = L.T("ChooseServerFirst");
+            return;
+        }
+
+        var localPath = _fileDialog.PickFile();
+
+        if (string.IsNullOrWhiteSpace(localPath))
+        {
+            return;
+        }
+
+        if (!File.Exists(localPath))
+        {
+            SftpOutput = L.Format("LocalFileNotFound", localPath);
+            return;
+        }
+
+        var remotePath = CombineRemotePath(RemoteFolderPath, Path.GetFileName(localPath));
+
+        LocalFilePath = localPath;
+        RemoteFilePath = remotePath;
+
+        SftpOutput = L.T("UploadInProgress");
+        SftpOutput = await _ssh.UploadFileAsync(SelectedServer, localPath, remotePath);
+
+        await LogActivityAsync("SFTP", SelectedServer.Name, $"Загрузка: {remotePath}");
+        await LoadRemoteFilesAsync();
+    }
     private static bool MatchesServerSearch(ServerProfile server, string query)
     {
         return Contains(server.Name, query) ||

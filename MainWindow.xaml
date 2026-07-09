@@ -990,13 +990,24 @@
                                         </Button>
                                         <Button Style="{StaticResource CompactButtonStyle}"
                                                 ToolTip="{Binding [Upload], Source={x:Static services:AppServices.Localizer}}"
-                                                Command="{Binding UploadFileCommand}"
+                                                Command="{Binding UploadFileToCurrentFolderCommand}"
                                                 Margin="0 0 6 0">
                                             <StackPanel Orientation="Horizontal">
                                                 <iconPacks:PackIconMaterial Kind="Upload"
                                                                             Style="{StaticResource PackIconStyle}"
                                                                             Margin="0 0 8 0"/>
                                                 <TextBlock Text="{Binding [Upload], Source={x:Static services:AppServices.Localizer}}"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource CompactButtonStyle}"
+                                                ToolTip="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
+                                                Command="{Binding DownloadSelectedRemoteFileCommand}"
+                                                Margin="0 0 6 0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <iconPacks:PackIconMaterial Kind="Download"
+                                                                            Style="{StaticResource PackIconStyle}"
+                                                                            Margin="0 0 8 0"/>
+                                                <TextBlock Text="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"/>
                                             </StackPanel>
                                         </Button>
                                         <Button Style="{StaticResource IconButtonStyle}"
@@ -1231,7 +1242,7 @@
                                             Width="36"
                                             Height="36"
                                             ToolTip="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
-                                            Command="{Binding DownloadFileCommand}">
+                                            Command="{Binding DownloadSelectedRemoteFileCommand}">
                                         <iconPacks:PackIconMaterial Kind="Download"
                                                                     Style="{StaticResource PackIconStyle}"/>
                                     </Button>
@@ -1247,50 +1258,15 @@
                     </TabItem>
                     <TabItem Header="{Binding [Logs], Source={x:Static services:AppServices.Localizer}}">
 
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="46"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Border Grid.Row="0"
-                                    BorderBrush="{StaticResource BorderBrushSoft}"
-                                    BorderThickness="0 0 0 1"
-                                    Padding="10 6">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Text="{Binding LogPath, UpdateSourceTrigger=PropertyChanged}"
-                                             ToolTip="{Binding [DefaultLogPath], Source={x:Static services:AppServices.Localizer}}"/>
-                                    <StackPanel Grid.Column="2"
-                                                Orientation="Horizontal">
-                                        <Button Content="nginx"
-                                                Style="{StaticResource CompactButtonStyle}"
-                                                ToolTip="Open nginx log"
-                                                Command="{Binding UseNginxLogCommand}"
-                                                Margin="0 0 6 0"/>
-                                        <Button Content="syslog"
-                                                Style="{StaticResource CompactButtonStyle}"
-                                                ToolTip="Open syslog"
-                                                Command="{Binding UseSyslogCommand}"
-                                                Margin="0 0 6 0"/>
-                                        <Button Style="{StaticResource IconButtonStyle}"
-                                                ToolTip="{Binding [RefreshLogs], Source={x:Static services:AppServices.Localizer}}"
-                                                Command="{Binding LoadLogCommand}">
-                                            <iconPacks:PackIconMaterial Kind="Refresh"
-                                                                        Style="{StaticResource PackIconStyle}"/>
-                                        </Button>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                            <TextBox Grid.Row="1"
-                                     Text="{Binding LogContent}"
-                                     IsReadOnly="True"
-                                     Style="{StaticResource ConsoleTextBoxStyle}"
-                                     BorderThickness="0"/>
-                        </Grid>
+                        <Border Grid.Row="2"
+                                BorderBrush="{StaticResource BorderBrushSoft}"
+                                BorderThickness="0 1 0 0"
+                                Padding="12 6">
+                            <TextBlock Text="{Binding SftpOutput}"
+                                       Style="{StaticResource TinyMutedTextStyle}"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"/>
+                        </Border>
                     </TabItem>
                     <TabItem Header="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}">
                         <Grid Margin="12">
