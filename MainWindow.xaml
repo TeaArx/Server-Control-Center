@@ -11,11 +11,10 @@
         MinHeight="760"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBackgroundBrush}">
-
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
         <Style x:Key="PackIconStyle"
-                TargetType="{x:Type iconPacks:PackIconMaterial}">
+               TargetType="{x:Type iconPacks:PackIconMaterial}">
             <Setter Property="Width"
                     Value="17"/>
             <Setter Property="Height"
@@ -29,13 +28,66 @@
             <Setter Property="SnapsToDevicePixels"
                     Value="True"/>
         </Style>
-    </Window.Resources>
+        <Style x:Key="ModernTabItemStyle"
+               TargetType="{x:Type TabItem}">
+            <Setter Property="Foreground"
+                    Value="{StaticResource MutedTextBrush}"/>
+            <Setter Property="FontWeight"
+                    Value="SemiBold"/>
+            <Setter Property="Padding"
+                    Value="14 9"/>
+            <Setter Property="Margin"
+                    Value="0 0 4 0"/>
+            <Setter Property="MinHeight"
+                    Value="38"/>
+            <Setter Property="Background"
+                    Value="Transparent"/>
+            <Setter Property="BorderBrush"
+                    Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabItem}">
+                        <Border x:Name="TabBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="7 7 0 0"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
 
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected"
+                                     Value="True">
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource TextBrush}"/>
+                                <Setter TargetName="TabBorder"
+                                        Property="Background"
+                                        Value="#12345A"/>
+                                <Setter TargetName="TabBorder"
+                                        Property="BorderBrush"
+                                        Value="{StaticResource BorderBrushStrong}"/>
+                            </Trigger>
+
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="TabBorder"
+                                        Property="Background"
+                                        Value="#101B28"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid Background="{StaticResource AppBackgroundBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="248"/>
             <ColumnDefinition Width="*"
-                    MinWidth="880"/>
+                              MinWidth="880"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="62"/>
@@ -61,7 +113,7 @@
                         BorderBrush="{StaticResource BorderBrushSoft}"
                         BorderThickness="0 0 0 1">
                     <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center">
+                                VerticalAlignment="Center">
                         <Border Width="26"
                                 Height="26"
                                 CornerRadius="6"
@@ -69,11 +121,11 @@
                                 Margin="0 0 10 0">
                             <Grid>
                                 <iconPacks:PackIconMaterial Kind="Server"
-                                        Width="15"
-                                        Height="15"
-                                        Foreground="White"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                                                            Width="15"
+                                                            Height="15"
+                                                            Foreground="White"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
                                 <Border Width="12"
                                         Height="12"
                                         CornerRadius="3"
@@ -85,13 +137,13 @@
                             </Grid>
                         </Border>
                         <TextBlock Text="ServerControl"
-                                FontSize="16"
-                                FontWeight="SemiBold"/>
+                                   FontSize="16"
+                                   FontWeight="SemiBold"/>
                     </StackPanel>
                 </Border>
 
                 <StackPanel Grid.Row="1"
-                        Margin="14 14 14 12">
+                            Margin="14 14 14 12">
                     <Button Style="{StaticResource PrimaryButtonStyle}"
                             Command="{Binding AddServerCommand}"
                             Height="38"
@@ -99,31 +151,31 @@
                             Margin="0 0 0 14">
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconMaterial Kind="Plus"
-                                    Style="{StaticResource PackIconStyle}"
-                                    Margin="0 0 8 0"/>
+                                                        Style="{StaticResource PackIconStyle}"
+                                                        Margin="0 0 8 0"/>
                             <TextBlock Text="{Binding [AddServer], Source={x:Static services:AppServices.Localizer}}"
-                                    FontWeight="SemiBold"/>
+                                       FontWeight="SemiBold"/>
                         </StackPanel>
                     </Button>
                     <TextBlock Text="{Binding [SearchServers], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"
-                            Margin="4 0 0 0"/>
+                               Style="{StaticResource SmallMutedTextStyle}"
+                               Margin="4 0 0 0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2"
-                        Margin="14 0 14 10">
+                            Margin="14 0 14 10">
                     <Grid Margin="4 0 2 8">
                         <TextBlock Text="{Binding [Groups], Source={x:Static services:AppServices.Localizer}}"
-                                Style="{StaticResource SmallMutedTextStyle}"/>
+                                   Style="{StaticResource SmallMutedTextStyle}"/>
                         <iconPacks:PackIconMaterial Grid.Column="1"
-                                Kind="Plus"
-                                Width="15"
-                                Height="15"
-                                HorizontalAlignment="Right"
-                                Foreground="{StaticResource MutedTextBrush}"/>
+                                                    Kind="Plus"
+                                                    Width="15"
+                                                    Height="15"
+                                                    HorizontalAlignment="Right"
+                                                    Foreground="{StaticResource MutedTextBrush}"/>
                     </Grid>
                     <ListBox ItemsSource="{Binding Groups}"
-                            MaxHeight="142">
+                             MaxHeight="142">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Button Command="{Binding DataContext.SelectGroupCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -141,7 +193,7 @@
                                                         Value="Transparent"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSelected}"
-                                                            Value="True">
+                                                                 Value="True">
                                                         <Setter Property="Background"
                                                                 Value="{StaticResource SubtleBackgroundBrush}"/>
                                                     </DataTrigger>
@@ -155,17 +207,17 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <iconPacks:PackIconMaterial Grid.Column="0"
-                                                    Kind="FolderMultiple"
-                                                    Style="{StaticResource PackIconStyle}"
-                                                    Foreground="{StaticResource MutedTextBrush}"/>
+                                                                        Kind="FolderMultiple"
+                                                                        Style="{StaticResource PackIconStyle}"
+                                                                        Foreground="{StaticResource MutedTextBrush}"/>
                                             <TextBlock Grid.Column="1"
-                                                    Text="{Binding Name}"
-                                                    FontWeight="SemiBold"
-                                                    TextTrimming="CharacterEllipsis"/>
+                                                       Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Grid.Column="2"
-                                                    Text="{Binding Count}"
-                                                    Foreground="{StaticResource AccentBrush}"
-                                                    Margin="8 0 0 0"/>
+                                                       Text="{Binding Count}"
+                                                       Foreground="{StaticResource AccentBrush}"
+                                                       Margin="8 0 0 0"/>
                                         </Grid>
                                     </Border>
                                 </Button>
@@ -175,10 +227,10 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="3"
-                        Margin="14 0">
+                            Margin="14 0">
                     <TextBlock Text="{Binding [Servers], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"
-                            Margin="4 0 0 10"/>
+                               Style="{StaticResource SmallMutedTextStyle}"
+                               Margin="4 0 0 10"/>
                     <ListBox ItemsSource="{Binding FilteredServers}"
                              SelectedItem="{Binding SelectedServer}"
                              MouseDoubleClick="ServersListBox_MouseDoubleClick"
@@ -186,33 +238,33 @@
                         <ListBox.ContextMenu>
                             <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                 <MenuItem Header="{Binding [Edit], Source={x:Static services:AppServices.Localizer}}"
-                                        Command="{Binding EditServerCommand}">
+                                          Command="{Binding EditServerCommand}">
                                     <MenuItem.Icon>
                                         <iconPacks:PackIconMaterial Kind="Pencil"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="{Binding [TestSsh], Source={x:Static services:AppServices.Localizer}}"
-                                        Command="{Binding TestConnectionCommand}">
+                                          Command="{Binding TestConnectionCommand}">
                                     <MenuItem.Icon>
                                         <iconPacks:PackIconMaterial Kind="LanConnect"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <MenuItem Header="{Binding [ToggleFavorite], Source={x:Static services:AppServices.Localizer}}"
-                                        Command="{Binding ToggleSelectedServerFavoriteCommand}">
+                                          Command="{Binding ToggleSelectedServerFavoriteCommand}">
                                     <MenuItem.Icon>
                                         <iconPacks:PackIconMaterial Kind="Star"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
                                 <Separator/>
                                 <MenuItem Header="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
-                                        Command="{Binding DeleteServerCommand}">
+                                          Command="{Binding DeleteServerCommand}">
                                     <MenuItem.Icon>
                                         <iconPacks:PackIconMaterial Kind="Delete"
-                                                Style="{StaticResource PackIconStyle}"
-                                                Foreground="{StaticResource DangerBrush}"/>
+                                                                    Style="{StaticResource PackIconStyle}"
+                                                                    Foreground="{StaticResource DangerBrush}"/>
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </ContextMenu>
@@ -231,17 +283,17 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Ellipse Grid.Column="0"
-                                                Width="9"
-                                                Height="9"
-                                                Margin="0 5 10 0"
-                                                VerticalAlignment="Top">
+                                                 Width="9"
+                                                 Height="9"
+                                                 Margin="0 5 10 0"
+                                                 VerticalAlignment="Top">
                                             <Ellipse.Style>
                                                 <Style TargetType="Ellipse">
                                                     <Setter Property="Fill"
                                                             Value="#8CA0B2"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsOnline}"
-                                                                Value="True">
+                                                                     Value="True">
                                                             <Setter Property="Fill"
                                                                     Value="{StaticResource SuccessBrush}"/>
                                                         </DataTrigger>
@@ -251,28 +303,28 @@
                                         </Ellipse>
                                         <StackPanel Grid.Column="1">
                                             <TextBlock Text="{Binding Name}"
-                                                    FontWeight="SemiBold"
-                                                    TextTrimming="CharacterEllipsis"/>
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding DisplayOs}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    Margin="0 2 0 0"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       Margin="0 2 0 0"/>
                                             <TextBlock Text="{Binding DisplayAddress}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    TextTrimming="CharacterEllipsis"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                         <iconPacks:PackIconMaterial Grid.Column="2"
-                                                Kind="Star"
-                                                Width="16"
-                                                Height="16"
-                                                Margin="10 0 0 0">
+                                                                    Kind="Star"
+                                                                    Width="16"
+                                                                    Height="16"
+                                                                    Margin="10 0 0 0">
                                             <iconPacks:PackIconMaterial.Style>
                                                 <Style TargetType="iconPacks:PackIconMaterial"
-                                                        BasedOn="{StaticResource PackIconStyle}">
+                                                       BasedOn="{StaticResource PackIconStyle}">
                                                     <Setter Property="Foreground"
                                                             Value="{StaticResource MutedTextBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsFavorite}"
-                                                                Value="True">
+                                                                     Value="True">
                                                             <Setter Property="Foreground"
                                                                     Value="{StaticResource WarningBrush}"/>
                                                         </DataTrigger>
@@ -306,8 +358,8 @@
                                 ToolTip="{Binding [AddServer], Source={x:Static services:AppServices.Localizer}}">
                             <StackPanel Orientation="Horizontal">
                                 <iconPacks:PackIconMaterial Kind="Plus"
-                                        Style="{StaticResource PackIconStyle}"
-                                        Margin="0 0 8 0"/>
+                                                            Style="{StaticResource PackIconStyle}"
+                                                            Margin="0 0 8 0"/>
                                 <TextBlock Text="{Binding [AddServer], Source={x:Static services:AppServices.Localizer}}"/>
                             </StackPanel>
                         </Button>
@@ -317,7 +369,7 @@
                                 Command="{Binding OpenFavoritesPanelCommand}"
                                 Margin="4 0">
                             <iconPacks:PackIconMaterial Kind="Star"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                         <Button Grid.Column="2"
                                 Style="{StaticResource IconButtonStyle}"
@@ -325,7 +377,7 @@
                                 Command="{Binding OpenSettingsPanelCommand}"
                                 Margin="4 0">
                             <iconPacks:PackIconMaterial Kind="Cog"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                         <Button Grid.Column="3"
                                 Style="{StaticResource IconButtonStyle}"
@@ -333,7 +385,7 @@
                                 Command="{Binding OpenActivityPanelCommand}"
                                 Margin="4 0 0 0">
                             <iconPacks:PackIconMaterial Kind="Bell"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                     </Grid>
                 </Border>
@@ -354,18 +406,18 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal"
-                        VerticalAlignment="Center"
-                        Margin="0 0 18 0">
+                            VerticalAlignment="Center"
+                            Margin="0 0 18 0">
                     <Ellipse Width="7"
-                            Height="7"
-                            Margin="0 0 14 0">
+                             Height="7"
+                             Margin="0 0 14 0">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
                                 <Setter Property="Fill"
                                         Value="#8CA0B2"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                            Value="True">
+                                                 Value="True">
                                         <Setter Property="Fill"
                                                 Value="{StaticResource SuccessBrush}"/>
                                     </DataTrigger>
@@ -374,22 +426,22 @@
                         </Ellipse.Style>
                     </Ellipse>
                     <TextBlock Text="{Binding SelectedServerTitle}"
-                            FontSize="16"
-                            FontWeight="SemiBold"
-                            TextTrimming="CharacterEllipsis"/>
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"/>
                     <TextBlock Text="&#x2022;"
-                            Foreground="{StaticResource MutedTextBrush}"
-                            Margin="18 0 14 0"/>
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Margin="18 0 14 0"/>
                     <Ellipse Width="7"
-                            Height="7"
-                            Margin="0 0 8 0">
+                             Height="7"
+                             Margin="0 0 8 0">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
                                 <Setter Property="Fill"
                                         Value="#8CA0B2"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                            Value="True">
+                                                 Value="True">
                                         <Setter Property="Fill"
                                                 Value="{StaticResource SuccessBrush}"/>
                                     </DataTrigger>
@@ -400,12 +452,12 @@
                     <TextBlock Text="{Binding OnlineText}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock"
-                                    BasedOn="{StaticResource {x:Type TextBlock}}">
+                                   BasedOn="{StaticResource {x:Type TextBlock}}">
                                 <Setter Property="Foreground"
                                         Value="{StaticResource MutedTextBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                            Value="True">
+                                                 Value="True">
                                         <Setter Property="Foreground"
                                                 Value="{StaticResource SuccessBrush}"/>
                                     </DataTrigger>
@@ -415,20 +467,20 @@
                     </TextBlock>
                 </StackPanel>
                 <Grid Grid.Column="1"
-                        Width="230"
-                        VerticalAlignment="Center"
-                        Margin="0 0 16 0">
+                      Width="230"
+                      VerticalAlignment="Center"
+                      Margin="0 0 16 0">
                     <TextBox x:Name="ServerSearchBox"
-                            Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}"
-                            Padding="34 5 78 5"
-                            ToolTip="{Binding [SearchServers], Source={x:Static services:AppServices.Localizer}}"/>
+                             Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="34 5 78 5"
+                             ToolTip="{Binding [SearchServers], Source={x:Static services:AppServices.Localizer}}"/>
                     <iconPacks:PackIconMaterial Kind="Magnify"
-                            Width="16"
-                            Height="16"
-                            Foreground="{StaticResource MutedTextBrush}"
-                            Margin="12 0 0 0"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"/>
+                                                Width="16"
+                                                Height="16"
+                                                Foreground="{StaticResource MutedTextBrush}"
+                                                Margin="12 0 0 0"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"/>
                     <Border Background="#101B28"
                             BorderBrush="{StaticResource BorderBrushSoft}"
                             BorderThickness="1"
@@ -438,7 +490,7 @@
                             VerticalAlignment="Center"
                             Margin="0 0 6 0">
                         <TextBlock Text="Ctrl K / F"
-                                Style="{StaticResource TinyMutedTextStyle}"/>
+                                   Style="{StaticResource TinyMutedTextStyle}"/>
                     </Border>
                 </Grid>
                 <Button Grid.Column="2"
@@ -447,30 +499,30 @@
                         Command="{Binding CheckAllServersCommand}"
                         Margin="0 0 8 0">
                     <iconPacks:PackIconMaterial Kind="Refresh"
-                            Style="{StaticResource PackIconStyle}"/>
+                                                Style="{StaticResource PackIconStyle}"/>
                 </Button>
                 <StackPanel Grid.Column="3"
-                        Orientation="Horizontal"
-                        VerticalAlignment="Center">
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
                     <Button Style="{StaticResource IconButtonStyle}"
                             ToolTip="{Binding [Activity], Source={x:Static services:AppServices.Localizer}}"
                             Command="{Binding OpenActivityPanelCommand}"
                             Margin="0 0 8 0">
                         <iconPacks:PackIconMaterial Kind="Bell"
-                                Style="{StaticResource PackIconStyle}"/>
+                                                    Style="{StaticResource PackIconStyle}"/>
                     </Button>
                     <Button Style="{StaticResource IconButtonStyle}"
                             ToolTip="{Binding [Settings], Source={x:Static services:AppServices.Localizer}}"
                             Command="{Binding OpenSettingsPanelCommand}"
                             Margin="0 0 8 0">
                         <iconPacks:PackIconMaterial Kind="Cog"
-                                Style="{StaticResource PackIconStyle}"/>
+                                                    Style="{StaticResource PackIconStyle}"/>
                     </Button>
                     <Button Command="{Binding OpenProfilePanelCommand}"
                             Style="{StaticResource AvatarButtonStyle}"
                             ToolTip="Profile">
                         <Grid Width="40"
-                                Height="40">
+                              Height="40">
                             <Border Width="32"
                                     Height="32"
                                     CornerRadius="16"
@@ -478,18 +530,18 @@
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding UserProfile.Initials}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        FontWeight="Bold"/>
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontWeight="Bold"/>
                             </Border>
                             <Ellipse Width="9"
-                                    Height="9"
-                                    Fill="{StaticResource SuccessBrush}"
-                                    Stroke="{StaticResource AppBackgroundBrush}"
-                                    StrokeThickness="2"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0 0 4 4"/>
+                                     Height="9"
+                                     Fill="{StaticResource SuccessBrush}"
+                                     Stroke="{StaticResource AppBackgroundBrush}"
+                                     StrokeThickness="2"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Bottom"
+                                     Margin="0 0 4 4"/>
                         </Grid>
                     </Button>
                 </StackPanel>
@@ -497,31 +549,31 @@
         </Border>
 
         <Grid Grid.Column="1"
-                Grid.Row="1"
-                Margin="14">
+              Grid.Row="1"
+              Margin="14">
             <Grid.RowDefinitions>
                 <RowDefinition Height="124"/>
                 <RowDefinition Height="12"/>
                 <RowDefinition Height="0.9*"
-                        MinHeight="220"/>
+                               MinHeight="220"/>
                 <RowDefinition Height="8"/>
                 <RowDefinition Height="1.25*"
-                        MinHeight="300"/>
+                               MinHeight="300"/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"
-                            MinWidth="222"/>
+                                      MinWidth="222"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"
-                            MinWidth="222"/>
+                                      MinWidth="222"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"
-                            MinWidth="222"/>
+                                      MinWidth="222"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="160"
-                            MinWidth="150"/>
+                                      MinWidth="150"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
@@ -540,31 +592,31 @@
                             <Border Style="{StaticResource IconBadgeStyle}"
                                     Margin="0 0 10 0">
                                 <iconPacks:PackIconMaterial Kind="Chip"
-                                        Width="17"
-                                        Height="17"
-                                        Foreground="{StaticResource AccentBrush}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                                                            Width="17"
+                                                            Height="17"
+                                                            Foreground="{StaticResource AccentBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
                             </Border>
                             <TextBlock Text="CPU"
-                                    Style="{StaticResource SectionTitleTextStyle}"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1"
-                                Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}"
-                                FontSize="30"
-                                Margin="44 6 0 0"/>
+                                   Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}"
+                                   FontSize="30"
+                                   Margin="44 6 0 0"/>
                         <TextBlock Grid.Row="2"
-                                Text="{Binding MonitorCpu}"
-                                Style="{StaticResource SmallMutedTextStyle}"
-                                TextTrimming="CharacterEllipsis"/>
+                                   Text="{Binding MonitorCpu}"
+                                   Style="{StaticResource SmallMutedTextStyle}"
+                                   TextTrimming="CharacterEllipsis"/>
                         <controls:SparklineChart Grid.Column="1"
-                                Grid.RowSpan="3"
-                                Values="{Binding CpuHistory}"
-                                Stroke="{StaticResource AccentBrush}"
-                                Fill="{StaticResource AccentChartFillBrush}"
-                                ShowGrid="False"
-                                Height="76"
-                                VerticalAlignment="Bottom"/>
+                                                 Grid.RowSpan="3"
+                                                 Values="{Binding CpuHistory}"
+                                                 Stroke="{StaticResource AccentBrush}"
+                                                 Fill="{StaticResource AccentChartFillBrush}"
+                                                 ShowGrid="False"
+                                                 Height="76"
+                                                 VerticalAlignment="Bottom"/>
                     </Grid>
                 </Border>
 
@@ -586,31 +638,31 @@
                                     BorderBrush="#3E2673"
                                     Margin="0 0 10 0">
                                 <iconPacks:PackIconMaterial Kind="Memory"
-                                        Width="17"
-                                        Height="17"
-                                        Foreground="{StaticResource PurpleBrush}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                                                            Width="17"
+                                                            Height="17"
+                                                            Foreground="{StaticResource PurpleBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
                             </Border>
                             <TextBlock Text="RAM"
-                                    Style="{StaticResource SectionTitleTextStyle}"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1"
-                                Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}"
-                                FontSize="30"
-                                Margin="44 6 0 0"/>
+                                   Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}"
+                                   FontSize="30"
+                                   Margin="44 6 0 0"/>
                         <TextBlock Grid.Row="2"
-                                Text="{Binding MonitorRam}"
-                                Style="{StaticResource SmallMutedTextStyle}"
-                                TextTrimming="CharacterEllipsis"/>
+                                   Text="{Binding MonitorRam}"
+                                   Style="{StaticResource SmallMutedTextStyle}"
+                                   TextTrimming="CharacterEllipsis"/>
                         <controls:SparklineChart Grid.Column="1"
-                                Grid.RowSpan="3"
-                                Values="{Binding RamHistory}"
-                                Stroke="{StaticResource PurpleBrush}"
-                                Fill="{StaticResource PurpleChartFillBrush}"
-                                ShowGrid="False"
-                                Height="76"
-                                VerticalAlignment="Bottom"/>
+                                                 Grid.RowSpan="3"
+                                                 Values="{Binding RamHistory}"
+                                                 Stroke="{StaticResource PurpleBrush}"
+                                                 Fill="{StaticResource PurpleChartFillBrush}"
+                                                 ShowGrid="False"
+                                                 Height="76"
+                                                 VerticalAlignment="Bottom"/>
                     </Grid>
                 </Border>
 
@@ -632,32 +684,32 @@
                                     BorderBrush="#1F6049"
                                     Margin="0 0 10 0">
                                 <iconPacks:PackIconMaterial Kind="Harddisk"
-                                        Width="17"
-                                        Height="17"
-                                        Foreground="{StaticResource SuccessBrush}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                                                            Width="17"
+                                                            Height="17"
+                                                            Foreground="{StaticResource SuccessBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
                             </Border>
                             <TextBlock Text="DISK"
-                                    Style="{StaticResource SectionTitleTextStyle}"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"/>
                         </StackPanel>
                         <TextBlock Grid.Row="1"
-                                Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}"
-                                FontSize="30"
-                                Margin="44 6 0 0"/>
+                                   Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}"
+                                   FontSize="30"
+                                   Margin="44 6 0 0"/>
                         <TextBlock Grid.Row="2"
-                                Text="{Binding MonitorDiskUsage}"
-                                Style="{StaticResource SmallMutedTextStyle}"
-                                TextTrimming="CharacterEllipsis"
-                                ToolTip="{Binding MonitorDiskUsage}"/>
+                                   Text="{Binding MonitorDiskUsage}"
+                                   Style="{StaticResource SmallMutedTextStyle}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding MonitorDiskUsage}"/>
                         <controls:SparklineChart Grid.Column="1"
-                                Grid.RowSpan="3"
-                                Values="{Binding DiskHistory}"
-                                Stroke="{StaticResource SuccessBrush}"
-                                Fill="{StaticResource SuccessChartFillBrush}"
-                                ShowGrid="False"
-                                Height="76"
-                                VerticalAlignment="Bottom"/>
+                                                 Grid.RowSpan="3"
+                                                 Values="{Binding DiskHistory}"
+                                                 Stroke="{StaticResource SuccessBrush}"
+                                                 Fill="{StaticResource SuccessChartFillBrush}"
+                                                 ShowGrid="False"
+                                                 Height="76"
+                                                 VerticalAlignment="Bottom"/>
                     </Grid>
                 </Border>
 
@@ -669,25 +721,25 @@
                             <Border Style="{StaticResource IconBadgeStyle}"
                                     Margin="0 0 10 0">
                                 <iconPacks:PackIconMaterial Kind="ClockOutline"
-                                        Width="17"
-                                        Height="17"
-                                        Foreground="{StaticResource AccentBrush}"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                                                            Width="17"
+                                                            Height="17"
+                                                            Foreground="{StaticResource AccentBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center"/>
                             </Border>
                             <TextBlock Text="{Binding [Uptime], Source={x:Static services:AppServices.Localizer}}"
-                                    Style="{StaticResource SectionTitleTextStyle}"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding MonitorUptimeShort}"
-                                FontSize="16"
-                                FontWeight="SemiBold"
-                                Margin="0 12 0 7"
-                                TextWrapping="NoWrap"
-                                TextTrimming="CharacterEllipsis"
-                                ToolTip="{Binding MonitorUptimeShort}"/>
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0 12 0 7"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding MonitorUptimeShort}"/>
                         <TextBlock Text="{Binding MonitoringStatus}"
-                                Style="{StaticResource SmallMutedTextStyle}"
-                                TextTrimming="CharacterEllipsis"/>
+                                   Style="{StaticResource SmallMutedTextStyle}"
+                                   TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -711,20 +763,20 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
+                                        VerticalAlignment="Center">
                                 <Ellipse Width="7"
-                                        Height="7"
-                                        Fill="{StaticResource SuccessBrush}"
-                                        Margin="0 0 10 0"/>
+                                         Height="7"
+                                         Fill="{StaticResource SuccessBrush}"
+                                         Margin="0 0 10 0"/>
                                 <TextBlock Text="Terminal"
-                                        Style="{StaticResource SectionTitleTextStyle}"/>
+                                           Style="{StaticResource SectionTitleTextStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Center">
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
                                 <TextBlock Text="SSH"
-                                        FontWeight="SemiBold"
-                                        Margin="0 0 12 0"/>
+                                           FontWeight="SemiBold"
+                                           Margin="0 0 12 0"/>
                                 <Button Style="{StaticResource CompactButtonStyle}"
                                         MinWidth="110"
                                         ToolTip="{Binding [RefreshMonitoring], Source={x:Static services:AppServices.Localizer}}"
@@ -732,8 +784,8 @@
                                         Margin="0 0 8 0">
                                     <StackPanel Orientation="Horizontal">
                                         <iconPacks:PackIconMaterial Kind="Refresh"
-                                                Style="{StaticResource PackIconStyle}"
-                                                Margin="0 0 8 0"/>
+                                                                    Style="{StaticResource PackIconStyle}"
+                                                                    Margin="0 0 8 0"/>
                                         <TextBlock Text="{Binding [Refresh], Source={x:Static services:AppServices.Localizer}}"/>
                                     </StackPanel>
                                 </Button>
@@ -744,8 +796,8 @@
                                         Margin="0 0 8 0">
                                     <StackPanel Orientation="Horizontal">
                                         <iconPacks:PackIconMaterial Kind="Broom"
-                                                Style="{StaticResource PackIconStyle}"
-                                                Margin="0 0 8 0"/>
+                                                                    Style="{StaticResource PackIconStyle}"
+                                                                    Margin="0 0 8 0"/>
                                         <TextBlock Text="{Binding [Clear], Source={x:Static services:AppServices.Localizer}}"/>
                                     </StackPanel>
                                 </Button>
@@ -754,30 +806,30 @@
                                         Click="OpenButtonContextMenu_Click">
                                     <Button.Content>
                                         <iconPacks:PackIconMaterial Kind="DotsHorizontal"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </Button.Content>
                                     <Button.ContextMenu>
                                         <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                             <MenuItem Header="{Binding [AddServer], Source={x:Static services:AppServices.Localizer}}"
-                                                    Command="{Binding AddServerCommand}">
+                                                      Command="{Binding AddServerCommand}">
                                                 <MenuItem.Icon>
                                                     <iconPacks:PackIconMaterial Kind="Plus"
-                                                            Style="{StaticResource PackIconStyle}"/>
+                                                                                Style="{StaticResource PackIconStyle}"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <MenuItem Header="{Binding [Files], Source={x:Static services:AppServices.Localizer}}"
-                                                    Command="{Binding LoadRemoteFilesCommand}">
+                                                      Command="{Binding LoadRemoteFilesCommand}">
                                                 <MenuItem.Icon>
                                                     <iconPacks:PackIconMaterial Kind="Folder"
-                                                            Style="{StaticResource PackIconStyle}"/>
+                                                                                Style="{StaticResource PackIconStyle}"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                             <Separator/>
                                             <MenuItem Header="{Binding [Settings], Source={x:Static services:AppServices.Localizer}}"
-                                                    Command="{Binding OpenSettingsPanelCommand}">
+                                                      Command="{Binding OpenSettingsPanelCommand}">
                                                 <MenuItem.Icon>
                                                     <iconPacks:PackIconMaterial Kind="Cog"
-                                                            Style="{StaticResource PackIconStyle}"/>
+                                                                                Style="{StaticResource PackIconStyle}"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>
@@ -787,30 +839,30 @@
                         </Grid>
                     </Border>
                     <TextBox Grid.Row="1"
-                            Text="{Binding TerminalOutput}"
-                            IsReadOnly="True"
-                            Style="{StaticResource ConsoleTextBoxStyle}"
-                            BorderThickness="0"/>
+                             Text="{Binding TerminalOutput}"
+                             IsReadOnly="True"
+                             Style="{StaticResource ConsoleTextBoxStyle}"
+                             BorderThickness="0"/>
                     <Grid Grid.Row="2"
-                            Margin="12 6">
+                          Margin="12 6">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
-                                Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}"
-                                ToolTip="SSH command"/>
+                                 Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="SSH command"/>
                         <Button Grid.Column="2"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 ToolTip="Send SSH command"
                                 Command="{Binding SendTerminalCommandCommand}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding [Send], Source={x:Static services:AppServices.Localizer}}"
-                                        FontWeight="SemiBold"
-                                        Margin="0 0 8 0"/>
+                                           FontWeight="SemiBold"
+                                           Margin="0 0 8 0"/>
                                 <iconPacks:PackIconMaterial Kind="Send"
-                                        Style="{StaticResource PackIconStyle}"/>
+                                                            Style="{StaticResource PackIconStyle}"/>
                             </StackPanel>
                         </Button>
                     </Grid>
@@ -839,13 +891,27 @@
             <Border Grid.Row="4"
                     Style="{StaticResource PagePanelStyle}"
                     Padding="0">
-                <TabControl>
-                    <TabItem Header="{Binding [Files], Source={x:Static services:AppServices.Localizer}}">
+
+                <TabControl ItemContainerStyle="{StaticResource ModernTabItemStyle}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="10 6 10 0">
+
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Kind="Folder"
+                                                            Style="{StaticResource PackIconStyle}"
+                                                            Margin="0 0 8 0"/>
+                                <TextBlock Text="{Binding [Files], Source={x:Static services:AppServices.Localizer}}"/>
+                            </StackPanel>
+                        </TabItem.Header>
+
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="56"/>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="58"/>
+                                <RowDefinition Height="76"/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0"
                                     BorderBrush="{StaticResource BorderBrushSoft}"
@@ -867,8 +933,8 @@
                                             Command="{Binding GoRootRemoteFolderCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <iconPacks:PackIconMaterial Kind="Home"
-                                                    Style="{StaticResource PackIconStyle}"
-                                                    Margin="0 0 8 0"/>
+                                                                        Style="{StaticResource PackIconStyle}"
+                                                                        Margin="0 0 8 0"/>
                                             <TextBlock Text="{Binding [Home], Source={x:Static services:AppServices.Localizer}}"/>
                                         </StackPanel>
                                     </Button>
@@ -878,8 +944,8 @@
                                             Command="{Binding GoBackRemoteFolderCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <iconPacks:PackIconMaterial Kind="ArrowLeft"
-                                                    Style="{StaticResource PackIconStyle}"
-                                                    Margin="0 0 8 0"/>
+                                                                        Style="{StaticResource PackIconStyle}"
+                                                                        Margin="0 0 8 0"/>
                                             <TextBlock Text="{Binding [Back], Source={x:Static services:AppServices.Localizer}}"/>
                                         </StackPanel>
                                     </Button>
@@ -896,29 +962,29 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <iconPacks:PackIconMaterial Grid.Column="0"
-                                                    Kind="Folder"
-                                                    Style="{StaticResource PackIconStyle}"
-                                                    Foreground="{StaticResource AccentBrush}"/>
+                                                                        Kind="Folder"
+                                                                        Style="{StaticResource PackIconStyle}"
+                                                                        Foreground="{StaticResource AccentBrush}"/>
                                             <TextBox Grid.Column="2"
-                                                    Text="{Binding RemoteFolderPath, UpdateSourceTrigger=PropertyChanged}"
-                                                    BorderThickness="0"
-                                                    Background="Transparent"
-                                                    Padding="0"
-                                                    MinHeight="30"
-                                                    VerticalContentAlignment="Center"
-                                                    ToolTip="{Binding [DefaultRemoteFolder], Source={x:Static services:AppServices.Localizer}}"/>
+                                                     Text="{Binding RemoteFolderPath, UpdateSourceTrigger=PropertyChanged}"
+                                                     BorderThickness="0"
+                                                     Background="Transparent"
+                                                     Padding="0"
+                                                     MinHeight="30"
+                                                     VerticalContentAlignment="Center"
+                                                     ToolTip="{Binding [DefaultRemoteFolder], Source={x:Static services:AppServices.Localizer}}"/>
                                         </Grid>
                                     </Border>
                                     <StackPanel Grid.Column="6"
-                                            Orientation="Horizontal">
+                                                Orientation="Horizontal">
                                         <Button Style="{StaticResource CompactButtonStyle}"
                                                 ToolTip="{Binding [CreateFolder], Source={x:Static services:AppServices.Localizer}}"
                                                 Click="RemoteFileCreateFolderMenuItem_Click"
                                                 Margin="0 0 6 0">
                                             <StackPanel Orientation="Horizontal">
                                                 <iconPacks:PackIconMaterial Kind="FolderPlus"
-                                                        Style="{StaticResource PackIconStyle}"
-                                                        Margin="0 0 8 0"/>
+                                                                            Style="{StaticResource PackIconStyle}"
+                                                                            Margin="0 0 8 0"/>
                                                 <TextBlock Text="{Binding [Folder], Source={x:Static services:AppServices.Localizer}}"/>
                                             </StackPanel>
                                         </Button>
@@ -928,8 +994,8 @@
                                                 Margin="0 0 6 0">
                                             <StackPanel Orientation="Horizontal">
                                                 <iconPacks:PackIconMaterial Kind="Upload"
-                                                        Style="{StaticResource PackIconStyle}"
-                                                        Margin="0 0 8 0"/>
+                                                                            Style="{StaticResource PackIconStyle}"
+                                                                            Margin="0 0 8 0"/>
                                                 <TextBlock Text="{Binding [Upload], Source={x:Static services:AppServices.Localizer}}"/>
                                             </StackPanel>
                                         </Button>
@@ -938,52 +1004,52 @@
                                                 Command="{Binding LoadRemoteFilesCommand}"
                                                 Margin="0 0 6 0">
                                             <iconPacks:PackIconMaterial Kind="Refresh"
-                                                    Style="{StaticResource PackIconStyle}"/>
+                                                                        Style="{StaticResource PackIconStyle}"/>
                                         </Button>
                                         <Button Style="{StaticResource IconButtonStyle}"
                                                 ToolTip="{Binding [More], Source={x:Static services:AppServices.Localizer}}"
                                                 Click="OpenButtonContextMenu_Click">
                                             <Button.Content>
                                                 <iconPacks:PackIconMaterial Kind="DotsHorizontal"
-                                                        Style="{StaticResource PackIconStyle}"/>
+                                                                            Style="{StaticResource PackIconStyle}"/>
                                             </Button.Content>
                                             <Button.ContextMenu>
                                                 <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                                     <MenuItem Header="{Binding [Open], Source={x:Static services:AppServices.Localizer}}"
-                                                            Click="RemoteFileOpenMenuItem_Click">
+                                                              Click="RemoteFileOpenMenuItem_Click">
                                                         <MenuItem.Icon>
                                                             <iconPacks:PackIconMaterial Kind="OpenInNew"
-                                                                    Style="{StaticResource PackIconStyle}"/>
+                                                                                        Style="{StaticResource PackIconStyle}"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="{Binding [Edit], Source={x:Static services:AppServices.Localizer}}"
-                                                            Click="RemoteFileEditMenuItem_Click">
+                                                              Click="RemoteFileEditMenuItem_Click">
                                                         <MenuItem.Icon>
                                                             <iconPacks:PackIconMaterial Kind="Pencil"
-                                                                    Style="{StaticResource PackIconStyle}"/>
+                                                                                        Style="{StaticResource PackIconStyle}"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
-                                                            Click="RemoteFileDownloadMenuItem_Click">
+                                                              Click="RemoteFileDownloadMenuItem_Click">
                                                         <MenuItem.Icon>
                                                             <iconPacks:PackIconMaterial Kind="Download"
-                                                                    Style="{StaticResource PackIconStyle}"/>
+                                                                                        Style="{StaticResource PackIconStyle}"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <Separator/>
                                                     <MenuItem Header="{Binding [Rename], Source={x:Static services:AppServices.Localizer}}"
-                                                            Click="RemoteFileRenameMenuItem_Click">
+                                                              Click="RemoteFileRenameMenuItem_Click">
                                                         <MenuItem.Icon>
                                                             <iconPacks:PackIconMaterial Kind="RenameBox"
-                                                                    Style="{StaticResource PackIconStyle}"/>
+                                                                                        Style="{StaticResource PackIconStyle}"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
-                                                            Click="RemoteFileDeleteMenuItem_Click">
+                                                              Click="RemoteFileDeleteMenuItem_Click">
                                                         <MenuItem.Icon>
                                                             <iconPacks:PackIconMaterial Kind="Delete"
-                                                                    Style="{StaticResource PackIconStyle}"
-                                                                    Foreground="{StaticResource DangerBrush}"/>
+                                                                                        Style="{StaticResource PackIconStyle}"
+                                                                                        Foreground="{StaticResource DangerBrush}"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                 </ContextMenu>
@@ -1007,56 +1073,56 @@
                                 <DataGrid.ContextMenu>
                                     <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="{Binding [Open], Source={x:Static services:AppServices.Localizer}}"
-                                                Click="RemoteFileOpenMenuItem_Click">
+                                                  Click="RemoteFileOpenMenuItem_Click">
                                             <MenuItem.Icon>
                                                 <iconPacks:PackIconMaterial Kind="OpenInNew"
-                                                        Style="{StaticResource PackIconStyle}"/>
+                                                                            Style="{StaticResource PackIconStyle}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <MenuItem Header="{Binding [Edit], Source={x:Static services:AppServices.Localizer}}"
-                                                Click="RemoteFileEditMenuItem_Click">
+                                                  Click="RemoteFileEditMenuItem_Click">
                                             <MenuItem.Icon>
                                                 <iconPacks:PackIconMaterial Kind="Pencil"
-                                                        Style="{StaticResource PackIconStyle}"/>
+                                                                            Style="{StaticResource PackIconStyle}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <MenuItem Header="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
-                                                Click="RemoteFileDownloadMenuItem_Click">
+                                                  Click="RemoteFileDownloadMenuItem_Click">
                                             <MenuItem.Icon>
                                                 <iconPacks:PackIconMaterial Kind="Download"
-                                                        Style="{StaticResource PackIconStyle}"/>
+                                                                            Style="{StaticResource PackIconStyle}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <Separator/>
                                         <MenuItem Header="{Binding [CreateFolder], Source={x:Static services:AppServices.Localizer}}"
-                                                Click="RemoteFileCreateFolderMenuItem_Click">
+                                                  Click="RemoteFileCreateFolderMenuItem_Click">
                                             <MenuItem.Icon>
                                                 <iconPacks:PackIconMaterial Kind="FolderPlus"
-                                                        Style="{StaticResource PackIconStyle}"/>
+                                                                            Style="{StaticResource PackIconStyle}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <MenuItem Header="{Binding [Rename], Source={x:Static services:AppServices.Localizer}}"
-                                                Click="RemoteFileRenameMenuItem_Click">
+                                                  Click="RemoteFileRenameMenuItem_Click">
                                             <MenuItem.Icon>
                                                 <iconPacks:PackIconMaterial Kind="RenameBox"
-                                                        Style="{StaticResource PackIconStyle}"/>
+                                                                            Style="{StaticResource PackIconStyle}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                         <Separator/>
                                         <MenuItem Header="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
-                                                Click="RemoteFileDeleteMenuItem_Click">
+                                                  Click="RemoteFileDeleteMenuItem_Click">
                                             <MenuItem.Icon>
                                                 <iconPacks:PackIconMaterial Kind="Delete"
-                                                        Style="{StaticResource PackIconStyle}"
-                                                        Foreground="{StaticResource DangerBrush}"/>
+                                                                            Style="{StaticResource PackIconStyle}"
+                                                                            Foreground="{StaticResource DangerBrush}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
                                     </ContextMenu>
                                 </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="{Binding [Name], Source={x:Static services:AppServices.Localizer}}"
-                                            Width="*"
-                                            MinWidth="280">
+                                                            Width="*"
+                                                            MinWidth="280">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid>
@@ -1071,27 +1137,27 @@
                                                             Background="#162434"
                                                             HorizontalAlignment="Left">
                                                         <iconPacks:PackIconMaterial x:Name="FileIcon"
-                                                                Kind="FileDocumentOutline"
-                                                                Style="{StaticResource PackIconStyle}"
-                                                                Width="17"
-                                                                Height="17"
-                                                                Foreground="{StaticResource MutedTextBrush}"/>
+                                                                                    Kind="FileDocumentOutline"
+                                                                                    Style="{StaticResource PackIconStyle}"
+                                                                                    Width="17"
+                                                                                    Height="17"
+                                                                                    Foreground="{StaticResource MutedTextBrush}"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1"
-                                                            VerticalAlignment="Center">
+                                                                VerticalAlignment="Center">
                                                         <TextBlock x:Name="FileName"
-                                                                Text="{Binding Name}"
-                                                                FontWeight="SemiBold"
-                                                                TextTrimming="CharacterEllipsis"/>
+                                                                   Text="{Binding Name}"
+                                                                   FontWeight="SemiBold"
+                                                                   TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding FullPath}"
-                                                                Style="{StaticResource TinyMutedTextStyle}"
-                                                                TextTrimming="CharacterEllipsis"
-                                                                Margin="0 2 0 0"/>
+                                                                   Style="{StaticResource TinyMutedTextStyle}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Margin="0 2 0 0"/>
                                                     </StackPanel>
                                                 </Grid>
                                                 <DataTemplate.Triggers>
                                                     <DataTrigger Binding="{Binding IsDirectory}"
-                                                            Value="True">
+                                                                 Value="True">
                                                         <Setter TargetName="FileBadge"
                                                                 Property="Background"
                                                                 Value="{StaticResource AccentSoftBrush}"/>
@@ -1110,22 +1176,24 @@
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="{Binding [Type], Source={x:Static services:AppServices.Localizer}}"
-                                            Binding="{Binding TypeText}"
-                                            Width="110"/>
+                                                        Binding="{Binding TypeText}"
+                                                        Width="110"/>
                                     <DataGridTextColumn Header="{Binding [Size], Source={x:Static services:AppServices.Localizer}}"
-                                            Binding="{Binding SizeText}"
-                                            Width="110"/>
+                                                        Binding="{Binding SizeText}"
+                                                        Width="110"/>
                                     <DataGridTextColumn Header="{Binding [Modified], Source={x:Static services:AppServices.Localizer}}"
-                                            Binding="{Binding LastWriteTimeText}"
-                                            Width="150"/>
+                                                        Binding="{Binding LastWriteTimeText}"
+                                                        Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
                             <Grid Grid.Row="2"
-                                    Margin="12 8">
+                                  Margin="12 8"
+                                  VerticalAlignment="Center">
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="36"/>
                                     <RowDefinition Height="20"/>
                                 </Grid.RowDefinitions>
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="8"/>
@@ -1133,37 +1201,52 @@
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
+
                                 <TextBox Grid.Column="0"
-                                        Text="{Binding RemoteFilePath, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTip="Remote file"/>
+                                         Height="34"
+                                         VerticalContentAlignment="Center"
+                                         Text="{Binding RemoteFilePath, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Remote file"/>
+
                                 <TextBox Grid.Column="2"
-                                        Text="{Binding LocalFilePath, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTip="Local path"/>
+                                         Height="34"
+                                         VerticalContentAlignment="Center"
+                                         Text="{Binding LocalFilePath, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Local path"/>
+
                                 <StackPanel Grid.Column="4"
-                                        Orientation="Horizontal">
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center">
                                     <Button Style="{StaticResource IconButtonStyle}"
+                                            Width="36"
+                                            Height="36"
                                             ToolTip="{Binding [OpenLocalFolder], Source={x:Static services:AppServices.Localizer}}"
                                             Command="{Binding OpenLocalFolderCommand}"
                                             Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="Folder"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </Button>
+
                                     <Button Style="{StaticResource IconButtonStyle}"
+                                            Width="36"
+                                            Height="36"
                                             ToolTip="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
                                             Command="{Binding DownloadFileCommand}">
                                         <iconPacks:PackIconMaterial Kind="Download"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </Button>
                                 </StackPanel>
+
                                 <TextBlock Grid.Row="1"
-                                        Grid.ColumnSpan="5"
-                                        Text="{Binding SftpOutput}"
-                                        Style="{StaticResource TinyMutedTextStyle}"
-                                        TextTrimming="CharacterEllipsis"/>
+                                           Grid.ColumnSpan="5"
+                                           Text="{Binding SftpOutput}"
+                                           Style="{StaticResource TinyMutedTextStyle}"
+                                           TextTrimming="CharacterEllipsis"/>
                             </Grid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="{Binding [Logs], Source={x:Static services:AppServices.Localizer}}">
+
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="46"/>
@@ -1180,9 +1263,9 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Text="{Binding LogPath, UpdateSourceTrigger=PropertyChanged}"
-                                            ToolTip="{Binding [DefaultLogPath], Source={x:Static services:AppServices.Localizer}}"/>
+                                             ToolTip="{Binding [DefaultLogPath], Source={x:Static services:AppServices.Localizer}}"/>
                                     <StackPanel Grid.Column="2"
-                                            Orientation="Horizontal">
+                                                Orientation="Horizontal">
                                         <Button Content="nginx"
                                                 Style="{StaticResource CompactButtonStyle}"
                                                 ToolTip="Open nginx log"
@@ -1197,26 +1280,26 @@
                                                 ToolTip="{Binding [RefreshLogs], Source={x:Static services:AppServices.Localizer}}"
                                                 Command="{Binding LoadLogCommand}">
                                             <iconPacks:PackIconMaterial Kind="Refresh"
-                                                    Style="{StaticResource PackIconStyle}"/>
+                                                                        Style="{StaticResource PackIconStyle}"/>
                                         </Button>
                                     </StackPanel>
                                 </Grid>
                             </Border>
                             <TextBox Grid.Row="1"
-                                    Text="{Binding LogContent}"
-                                    IsReadOnly="True"
-                                    Style="{StaticResource ConsoleTextBoxStyle}"
-                                    BorderThickness="0"/>
+                                     Text="{Binding LogContent}"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource ConsoleTextBoxStyle}"
+                                     BorderThickness="0"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}">
                         <Grid Margin="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1.25*"
-                                        MinWidth="420"/>
+                                                  MinWidth="420"/>
                                 <ColumnDefinition Width="14"/>
                                 <ColumnDefinition Width="*"
-                                        MinWidth="340"/>
+                                                  MinWidth="340"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
                                     BorderBrush="{StaticResource BorderBrushSoft}"
@@ -1224,9 +1307,9 @@
                                     CornerRadius="7"
                                     Background="#08131D">
                                 <ListBox ItemsSource="{Binding SavedCommands}"
-                                        SelectedItem="{Binding SelectedSavedCommand}"
-                                        Margin="8"
-                                        ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                         SelectedItem="{Binding SelectedSavedCommand}"
+                                         Margin="8"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Border Padding="12 10"
@@ -1241,19 +1324,19 @@
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding Title}"
-                                                                FontWeight="SemiBold"
-                                                                TextTrimming="CharacterEllipsis"/>
+                                                                   FontWeight="SemiBold"
+                                                                   TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding Command}"
-                                                                Style="{StaticResource SmallMutedTextStyle}"
-                                                                FontFamily="Consolas"
-                                                                TextTrimming="CharacterEllipsis"
-                                                                Margin="0 4 0 0"/>
+                                                                   Style="{StaticResource SmallMutedTextStyle}"
+                                                                   FontFamily="Consolas"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Margin="0 4 0 0"/>
                                                     </StackPanel>
                                                     <iconPacks:PackIconMaterial Grid.Column="1"
-                                                            Kind="ClockOutline"
-                                                            Style="{StaticResource PackIconStyle}"
-                                                            Foreground="{StaticResource MutedTextBrush}"
-                                                            Margin="12 0 0 0"/>
+                                                                                Kind="ClockOutline"
+                                                                                Style="{StaticResource PackIconStyle}"
+                                                                                Foreground="{StaticResource MutedTextBrush}"
+                                                                                Margin="12 0 0 0"/>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -1269,14 +1352,14 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBox Text="{Binding CommandTitle, UpdateSourceTrigger=PropertyChanged}"
-                                        ToolTip="Название команды"/>
+                                         ToolTip="Название команды"/>
                                 <TextBox Grid.Row="2"
-                                        Text="{Binding CommandText, UpdateSourceTrigger=PropertyChanged}"
-                                        AcceptsReturn="True"
-                                        TextWrapping="Wrap"
-                                        VerticalScrollBarVisibility="Auto"
-                                        FontFamily="Consolas"
-                                        ToolTip="Команда"/>
+                                         Text="{Binding CommandText, UpdateSourceTrigger=PropertyChanged}"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         FontFamily="Consolas"
+                                         ToolTip="Команда"/>
                                 <Grid Grid.Row="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -1292,8 +1375,8 @@
                                             ToolTip="{Binding [AddCommand], Source={x:Static services:AppServices.Localizer}}">
                                         <StackPanel Orientation="Horizontal">
                                             <iconPacks:PackIconMaterial Kind="Plus"
-                                                    Style="{StaticResource PackIconStyle}"
-                                                    Margin="0 0 8 0"/>
+                                                                        Style="{StaticResource PackIconStyle}"
+                                                                        Margin="0 0 8 0"/>
                                             <TextBlock Text="{Binding [AddCommand], Source={x:Static services:AppServices.Localizer}}"/>
                                         </StackPanel>
                                     </Button>
@@ -1303,7 +1386,7 @@
                                             Command="{Binding UpdateSavedCommandCommand}"
                                             Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="ContentSave"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </Button>
                                     <Button Grid.Column="2"
                                             Style="{StaticResource IconButtonStyle}"
@@ -1311,15 +1394,15 @@
                                             Command="{Binding ToggleSavedCommandFavoriteCommand}"
                                             Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="Star"
-                                                Style="{StaticResource PackIconStyle}"/>
+                                                                    Style="{StaticResource PackIconStyle}"/>
                                     </Button>
                                     <Button Grid.Column="3"
                                             Style="{StaticResource IconButtonStyle}"
                                             ToolTip="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
                                             Command="{Binding DeleteSavedCommandCommand}">
                                         <iconPacks:PackIconMaterial Kind="Delete"
-                                                Style="{StaticResource PackIconStyle}"
-                                                Foreground="{StaticResource DangerBrush}"/>
+                                                                    Style="{StaticResource PackIconStyle}"
+                                                                    Foreground="{StaticResource DangerBrush}"/>
                                     </Button>
                                     <Button Grid.Column="5"
                                             Style="{StaticResource PrimaryButtonStyle}"
@@ -1327,11 +1410,11 @@
                                             Command="{Binding RunSavedCommandCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <iconPacks:PackIconMaterial Kind="Play"
-                                                    Style="{StaticResource PackIconStyle}"
-                                                    Foreground="White"
-                                                    Margin="0 0 8 0"/>
+                                                                        Style="{StaticResource PackIconStyle}"
+                                                                        Foreground="White"
+                                                                        Margin="0 0 8 0"/>
                                             <TextBlock Text="{Binding [Run], Source={x:Static services:AppServices.Localizer}}"
-                                                    FontWeight="SemiBold"/>
+                                                       FontWeight="SemiBold"/>
                                         </StackPanel>
                                     </Button>
                                 </Grid>
@@ -1346,42 +1429,42 @@
                                 <ColumnDefinition Width="1.4*"/>
                             </Grid.ColumnDefinitions>
                             <ScrollViewer Grid.Column="0"
-                                    VerticalScrollBarVisibility="Auto"
-                                    HorizontalScrollBarVisibility="Disabled">
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
                                 <StackPanel>
                                     <Border Style="{StaticResource SoftCardBorderStyle}"
                                             Margin="0 0 0 10">
                                         <StackPanel>
                                             <TextBlock Text="{Binding SelectedServerTitle}"
-                                                    Style="{StaticResource TitleTextStyle}"
-                                                    TextTrimming="CharacterEllipsis"/>
+                                                       Style="{StaticResource TitleTextStyle}"
+                                                       TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding SelectedServerSubtitle}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    Margin="0 5 0 0"
-                                                    TextTrimming="CharacterEllipsis"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       Margin="0 5 0 0"
+                                                       TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding SelectedServerOs}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    Margin="0 3 0 0"
-                                                    TextTrimming="CharacterEllipsis"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       Margin="0 3 0 0"
+                                                       TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                     </Border>
                                     <Border Style="{StaticResource SoftCardBorderStyle}">
                                         <StackPanel>
                                             <TextBlock Text="Статус"
-                                                    Style="{StaticResource SectionTitleTextStyle}"
-                                                    Margin="0 0 0 8"/>
+                                                       Style="{StaticResource SectionTitleTextStyle}"
+                                                       Margin="0 0 0 8"/>
                                             <TextBlock Text="{Binding MonitorLoad}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    TextWrapping="Wrap"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       TextWrapping="Wrap"/>
                                             <TextBlock Text="{Binding MonitorProcesses}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    Margin="0 8 0 0"
-                                                    TextWrapping="Wrap"
-                                                    FontFamily="Consolas"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       Margin="0 8 0 0"
+                                                       TextWrapping="Wrap"
+                                                       FontFamily="Consolas"/>
                                             <TextBlock Text="{Binding MonitorNetwork}"
-                                                    Style="{StaticResource SmallMutedTextStyle}"
-                                                    Margin="0 8 0 0"
-                                                    TextWrapping="Wrap"/>
+                                                       Style="{StaticResource SmallMutedTextStyle}"
+                                                       Margin="0 8 0 0"
+                                                       TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -1400,7 +1483,7 @@
                                             Padding="12 0">
                                         <Grid>
                                             <TextBlock Text="{Binding [RecentLogs], Source={x:Static services:AppServices.Localizer}}"
-                                                    Style="{StaticResource SectionTitleTextStyle}"/>
+                                                       Style="{StaticResource SectionTitleTextStyle}"/>
                                             <Button Content="{Binding [ViewAll], Source={x:Static services:AppServices.Localizer}}"
                                                     BorderThickness="0"
                                                     Background="Transparent"
@@ -1412,9 +1495,9 @@
                                         </Grid>
                                     </Border>
                                     <ListBox Grid.Row="1"
-                                            ItemsSource="{Binding RecentLogs}"
-                                            Margin="8"
-                                            ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                             ItemsSource="{Binding RecentLogs}"
+                                             Margin="8"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Padding="9 7"
@@ -1430,21 +1513,21 @@
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <Ellipse Grid.Column="0"
-                                                                Width="8"
-                                                                Height="8"
-                                                                Margin="0 5 10 0">
+                                                                 Width="8"
+                                                                 Height="8"
+                                                                 Margin="0 5 10 0">
                                                             <Ellipse.Style>
                                                                 <Style TargetType="Ellipse">
                                                                     <Setter Property="Fill"
                                                                             Value="{StaticResource SuccessBrush}"/>
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Level}"
-                                                                                Value="warn">
+                                                                                     Value="warn">
                                                                             <Setter Property="Fill"
                                                                                     Value="{StaticResource WarningBrush}"/>
                                                                         </DataTrigger>
                                                                         <DataTrigger Binding="{Binding Level}"
-                                                                                Value="error">
+                                                                                     Value="error">
                                                                             <Setter Property="Fill"
                                                                                     Value="{StaticResource DangerBrush}"/>
                                                                         </DataTrigger>
@@ -1453,16 +1536,16 @@
                                                             </Ellipse.Style>
                                                         </Ellipse>
                                                         <TextBlock Grid.Column="1"
-                                                                Text="{Binding Time}"
-                                                                Style="{StaticResource SmallMutedTextStyle}"/>
+                                                                   Text="{Binding Time}"
+                                                                   Style="{StaticResource SmallMutedTextStyle}"/>
                                                         <TextBlock Grid.Column="2"
-                                                                Text="{Binding Service}"
-                                                                Style="{StaticResource SmallMutedTextStyle}"
-                                                                TextTrimming="CharacterEllipsis"/>
+                                                                   Text="{Binding Service}"
+                                                                   Style="{StaticResource SmallMutedTextStyle}"
+                                                                   TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Grid.Column="3"
-                                                                Text="{Binding Message}"
-                                                                Style="{StaticResource SmallMutedTextStyle}"
-                                                                TextTrimming="CharacterEllipsis"/>
+                                                                   Text="{Binding Message}"
+                                                                   Style="{StaticResource SmallMutedTextStyle}"
+                                                                   TextTrimming="CharacterEllipsis"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -1489,13 +1572,13 @@
                 <StackPanel>
                     <Grid Margin="0 0 0 14">
                         <TextBlock Text="{Binding [Profile], Source={x:Static services:AppServices.Localizer}}"
-                                Style="{StaticResource TitleTextStyle}"/>
+                                   Style="{StaticResource TitleTextStyle}"/>
                         <Button Style="{StaticResource IconButtonStyle}"
                                 HorizontalAlignment="Right"
                                 ToolTip="{Binding [Close], Source={x:Static services:AppServices.Localizer}}"
                                 Command="{Binding CloseOverlayPanelsCommand}">
                             <iconPacks:PackIconMaterial Kind="Close"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                     </Grid>
                     <Border Style="{StaticResource SoftCardBorderStyle}"
@@ -1511,43 +1594,43 @@
                                     Background="{StaticResource AccentBrush}"
                                     Margin="0 0 14 0">
                                 <TextBlock Text="{Binding UserProfile.Initials}"
-                                        FontSize="16"
-                                        FontWeight="Bold"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"/>
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1"
-                                    VerticalAlignment="Center">
+                                        VerticalAlignment="Center">
                                 <TextBlock Text="{Binding UserProfile.DisplayName}"
-                                        Style="{StaticResource SectionTitleTextStyle}"
-                                        TextTrimming="CharacterEllipsis"/>
+                                           Style="{StaticResource SectionTitleTextStyle}"
+                                           TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{Binding UserProfile.Role}"
-                                        Style="{StaticResource SmallMutedTextStyle}"
-                                        Margin="0 3 0 0"
-                                        TextTrimming="CharacterEllipsis"/>
+                                           Style="{StaticResource SmallMutedTextStyle}"
+                                           Margin="0 3 0 0"
+                                           TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{Binding UserProfile.Email}"
-                                        Style="{StaticResource SmallMutedTextStyle}"
-                                        Margin="0 2 0 0"
-                                        TextTrimming="CharacterEllipsis"/>
+                                           Style="{StaticResource SmallMutedTextStyle}"
+                                           Margin="0 2 0 0"
+                                           TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Grid>
                     </Border>
                     <TextBlock Text="{Binding [Name], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.DisplayName, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 12"/>
+                             Margin="0 6 0 12"/>
                     <TextBlock Text="{Binding [Initials], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Initials, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 12"/>
+                             Margin="0 6 0 12"/>
                     <TextBlock Text="{Binding [Role], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Role, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 12"/>
+                             Margin="0 6 0 12"/>
                     <TextBlock Text="Email"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Email, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 16"/>
+                             Margin="0 6 0 16"/>
                     <Button Content="{Binding [SaveProfile], Source={x:Static services:AppServices.Localizer}}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             ToolTip="{Binding [SaveProfile], Source={x:Static services:AppServices.Localizer}}"
@@ -1568,37 +1651,37 @@
                 <StackPanel>
                     <Grid Margin="0 0 0 14">
                         <TextBlock Text="{Binding [Settings], Source={x:Static services:AppServices.Localizer}}"
-                                Style="{StaticResource TitleTextStyle}"/>
+                                   Style="{StaticResource TitleTextStyle}"/>
                         <Button Style="{StaticResource IconButtonStyle}"
                                 HorizontalAlignment="Right"
                                 ToolTip="{Binding [Close], Source={x:Static services:AppServices.Localizer}}"
                                 Command="{Binding CloseOverlayPanelsCommand}">
                             <iconPacks:PackIconMaterial Kind="Close"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                     </Grid>
                     <TextBlock Text="{Binding [Language], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <ComboBox ItemsSource="{Binding LanguageOptions}"
                               SelectedValue="{Binding AppSettings.LanguageCode, UpdateSourceTrigger=PropertyChanged}"
                               SelectedValuePath="Code"
                               DisplayMemberPath="Name"
                               Margin="0 6 0 12"/>
                     <TextBlock Text="{Binding [MonitoringInterval], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding AppSettings.MonitoringIntervalSeconds, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 12"/>
+                             Margin="0 6 0 12"/>
                     <TextBlock Text="{Binding [DefaultRemoteFolder], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding AppSettings.DefaultRemoteFolder, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 12"/>
+                             Margin="0 6 0 12"/>
                     <TextBlock Text="{Binding [DefaultLogPath], Source={x:Static services:AppServices.Localizer}}"
-                            Style="{StaticResource SmallMutedTextStyle}"/>
+                               Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding AppSettings.DefaultLogPath, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0 6 0 12"/>
+                             Margin="0 6 0 12"/>
                     <CheckBox Content="{Binding [AutoRefreshMonitoring], Source={x:Static services:AppServices.Localizer}}"
-                            IsChecked="{Binding AppSettings.AutoRefreshMonitoring}"
-                            Margin="0 0 0 16"/>
+                              IsChecked="{Binding AppSettings.AutoRefreshMonitoring}"
+                              Margin="0 0 0 16"/>
                     <Button Content="{Binding [SaveSettings], Source={x:Static services:AppServices.Localizer}}"
                             Style="{StaticResource PrimaryButtonStyle}"
                             ToolTip="{Binding [SaveSettings], Source={x:Static services:AppServices.Localizer}}"
@@ -1624,13 +1707,13 @@
                     </Grid.RowDefinitions>
                     <Grid Margin="0 0 0 14">
                         <TextBlock Text="{Binding [Favorites], Source={x:Static services:AppServices.Localizer}}"
-                                Style="{StaticResource TitleTextStyle}"/>
+                                   Style="{StaticResource TitleTextStyle}"/>
                         <Button Style="{StaticResource IconButtonStyle}"
                                 HorizontalAlignment="Right"
                                 ToolTip="{Binding [Close], Source={x:Static services:AppServices.Localizer}}"
                                 Command="{Binding CloseOverlayPanelsCommand}">
                             <iconPacks:PackIconMaterial Kind="Close"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                     </Grid>
                     <Grid Grid.Row="1">
@@ -1641,19 +1724,19 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
                             <TextBlock Text="{Binding [Servers], Source={x:Static services:AppServices.Localizer}}"
-                                    Style="{StaticResource SectionTitleTextStyle}"
-                                    Margin="0 0 0 10"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"
+                                       Margin="0 0 0 10"/>
                             <ListBox ItemsSource="{Binding FavoriteServers}"
-                                    SelectedItem="{Binding SelectedServer}">
+                                     SelectedItem="{Binding SelectedServer}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Border Style="{StaticResource SoftCardBorderStyle}"
                                                 Margin="0 0 0 8">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Name}"
-                                                        FontWeight="SemiBold"/>
+                                                           FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding Host}"
-                                                        Style="{StaticResource SmallMutedTextStyle}"/>
+                                                           Style="{StaticResource SmallMutedTextStyle}"/>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -1662,21 +1745,21 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}"
-                                    Style="{StaticResource SectionTitleTextStyle}"
-                                    Margin="0 0 0 10"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"
+                                       Margin="0 0 0 10"/>
                             <ListBox ItemsSource="{Binding FavoriteCommands}"
-                                    SelectedItem="{Binding SelectedSavedCommand}">
+                                     SelectedItem="{Binding SelectedSavedCommand}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Border Style="{StaticResource SoftCardBorderStyle}"
                                                 Margin="0 0 0 8">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Title}"
-                                                        FontWeight="SemiBold"/>
+                                                           FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding Command}"
-                                                        Style="{StaticResource SmallMutedTextStyle}"
-                                                        FontFamily="Consolas"
-                                                        TextTrimming="CharacterEllipsis"/>
+                                                           Style="{StaticResource SmallMutedTextStyle}"
+                                                           FontFamily="Consolas"
+                                                           TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
                                         </Border>
                                     </DataTemplate>
@@ -1706,33 +1789,33 @@
                     </Grid.RowDefinitions>
                     <Grid Margin="0 0 0 14">
                         <TextBlock Text="{Binding [ActivityLog], Source={x:Static services:AppServices.Localizer}}"
-                                Style="{StaticResource TitleTextStyle}"/>
+                                   Style="{StaticResource TitleTextStyle}"/>
                         <Button Style="{StaticResource IconButtonStyle}"
                                 HorizontalAlignment="Right"
                                 ToolTip="{Binding [Close], Source={x:Static services:AppServices.Localizer}}"
                                 Command="{Binding CloseOverlayPanelsCommand}">
                             <iconPacks:PackIconMaterial Kind="Close"
-                                    Style="{StaticResource PackIconStyle}"/>
+                                                        Style="{StaticResource PackIconStyle}"/>
                         </Button>
                     </Grid>
                     <DataGrid Grid.Row="1"
-                            ItemsSource="{Binding ActivityLogs}"
-                            AutoGenerateColumns="False"
-                            IsReadOnly="True"
-                            RowHeight="36">
+                              ItemsSource="{Binding ActivityLogs}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              RowHeight="36">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="{Binding [Time], Source={x:Static services:AppServices.Localizer}}"
-                                    Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM HH:mm:ss}}"
-                                    Width="130"/>
+                                                Binding="{Binding CreatedAt, StringFormat={}{0:dd.MM HH:mm:ss}}"
+                                                Width="130"/>
                             <DataGridTextColumn Header="{Binding [Activity], Source={x:Static services:AppServices.Localizer}}"
-                                    Binding="{Binding Action}"
-                                    Width="120"/>
+                                                Binding="{Binding Action}"
+                                                Width="120"/>
                             <DataGridTextColumn Header="{Binding [Target], Source={x:Static services:AppServices.Localizer}}"
-                                    Binding="{Binding Target}"
-                                    Width="150"/>
+                                                Binding="{Binding Target}"
+                                                Width="150"/>
                             <DataGridTextColumn Header="{Binding [Details], Source={x:Static services:AppServices.Localizer}}"
-                                    Binding="{Binding Details}"
-                                    Width="*"/>
+                                                Binding="{Binding Details}"
+                                                Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     <Button Grid.Row="2"
@@ -1746,4 +1829,5 @@
             </Border>
         </Border>
     </Grid>
+
 </Window>
