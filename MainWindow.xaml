@@ -913,7 +913,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="56"/>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="76"/>
+                                <RowDefinition Height="32"/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0"
                                     BorderBrush="{StaticResource BorderBrushSoft}"
@@ -1199,76 +1199,68 @@
                                                         Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <Grid Grid.Row="2"
-                                  Margin="12 8"
-                                  VerticalAlignment="Center">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="36"/>
-                                    <RowDefinition Height="20"/>
-                                </Grid.RowDefinitions>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <TextBox Grid.Column="0"
-                                         Height="34"
-                                         VerticalContentAlignment="Center"
-                                         Text="{Binding RemoteFilePath, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Remote file"/>
-
-                                <TextBox Grid.Column="2"
-                                         Height="34"
-                                         VerticalContentAlignment="Center"
-                                         Text="{Binding LocalFilePath, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Local path"/>
-
-                                <StackPanel Grid.Column="4"
-                                            Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <Button Style="{StaticResource IconButtonStyle}"
-                                            Width="36"
-                                            Height="36"
-                                            ToolTip="{Binding [OpenLocalFolder], Source={x:Static services:AppServices.Localizer}}"
-                                            Command="{Binding OpenLocalFolderCommand}"
-                                            Margin="0 0 6 0">
-                                        <iconPacks:PackIconMaterial Kind="Folder"
-                                                                    Style="{StaticResource PackIconStyle}"/>
-                                    </Button>
-
-                                    <Button Style="{StaticResource IconButtonStyle}"
-                                            Width="36"
-                                            Height="36"
-                                            ToolTip="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
-                                            Command="{Binding DownloadSelectedRemoteFileCommand}">
-                                        <iconPacks:PackIconMaterial Kind="Download"
-                                                                    Style="{StaticResource PackIconStyle}"/>
-                                    </Button>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="1"
-                                           Grid.ColumnSpan="5"
-                                           Text="{Binding SftpOutput}"
+                            <Border Grid.Row="2"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="0 1 0 0"
+                                    Padding="12 6">
+                                <TextBlock Text="{Binding SftpOutput}"
                                            Style="{StaticResource TinyMutedTextStyle}"
-                                           TextTrimming="CharacterEllipsis"/>
-                            </Grid>
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"/>
+                            </Border>
                         </Grid>
                     </TabItem>
                     <TabItem Header="{Binding [Logs], Source={x:Static services:AppServices.Localizer}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="46"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                        <Border Grid.Row="2"
-                                BorderBrush="{StaticResource BorderBrushSoft}"
-                                BorderThickness="0 1 0 0"
-                                Padding="12 6">
-                            <TextBlock Text="{Binding SftpOutput}"
-                                       Style="{StaticResource TinyMutedTextStyle}"
-                                       TextTrimming="CharacterEllipsis"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+                            <Border Grid.Row="0"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="0 0 0 1"
+                                    Padding="10 6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBox Text="{Binding LogPath, UpdateSourceTrigger=PropertyChanged}"
+                                             ToolTip="{Binding [DefaultLogPath], Source={x:Static services:AppServices.Localizer}}"/>
+
+                                    <StackPanel Grid.Column="2"
+                                                Orientation="Horizontal">
+                                        <Button Content="nginx"
+                                                Style="{StaticResource CompactButtonStyle}"
+                                                ToolTip="Open nginx log"
+                                                Command="{Binding UseNginxLogCommand}"
+                                                Margin="0 0 6 0"/>
+
+                                        <Button Content="syslog"
+                                                Style="{StaticResource CompactButtonStyle}"
+                                                ToolTip="Open syslog"
+                                                Command="{Binding UseSyslogCommand}"
+                                                Margin="0 0 6 0"/>
+
+                                        <Button Style="{StaticResource IconButtonStyle}"
+                                                ToolTip="{Binding [RefreshLogs], Source={x:Static services:AppServices.Localizer}}"
+                                                Command="{Binding LoadLogCommand}">
+                                            <iconPacks:PackIconMaterial Kind="Refresh"
+                                                                        Style="{StaticResource PackIconStyle}"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <TextBox Grid.Row="1"
+                                     Text="{Binding LogContent}"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource ConsoleTextBoxStyle}"
+                                     BorderThickness="0"/>
+                        </Grid>
                     </TabItem>
                     <TabItem Header="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}">
                         <Grid Margin="12">
