@@ -33,20 +33,22 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TabControl}">
-                        <Grid>
+                        <Grid UseLayoutRounding="True"
+                              SnapsToDevicePixels="True">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="56"/>
+                                <RowDefinition Height="38"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
                             <Border Grid.Row="0"
                                     Background="#07111B"
-                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderBrush="#102235"
                                     BorderThickness="0 0 0 1"
-                                    Padding="16 8 16 7">
+                                    Padding="18 0 18 0">
                                 <TabPanel IsItemsHost="True"
                                           Background="Transparent"
-                                          Margin="0"/>
+                                          Margin="0"
+                                          VerticalAlignment="Bottom"/>
                             </Border>
 
                             <ContentPresenter Grid.Row="1"
@@ -66,9 +68,9 @@
             <Setter Property="FontSize"
                     Value="13"/>
             <Setter Property="Padding"
-                    Value="14 8"/>
+                    Value="18 0"/>
             <Setter Property="Margin"
-                    Value="0 0 10 0"/>
+                    Value="0 0 14 0"/>
             <Setter Property="MinHeight"
                     Value="36"/>
             <Setter Property="Background"
@@ -78,40 +80,42 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TabItem}">
-                        <Border x:Name="TabBorder"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                BorderThickness="1"
-                                CornerRadius="7"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter ContentSource="Header"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid UseLayoutRounding="True"
+                              SnapsToDevicePixels="True">
+                            <Border x:Name="HoverBackground"
+                                    Height="32"
+                                    CornerRadius="10"
+                                    Background="Transparent"
+                                    VerticalAlignment="Center"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter ContentSource="Header"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+
+                            <Border x:Name="ActiveLine"
+                                    Height="2"
+                                    CornerRadius="1"
+                                    Background="{StaticResource AccentBrush}"
+                                    VerticalAlignment="Bottom"
+                                    Margin="12 0"
+                                    Opacity="0"/>
+                        </Grid>
 
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver"
                                      Value="True">
                                 <Setter Property="Foreground"
                                         Value="{StaticResource TextBrush}"/>
-                                <Setter TargetName="TabBorder"
-                                        Property="Background"
-                                        Value="#0D1A27"/>
-                                <Setter TargetName="TabBorder"
-                                        Property="BorderBrush"
-                                        Value="#1D3348"/>
                             </Trigger>
 
                             <Trigger Property="IsSelected"
                                      Value="True">
                                 <Setter Property="Foreground"
                                         Value="{StaticResource TextBrush}"/>
-                                <Setter TargetName="TabBorder"
-                                        Property="Background"
-                                        Value="#174A7C"/>
-                                <Setter TargetName="TabBorder"
-                                        Property="BorderBrush"
-                                        Value="#2D6FA8"/>
+                                <Setter TargetName="ActiveLine"
+                                        Property="Opacity"
+                                        Value="1"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -142,7 +146,7 @@
                     <RowDefinition Height="116"/>
                     <RowDefinition Height="178"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="64"/>
+                    <RowDefinition Height="48"/>
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0"
@@ -780,7 +784,7 @@
                     Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="42"/>
+                        <RowDefinition Height="36"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="52"/>
                     </Grid.RowDefinitions>
@@ -1242,7 +1246,15 @@
                             </Border>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="{Binding [Logs], Source={x:Static services:AppServices.Localizer}}">
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Kind="FileDocumentOutline"
+                                                            Style="{StaticResource PackIconStyle}"
+                                                            Margin="0 0 8 0"/>
+                                <TextBlock Text="{Binding [Logs], Source={x:Static services:AppServices.Localizer}}"/>
+                            </StackPanel>
+                        </TabItem.Header>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="46"/>
@@ -1294,7 +1306,15 @@
                                      BorderThickness="0"/>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}">
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Kind="Console"
+                                                            Style="{StaticResource PackIconStyle}"
+                                                            Margin="0 0 8 0"/>
+                                <TextBlock Text="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}"/>
+                            </StackPanel>
+                        </TabItem.Header>
                         <Grid Margin="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1.25*"
@@ -1423,7 +1443,15 @@
                             </Grid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="{Binding [ServerInspector], Source={x:Static services:AppServices.Localizer}}">
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterial Kind="MonitorDashboard"
+                                                            Style="{StaticResource PackIconStyle}"
+                                                            Margin="0 0 8 0"/>
+                                <TextBlock Text="{Binding [ServerInspector], Source={x:Static services:AppServices.Localizer}}"/>
+                            </StackPanel>
+                        </TabItem.Header>
                         <Grid Margin="12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1.1*"/>
@@ -1749,6 +1777,7 @@
                             <TextBlock Text="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}"
                                        Style="{StaticResource SectionTitleTextStyle}"
                                        Margin="0 0 0 10"/>
+
                             <ListBox ItemsSource="{Binding FavoriteCommands}"
                                      SelectedItem="{Binding SelectedSavedCommand}">
                                 <ListBox.ItemTemplate>
