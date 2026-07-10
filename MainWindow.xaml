@@ -5,12 +5,16 @@
         xmlns:services="clr-namespace:ServerControlCenter.Services"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Title="Server Control Center"
-        Width="1360"
-        Height="900"
-        MinWidth="1180"
-        MinHeight="760"
+        Width="1320"
+        Height="840"
+        MinWidth="820"
+        MinHeight="600"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource AppBackgroundBrush}">
+        Background="{StaticResource AppBackgroundBrush}"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
         <Style x:Key="PackIconStyle"
@@ -44,7 +48,7 @@
                                     Background="#07111B"
                                     BorderBrush="#102235"
                                     BorderThickness="0 0 0 1"
-                                    Padding="18 0 18 0">
+                                    Padding="10 0">
                                 <TabPanel IsItemsHost="True"
                                           Background="Transparent"
                                           Margin="0"
@@ -68,9 +72,9 @@
             <Setter Property="FontSize"
                     Value="13"/>
             <Setter Property="Padding"
-                    Value="18 0"/>
+                    Value="10 0"/>
             <Setter Property="Margin"
-                    Value="0 0 14 0"/>
+                    Value="0 0 6 0"/>
             <Setter Property="MinHeight"
                     Value="36"/>
             <Setter Property="Background"
@@ -126,9 +130,8 @@
     </Window.Resources>
     <Grid Background="{StaticResource AppBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="248"/>
-            <ColumnDefinition Width="*"
-                              MinWidth="880"/>
+            <ColumnDefinition Width="224"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="62"/>
@@ -502,7 +505,7 @@
                     </TextBlock>
                 </StackPanel>
                 <Grid Grid.Column="1"
-                      Width="230"
+                      Width="200"
                       VerticalAlignment="Center"
                       Margin="0 0 16 0">
                     <TextBox x:Name="ServerSearchBox"
@@ -589,34 +592,28 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="124"/>
                 <RowDefinition Height="12"/>
-                <RowDefinition Height="0.9*"
-                               MinHeight="220"/>
+                <RowDefinition Height="0.9*"/>
                 <RowDefinition Height="8"/>
-                <RowDefinition Height="1.25*"
-                               MinHeight="300"/>
+                <RowDefinition Height="1.25*"/>
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"
-                                      MinWidth="222"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"
-                                      MinWidth="222"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"
-                                      MinWidth="222"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="160"
-                                      MinWidth="150"/>
+                    <ColumnDefinition Width="0.72*"/>
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
                         Style="{StaticResource MetricCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="118"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -638,8 +635,8 @@
                         </StackPanel>
                         <TextBlock Grid.Row="1"
                                    Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}"
-                                   FontSize="30"
-                                   Margin="44 6 0 0"/>
+                                   FontSize="28"
+                                   Margin="0 6 10 0"/>
                         <TextBlock Grid.Row="2"
                                    Text="{Binding MonitorCpu}"
                                    Style="{StaticResource SmallMutedTextStyle}"
@@ -659,8 +656,8 @@
                         Style="{StaticResource MetricCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="118"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -684,8 +681,8 @@
                         </StackPanel>
                         <TextBlock Grid.Row="1"
                                    Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}"
-                                   FontSize="30"
-                                   Margin="44 6 0 0"/>
+                                   FontSize="28"
+                                   Margin="0 6 10 0"/>
                         <TextBlock Grid.Row="2"
                                    Text="{Binding MonitorRam}"
                                    Style="{StaticResource SmallMutedTextStyle}"
@@ -705,8 +702,8 @@
                         Style="{StaticResource MetricCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="118"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -730,8 +727,8 @@
                         </StackPanel>
                         <TextBlock Grid.Row="1"
                                    Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}"
-                                   FontSize="30"
-                                   Margin="44 6 0 0"/>
+                                   FontSize="28"
+                                   Margin="0 6 10 0"/>
                         <TextBlock Grid.Row="2"
                                    Text="{Binding MonitorDiskUsage}"
                                    Style="{StaticResource SmallMutedTextStyle}"
@@ -763,7 +760,8 @@
                                                             VerticalAlignment="Center"/>
                             </Border>
                             <TextBlock Text="{Binding [Uptime], Source={x:Static services:AppServices.Localizer}}"
-                                       Style="{StaticResource SectionTitleTextStyle}"/>
+                                       Style="{StaticResource SectionTitleTextStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                         <TextBlock Text="{Binding MonitorUptimeShort}"
                                    FontSize="16"
@@ -1317,11 +1315,9 @@
                         </TabItem.Header>
                         <Grid Margin="12">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1.25*"
-                                                  MinWidth="420"/>
+                                <ColumnDefinition Width="1.25*"/>
                                 <ColumnDefinition Width="14"/>
-                                <ColumnDefinition Width="*"
-                                                  MinWidth="340"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
                                     BorderBrush="{StaticResource BorderBrushSoft}"
@@ -1382,19 +1378,12 @@
                                          VerticalScrollBarVisibility="Auto"
                                          FontFamily="Consolas"
                                          ToolTip="Команда"/>
-                                <Grid Grid.Row="4">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="10"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0"
-                                            HorizontalAlignment="Left"
+                                <WrapPanel Grid.Row="4"
+                                           HorizontalAlignment="Right">
+                                    <Button HorizontalAlignment="Left"
                                             Command="{Binding AddSavedCommandCommand}"
-                                            ToolTip="{Binding [AddCommand], Source={x:Static services:AppServices.Localizer}}">
+                                            ToolTip="{Binding [AddCommand], Source={x:Static services:AppServices.Localizer}}"
+                                            Margin="0 0 6 0">
                                         <StackPanel Orientation="Horizontal">
                                             <iconPacks:PackIconMaterial Kind="Plus"
                                                                         Style="{StaticResource PackIconStyle}"
@@ -1402,32 +1391,29 @@
                                             <TextBlock Text="{Binding [AddCommand], Source={x:Static services:AppServices.Localizer}}"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Grid.Column="1"
-                                            Style="{StaticResource IconButtonStyle}"
+                                    <Button Style="{StaticResource IconButtonStyle}"
                                             ToolTip="Сохранить команду"
                                             Command="{Binding UpdateSavedCommandCommand}"
                                             Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="ContentSave"
                                                                     Style="{StaticResource PackIconStyle}"/>
                                     </Button>
-                                    <Button Grid.Column="2"
-                                            Style="{StaticResource IconButtonStyle}"
+                                    <Button Style="{StaticResource IconButtonStyle}"
                                             ToolTip="{Binding [ToggleFavorite], Source={x:Static services:AppServices.Localizer}}"
                                             Command="{Binding ToggleSavedCommandFavoriteCommand}"
                                             Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="Star"
                                                                     Style="{StaticResource PackIconStyle}"/>
                                     </Button>
-                                    <Button Grid.Column="3"
-                                            Style="{StaticResource IconButtonStyle}"
+                                    <Button Style="{StaticResource IconButtonStyle}"
                                             ToolTip="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
-                                            Command="{Binding DeleteSavedCommandCommand}">
+                                            Command="{Binding DeleteSavedCommandCommand}"
+                                            Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="Delete"
                                                                     Style="{StaticResource PackIconStyle}"
                                                                     Foreground="{StaticResource DangerBrush}"/>
                                     </Button>
-                                    <Button Grid.Column="5"
-                                            Style="{StaticResource PrimaryButtonStyle}"
+                                    <Button Style="{StaticResource PrimaryButtonStyle}"
                                             ToolTip="{Binding [Run], Source={x:Static services:AppServices.Localizer}}"
                                             Command="{Binding RunSavedCommandCommand}">
                                         <StackPanel Orientation="Horizontal">
@@ -1439,7 +1425,7 @@
                                                        FontWeight="SemiBold"/>
                                         </StackPanel>
                                     </Button>
-                                </Grid>
+                                </WrapPanel>
                             </Grid>
                         </Grid>
                     </TabItem>
