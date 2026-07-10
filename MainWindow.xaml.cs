@@ -246,7 +246,7 @@ public partial class MainWindow : Window
     private bool ConfirmDangerousCommand(string command)
     {
         var result = MessageBox.Show(
-            $"This command can change or stop the server:\n\n{command}\n\nRun it?",
+            AppServices.Localizer.Format("DangerousCommandPrompt", command),
             AppServices.Localizer.T("Confirm"),
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning);

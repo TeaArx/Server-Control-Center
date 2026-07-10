@@ -7,8 +7,9 @@
         Title="Server Control Center"
         Width="1320"
         Height="840"
-        MinWidth="820"
+        MinWidth="1080"
         MinHeight="600"
+        Icon="Assets/server-control-center.png"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource AppBackgroundBrush}"
         UseLayoutRounding="True"
@@ -130,7 +131,7 @@
     </Window.Resources>
     <Grid Background="{StaticResource AppBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="224"/>
+            <ColumnDefinition Width="248"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -180,7 +181,7 @@
                                         VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
-                        <TextBlock Text="ServerControl"
+                        <TextBlock Text="Server Control"
                                    FontSize="16"
                                    FontWeight="SemiBold"/>
                     </StackPanel>
@@ -250,7 +251,7 @@
                                                                         Style="{StaticResource PackIconStyle}"
                                                                         Foreground="{StaticResource MutedTextBrush}"/>
                                             <TextBlock Grid.Column="1"
-                                                       Text="{Binding Name}"
+                                                       Text="{Binding DisplayName}"
                                                        FontWeight="SemiBold"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Grid.Column="2"
@@ -376,6 +377,31 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    <StackPanel Margin="8 28 8 0">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasFilteredServers}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <iconPacks:PackIconMaterial Kind="ServerOff"
+                                                    Width="28"
+                                                    Height="28"
+                                                    Foreground="{StaticResource MutedTextBrush}"
+                                                    HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding [NoServers], Source={x:Static services:AppServices.Localizer}}"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0 10 0 4"/>
+                        <TextBlock Text="{Binding [NoServersHint], Source={x:Static services:AppServices.Localizer}}"
+                                   Style="{StaticResource TinyMutedTextStyle}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <Border Grid.Row="4"
@@ -443,12 +469,15 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Margin="0 0 18 0">
+                <Grid VerticalAlignment="Center"
+                      Margin="0 0 18 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
                     <Ellipse Width="7"
                              Height="7"
-                             Margin="0 0 14 0">
+                             Margin="0 0 12 0">
                         <Ellipse.Style>
                             <Style TargetType="Ellipse">
                                 <Setter Property="Fill"
@@ -463,47 +492,32 @@
                             </Style>
                         </Ellipse.Style>
                     </Ellipse>
-                    <TextBlock Text="{Binding SelectedServerTitle}"
-                               FontSize="16"
-                               FontWeight="SemiBold"
-                               TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="&#x2022;"
-                               Foreground="{StaticResource MutedTextBrush}"
-                               Margin="18 0 14 0"/>
-                    <Ellipse Width="7"
-                             Height="7"
-                             Margin="0 0 8 0">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill"
-                                        Value="#8CA0B2"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                                 Value="True">
-                                        <Setter Property="Fill"
-                                                Value="{StaticResource SuccessBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
-                    </Ellipse>
-                    <TextBlock Text="{Binding OnlineText}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock"
-                                   BasedOn="{StaticResource {x:Type TextBlock}}">
-                                <Setter Property="Foreground"
-                                        Value="{StaticResource MutedTextBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{StaticResource SuccessBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="{Binding SelectedServerTitle}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <StackPanel Orientation="Horizontal" Margin="0 3 0 0">
+                            <TextBlock Text="{Binding SelectedServerSubtitle}"
+                                       Style="{StaticResource TinyMutedTextStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="&#x2022;"
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Margin="8 0"/>
+                            <TextBlock Text="{Binding OnlineText}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource TinyMutedTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedServer.IsOnline}" Value="True">
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
                 <Grid Grid.Column="1"
                       Width="200"
                       VerticalAlignment="Center"
@@ -558,7 +572,7 @@
                     </Button>
                     <Button Command="{Binding OpenProfilePanelCommand}"
                             Style="{StaticResource AvatarButtonStyle}"
-                            ToolTip="Profile">
+                            ToolTip="{Binding [Profile], Source={x:Static services:AppServices.Localizer}}">
                         <Grid Width="40"
                               Height="40">
                             <Border Width="32"
@@ -801,8 +815,14 @@
                                          Height="7"
                                          Fill="{StaticResource SuccessBrush}"
                                          Margin="0 0 10 0"/>
-                                <TextBlock Text="Terminal"
+                                <TextBlock Text="{Binding [Terminal], Source={x:Static services:AppServices.Localizer}}"
                                            Style="{StaticResource SectionTitleTextStyle}"/>
+                                <TextBlock Text="{Binding SshOutput}"
+                                           Style="{StaticResource TinyMutedTextStyle}"
+                                           Margin="14 0 0 0"
+                                           MaxWidth="420"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding SshOutput}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1"
                                         Orientation="Horizontal"
@@ -885,12 +905,12 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
                                  Text="{Binding TerminalCommand, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="SSH command"
+                                 ToolTip="{Binding [SshCommand], Source={x:Static services:AppServices.Localizer}}"
                                  VerticalContentAlignment="Center"
                                  KeyDown="TerminalCommandTextBox_KeyDown"/>
                         <Button Grid.Column="2"
                                 Style="{StaticResource PrimaryButtonStyle}"
-                                ToolTip="Send SSH command"
+                                ToolTip="{Binding [SendSshCommand], Source={x:Static services:AppServices.Localizer}}"
                                 Command="{Binding SendTerminalCommandCommand}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding [Send], Source={x:Static services:AppServices.Localizer}}"
@@ -1105,7 +1125,8 @@
                                     </StackPanel>
                                 </Grid>
                             </Border>
-                            <DataGrid Grid.Row="1"
+                            <Grid Grid.Row="1">
+                            <DataGrid
                                       ItemsSource="{Binding RemoteFiles}"
                                       SelectedItem="{Binding SelectedRemoteFile}"
                                       AutoGenerateColumns="False"
@@ -1233,6 +1254,31 @@
                                                         Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
+                                <StackPanel HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasRemoteFiles}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <iconPacks:PackIconMaterial Kind="FolderOpenOutline"
+                                                                Width="34"
+                                                                Height="34"
+                                                                Foreground="{StaticResource MutedTextBrush}"
+                                                                HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding [NoFiles], Source={x:Static services:AppServices.Localizer}}"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               Margin="0 10 0 4"/>
+                                    <TextBlock Text="{Binding [NoFilesHint], Source={x:Static services:AppServices.Localizer}}"
+                                               Style="{StaticResource SmallMutedTextStyle}"/>
+                                </StackPanel>
+                            </Grid>
                             <Border Grid.Row="2"
                                     BorderBrush="{StaticResource BorderBrushSoft}"
                                     BorderThickness="0 1 0 0"
@@ -1370,14 +1416,14 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBox Text="{Binding CommandTitle, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Название команды"/>
+                                         ToolTip="{Binding [CommandName], Source={x:Static services:AppServices.Localizer}}"/>
                                 <TextBox Grid.Row="2"
                                          Text="{Binding CommandText, UpdateSourceTrigger=PropertyChanged}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
                                          VerticalScrollBarVisibility="Auto"
                                          FontFamily="Consolas"
-                                         ToolTip="Команда"/>
+                                         ToolTip="{Binding [CommandText], Source={x:Static services:AppServices.Localizer}}"/>
                                 <WrapPanel Grid.Row="4"
                                            HorizontalAlignment="Right">
                                     <Button HorizontalAlignment="Left"
@@ -1392,7 +1438,7 @@
                                         </StackPanel>
                                     </Button>
                                     <Button Style="{StaticResource IconButtonStyle}"
-                                            ToolTip="Сохранить команду"
+                                            ToolTip="{Binding [SaveCommand], Source={x:Static services:AppServices.Localizer}}"
                                             Command="{Binding UpdateSavedCommandCommand}"
                                             Margin="0 0 6 0">
                                         <iconPacks:PackIconMaterial Kind="ContentSave"
@@ -1466,7 +1512,7 @@
                                     </Border>
                                     <Border Style="{StaticResource SoftCardBorderStyle}">
                                         <StackPanel>
-                                            <TextBlock Text="Статус"
+                                            <TextBlock Text="{Binding [Status], Source={x:Static services:AppServices.Localizer}}"
                                                        Style="{StaticResource SectionTitleTextStyle}"
                                                        Margin="0 0 0 8"/>
                                             <TextBlock Text="{Binding MonitorLoad}"
@@ -1643,7 +1689,7 @@
                                Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Role, UpdateSourceTrigger=PropertyChanged}"
                              Margin="0 6 0 12"/>
-                    <TextBlock Text="Email"
+                    <TextBlock Text="{Binding [Email], Source={x:Static services:AppServices.Localizer}}"
                                Style="{StaticResource SmallMutedTextStyle}"/>
                     <TextBox Text="{Binding UserProfile.Email, UpdateSourceTrigger=PropertyChanged}"
                              Margin="0 6 0 16"/>

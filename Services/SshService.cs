@@ -76,15 +76,24 @@ public sealed class SshService : IDisposable
         return CleanTerminalOutput(rawOutput, command);
     }
 
-    public Task<string> TestConnectionAsync(ServerProfile server)
+    public Task<(bool Succeeded, string Message)> TestConnectionAsync(ServerProfile server)
     {
-        return RunSafeAsync(server, client =>
+        return Task.Run(() =>
         {
-            client.Connect();
+            try
+            {
+                using var testClient = CreateClient(server);
+                testClient.Connect();
 
-            return client.IsConnected
-                ? "Подключение успешно."
-                : "Не удалось подключиться.";
+                var succeeded = testClient.IsConnected;
+                return (
+                    succeeded,
+                    AppServices.Localizer.T(succeeded ? "ConnectionSuccessful" : "ConnectionFailed"));
+            }
+            catch (Exception ex)
+            {
+                return (false, AppServices.Localizer.Format("SshError", ex.Message));
+            }
         });
     }
 
