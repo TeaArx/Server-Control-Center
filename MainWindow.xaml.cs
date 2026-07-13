@@ -29,6 +29,23 @@ public partial class MainWindow : Window
 
     private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (DataContext is MainViewModel viewModel && e.Key == Key.Escape &&
+            (viewModel.IsSettingsPanelOpen ||
+             viewModel.IsFavoritesPanelOpen || viewModel.IsActivityPanelOpen))
+        {
+            viewModel.CloseOverlayPanelsCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
+        if (DataContext is MainViewModel vm && e.Key == Key.N &&
+            (Keyboard.Modifiers & ModifierKeys.Control) != 0)
+        {
+            vm.AddServerCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
         if ((Keyboard.Modifiers & ModifierKeys.Control) == 0 ||
             e.Key is not (Key.K or Key.F))
         {
@@ -53,6 +70,47 @@ public partial class MainWindow : Window
             vm.SendTerminalCommandCommand.CanExecute(null))
         {
             vm.SendTerminalCommandCommand.Execute(null);
+        }
+    }
+
+    private void RemoteFolderPathTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter || DataContext is not MainViewModel viewModel ||
+            !viewModel.LoadRemoteFilesCommand.CanExecute(null))
+        {
+            return;
+        }
+
+        e.Handled = true;
+        viewModel.LoadRemoteFilesCommand.Execute(null);
+    }
+
+    private void LogPathTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter || DataContext is not MainViewModel viewModel ||
+            !viewModel.LoadLogCommand.CanExecute(null))
+        {
+            return;
+        }
+
+        e.Handled = true;
+        viewModel.LoadLogCommand.Execute(null);
+    }
+
+    private void OperationsTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!ReferenceEquals(e.Source, sender) || DataContext is not MainViewModel viewModel)
+        {
+            return;
+        }
+
+        if (OperationsTabControl.SelectedIndex == 1 && viewModel.LoadRemoteFilesCommand.CanExecute(null))
+        {
+            viewModel.LoadRemoteFilesCommand.Execute(null);
+        }
+        else if (OperationsTabControl.SelectedIndex == 2 && viewModel.LoadLogCommand.CanExecute(null))
+        {
+            viewModel.LoadLogCommand.Execute(null);
         }
     }
 
@@ -159,9 +217,9 @@ public partial class MainWindow : Window
     private void RemoteFileDownloadMenuItem_Click(object sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel viewModel &&
-            viewModel.DownloadFileCommand.CanExecute(null))
+            viewModel.DownloadSelectedRemoteFileCommand.CanExecute(null))
         {
-            viewModel.DownloadFileCommand.Execute(null);
+            viewModel.DownloadSelectedRemoteFileCommand.Execute(null);
         }
     }
 
@@ -270,6 +328,10 @@ public partial class MainWindow : Window
         return null;
     }
 
+    private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        e.Handled = e.Text.Any(character => !char.IsDigit(character));
+    }
     private void ApplyWindowFrameTheme()
     {
         try

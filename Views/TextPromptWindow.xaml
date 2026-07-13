@@ -5,6 +5,7 @@
         Title="{Binding [WindowInputTitle], Source={x:Static services:AppServices.Localizer}}"
         Height="190"
         Width="480"
+        Icon="/Assets/server-control-center.ico"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource AppBackgroundBrush}">

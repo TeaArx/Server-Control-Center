@@ -7,6 +7,7 @@
         Width="600"
         MinWidth="480"
         MinHeight="520"
+        Icon="/Assets/server-control-center.ico"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource AppBackgroundBrush}">
 
