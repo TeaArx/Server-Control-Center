@@ -372,10 +372,13 @@
                     <StackPanel Margin="8 28 8 0">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
-                                <Setter Property="Visibility" Value="Visible"/>
+                                <Setter Property="Visibility"
+                                        Value="Visible"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasFilteredServers}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    <DataTrigger Binding="{Binding HasFilteredServers}"
+                                            Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -492,7 +495,8 @@
                                    FontSize="16"
                                    FontWeight="SemiBold"
                                    TextTrimming="CharacterEllipsis"/>
-                        <StackPanel Orientation="Horizontal" Margin="0 3 0 0">
+                        <StackPanel Orientation="Horizontal"
+                                Margin="0 3 0 0">
                             <TextBlock Text="{Binding SelectedServerSubtitle}"
                                        Style="{StaticResource TinyMutedTextStyle}"
                                        TextTrimming="CharacterEllipsis"/>
@@ -501,10 +505,13 @@
                                        Margin="8 0"/>
                             <TextBlock Text="{Binding OnlineText}">
                                 <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource TinyMutedTextStyle}">
+                                    <Style TargetType="TextBlock"
+                                            BasedOn="{StaticResource TinyMutedTextStyle}">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedServer.IsOnline}" Value="True">
-                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                            <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
+                                                    Value="True">
+                                                <Setter Property="Foreground"
+                                                        Value="{StaticResource SuccessBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -781,9 +788,9 @@
                     Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="54"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="52"/>
+                        <RowDefinition Height="60"/>
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0"
                             BorderBrush="{StaticResource BorderBrushSoft}"
@@ -801,10 +808,13 @@
                                          Margin="0 0 10 0">
                                     <Ellipse.Style>
                                         <Style TargetType="Ellipse">
-                                            <Setter Property="Fill" Value="{StaticResource MutedTextBrush}"/>
+                                            <Setter Property="Fill"
+                                                    Value="{StaticResource MutedTextBrush}"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedServer.IsOnline}" Value="True">
-                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                                <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
+                                                        Value="True">
+                                                    <Setter Property="Fill"
+                                                            Value="{StaticResource SuccessBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -909,7 +919,8 @@
                                  ToolTip="{Binding [SshCommand], Source={x:Static services:AppServices.Localizer}}"
                                  VerticalContentAlignment="Center"
                                  KeyDown="TerminalCommandTextBox_KeyDown"/>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <StackPanel Grid.Column="2"
+                                Orientation="Horizontal">
                             <Button Style="{StaticResource CompactButtonStyle}"
                                     ToolTip="{Binding [Cancel], Source={x:Static services:AppServices.Localizer}}"
                                     Command="{Binding CancelCurrentOperationCommand}"
@@ -1144,145 +1155,150 @@
                                 </Grid>
                             </Border>
                             <Grid Grid.Row="1">
-                            <DataGrid
-                                      ItemsSource="{Binding RemoteFiles}"
-                                      SelectedItem="{Binding SelectedRemoteFile}"
-                                      AutoGenerateColumns="False"
-                                      IsReadOnly="True"
-                                      CanUserAddRows="False"
-                                      AllowDrop="True"
-                                      RowHeight="46"
-                                      PreviewMouseRightButtonDown="RemoteFilesDataGrid_PreviewMouseRightButtonDown"
-                                      DragOver="RemoteFilesListView_DragOver"
-                                      Drop="RemoteFilesListView_Drop"
-                                      MouseDoubleClick="RemoteFilesListView_MouseDoubleClick">
-                                <DataGrid.ContextMenu>
-                                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="{Binding [Open], Source={x:Static services:AppServices.Localizer}}"
-                                                  Click="RemoteFileOpenMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <iconPacks:PackIconMaterial Kind="OpenInNew"
-                                                                            Style="{StaticResource PackIconStyle}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{Binding [Edit], Source={x:Static services:AppServices.Localizer}}"
-                                                  Click="RemoteFileEditMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <iconPacks:PackIconMaterial Kind="Pencil"
-                                                                            Style="{StaticResource PackIconStyle}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
-                                                  Click="RemoteFileDownloadMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <iconPacks:PackIconMaterial Kind="Download"
-                                                                            Style="{StaticResource PackIconStyle}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <Separator/>
-                                        <MenuItem Header="{Binding [CreateFolder], Source={x:Static services:AppServices.Localizer}}"
-                                                  Click="RemoteFileCreateFolderMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <iconPacks:PackIconMaterial Kind="FolderPlus"
-                                                                            Style="{StaticResource PackIconStyle}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="{Binding [Rename], Source={x:Static services:AppServices.Localizer}}"
-                                                  Click="RemoteFileRenameMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <iconPacks:PackIconMaterial Kind="RenameBox"
-                                                                            Style="{StaticResource PackIconStyle}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <Separator/>
-                                        <MenuItem Header="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
-                                                  Click="RemoteFileDeleteMenuItem_Click">
-                                            <MenuItem.Icon>
-                                                <iconPacks:PackIconMaterial Kind="Delete"
-                                                                            Style="{StaticResource PackIconStyle}"
-                                                                            Foreground="{StaticResource DangerBrush}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    </ContextMenu>
-                                </DataGrid.ContextMenu>
-                                <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="{Binding [Name], Source={x:Static services:AppServices.Localizer}}"
-                                                            Width="*"
-                                                            MinWidth="280">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="38"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border x:Name="FileBadge"
-                                                            Width="30"
-                                                            Height="30"
-                                                            CornerRadius="8"
-                                                            Background="#162434"
-                                                            HorizontalAlignment="Left">
-                                                        <iconPacks:PackIconMaterial x:Name="FileIcon"
-                                                                                    Kind="FileDocumentOutline"
-                                                                                    Style="{StaticResource PackIconStyle}"
-                                                                                    Width="17"
-                                                                                    Height="17"
-                                                                                    Foreground="{StaticResource MutedTextBrush}"/>
-                                                    </Border>
-                                                    <StackPanel Grid.Column="1"
-                                                                VerticalAlignment="Center">
-                                                        <TextBlock x:Name="FileName"
-                                                                   Text="{Binding Name}"
-                                                                   FontWeight="SemiBold"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding FullPath}"
-                                                                   Style="{StaticResource TinyMutedTextStyle}"
-                                                                   TextTrimming="CharacterEllipsis"
-                                                                   Margin="0 2 0 0"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                                <DataTemplate.Triggers>
-                                                    <DataTrigger Binding="{Binding IsDirectory}"
-                                                                 Value="True">
-                                                        <Setter TargetName="FileBadge"
-                                                                Property="Background"
-                                                                Value="{StaticResource AccentSoftBrush}"/>
-                                                        <Setter TargetName="FileIcon"
-                                                                Property="Kind"
-                                                                Value="Folder"/>
-                                                        <Setter TargetName="FileIcon"
-                                                                Property="Foreground"
-                                                                Value="{StaticResource AccentBrush}"/>
-                                                        <Setter TargetName="FileName"
-                                                                Property="Foreground"
-                                                                Value="{StaticResource TextBrush}"/>
-                                                    </DataTrigger>
-                                                </DataTemplate.Triggers>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTextColumn Header="{Binding [Type], Source={x:Static services:AppServices.Localizer}}"
-                                                        Binding="{Binding TypeText}"
-                                                        Width="110"/>
-                                    <DataGridTextColumn Header="{Binding [Size], Source={x:Static services:AppServices.Localizer}}"
-                                                        Binding="{Binding SizeText}"
-                                                        Width="110"/>
-                                    <DataGridTextColumn Header="{Binding [Modified], Source={x:Static services:AppServices.Localizer}}"
-                                                        Binding="{Binding LastWriteTimeText}"
-                                                        Width="150"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                <DataGrid
+                                    ItemsSource="{Binding RemoteFiles}"
+                                    SelectedItem="{Binding SelectedRemoteFile}"
+                                    AutoGenerateColumns="False"
+                                    IsReadOnly="True"
+                                    CanUserAddRows="False"
+                                    AllowDrop="True"
+                                    RowHeight="46"
+                                    PreviewMouseRightButtonDown="RemoteFilesDataGrid_PreviewMouseRightButtonDown"
+                                    DragOver="RemoteFilesListView_DragOver"
+                                    Drop="RemoteFilesListView_Drop"
+                                    MouseDoubleClick="RemoteFilesListView_MouseDoubleClick">
+                                    <DataGrid.ContextMenu>
+                                        <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Header="{Binding [Open], Source={x:Static services:AppServices.Localizer}}"
+                                                      Click="RemoteFileOpenMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial Kind="OpenInNew"
+                                                                                Style="{StaticResource PackIconStyle}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{Binding [Edit], Source={x:Static services:AppServices.Localizer}}"
+                                                      Click="RemoteFileEditMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial Kind="Pencil"
+                                                                                Style="{StaticResource PackIconStyle}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{Binding [Download], Source={x:Static services:AppServices.Localizer}}"
+                                                      Click="RemoteFileDownloadMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial Kind="Download"
+                                                                                Style="{StaticResource PackIconStyle}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="{Binding [CreateFolder], Source={x:Static services:AppServices.Localizer}}"
+                                                      Click="RemoteFileCreateFolderMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial Kind="FolderPlus"
+                                                                                Style="{StaticResource PackIconStyle}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{Binding [Rename], Source={x:Static services:AppServices.Localizer}}"
+                                                      Click="RemoteFileRenameMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial Kind="RenameBox"
+                                                                                Style="{StaticResource PackIconStyle}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem Header="{Binding [Delete], Source={x:Static services:AppServices.Localizer}}"
+                                                      Click="RemoteFileDeleteMenuItem_Click">
+                                                <MenuItem.Icon>
+                                                    <iconPacks:PackIconMaterial Kind="Delete"
+                                                                                Style="{StaticResource PackIconStyle}"
+                                                                                Foreground="{StaticResource DangerBrush}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </DataGrid.ContextMenu>
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="{Binding [Name], Source={x:Static services:AppServices.Localizer}}"
+                                                                Width="*"
+                                                                MinWidth="280">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="38"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border x:Name="FileBadge"
+                                                                Width="30"
+                                                                Height="30"
+                                                                CornerRadius="8"
+                                                                Background="#162434"
+                                                                HorizontalAlignment="Left">
+                                                            <iconPacks:PackIconMaterial x:Name="FileIcon"
+                                                                                        Kind="FileDocumentOutline"
+                                                                                        Style="{StaticResource PackIconStyle}"
+                                                                                        Width="17"
+                                                                                        Height="17"
+                                                                                        Foreground="{StaticResource MutedTextBrush}"/>
+                                                        </Border>
+                                                        <StackPanel Grid.Column="1"
+                                                                    VerticalAlignment="Center">
+                                                            <TextBlock x:Name="FileName"
+                                                                       Text="{Binding Name}"
+                                                                       FontWeight="SemiBold"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding FullPath}"
+                                                                       Style="{StaticResource TinyMutedTextStyle}"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       Margin="0 2 0 0"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                    <DataTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDirectory}"
+                                                                     Value="True">
+                                                            <Setter TargetName="FileBadge"
+                                                                    Property="Background"
+                                                                    Value="{StaticResource AccentSoftBrush}"/>
+                                                            <Setter TargetName="FileIcon"
+                                                                    Property="Kind"
+                                                                    Value="Folder"/>
+                                                            <Setter TargetName="FileIcon"
+                                                                    Property="Foreground"
+                                                                    Value="{StaticResource AccentBrush}"/>
+                                                            <Setter TargetName="FileName"
+                                                                    Property="Foreground"
+                                                                    Value="{StaticResource TextBrush}"/>
+                                                        </DataTrigger>
+                                                    </DataTemplate.Triggers>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="{Binding [Type], Source={x:Static services:AppServices.Localizer}}"
+                                                            Binding="{Binding TypeText}"
+                                                            Width="110"/>
+                                        <DataGridTextColumn Header="{Binding [Size], Source={x:Static services:AppServices.Localizer}}"
+                                                            Binding="{Binding SizeText}"
+                                                            Width="110"/>
+                                        <DataGridTextColumn Header="{Binding [Modified], Source={x:Static services:AppServices.Localizer}}"
+                                                            Binding="{Binding LastWriteTimeText}"
+                                                            Width="150"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
                                 <StackPanel HorizontalAlignment="Center"
                                             VerticalAlignment="Center">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="Visibility"
+                                                    Value="Visible"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasRemoteFiles}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                <DataTrigger Binding="{Binding HasRemoteFiles}"
+                                                        Value="True">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsFilesLoading}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                <DataTrigger Binding="{Binding IsFilesLoading}"
+                                                        Value="True">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
