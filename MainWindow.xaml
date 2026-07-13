@@ -21,9 +21,9 @@
         <Style x:Key="PackIconStyle"
                TargetType="{x:Type iconPacks:PackIconMaterial}">
             <Setter Property="Width"
-                    Value="17"/>
+                    Value="16"/>
             <Setter Property="Height"
-                    Value="17"/>
+                    Value="16"/>
             <Setter Property="Foreground"
                     Value="{StaticResource TextBrush}"/>
             <Setter Property="VerticalAlignment"
@@ -31,6 +31,8 @@
             <Setter Property="HorizontalAlignment"
                     Value="Center"/>
             <Setter Property="SnapsToDevicePixels"
+                    Value="True"/>
+            <Setter Property="UseLayoutRounding"
                     Value="True"/>
         </Style>
         <Style x:Key="ModernTabControlStyle"
@@ -376,7 +378,7 @@
                                         Value="Visible"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasFilteredServers}"
-                                            Value="True">
+                                                 Value="True">
                                         <Setter Property="Visibility"
                                                 Value="Collapsed"/>
                                     </DataTrigger>
@@ -496,7 +498,7 @@
                                    FontWeight="SemiBold"
                                    TextTrimming="CharacterEllipsis"/>
                         <StackPanel Orientation="Horizontal"
-                                Margin="0 3 0 0">
+                                    Margin="0 3 0 0">
                             <TextBlock Text="{Binding SelectedServerSubtitle}"
                                        Style="{StaticResource TinyMutedTextStyle}"
                                        TextTrimming="CharacterEllipsis"/>
@@ -506,10 +508,10 @@
                             <TextBlock Text="{Binding OnlineText}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock"
-                                            BasedOn="{StaticResource TinyMutedTextStyle}">
+                                           BasedOn="{StaticResource TinyMutedTextStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                                    Value="True">
+                                                         Value="True">
                                                 <Setter Property="Foreground"
                                                         Value="{StaticResource SuccessBrush}"/>
                                             </DataTrigger>
@@ -812,7 +814,7 @@
                                                     Value="{StaticResource MutedTextBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
-                                                        Value="True">
+                                                             Value="True">
                                                     <Setter Property="Fill"
                                                             Value="{StaticResource SuccessBrush}"/>
                                                 </DataTrigger>
@@ -920,7 +922,7 @@
                                  VerticalContentAlignment="Center"
                                  KeyDown="TerminalCommandTextBox_KeyDown"/>
                         <StackPanel Grid.Column="2"
-                                Orientation="Horizontal">
+                                    Orientation="Horizontal">
                             <Button Style="{StaticResource CompactButtonStyle}"
                                     ToolTip="{Binding [Cancel], Source={x:Static services:AppServices.Localizer}}"
                                     Command="{Binding CancelCurrentOperationCommand}"
@@ -1291,12 +1293,12 @@
                                                     Value="Visible"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasRemoteFiles}"
-                                                        Value="True">
+                                                             Value="True">
                                                     <Setter Property="Visibility"
                                                             Value="Collapsed"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsFilesLoading}"
-                                                        Value="True">
+                                                             Value="True">
                                                     <Setter Property="Visibility"
                                                             Value="Collapsed"/>
                                                 </DataTrigger>
