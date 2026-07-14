@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Threading;
@@ -130,6 +131,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string terminalCommand = "";
 
+    private bool isTerminalConnected;
+
+    private string terminalSessionStatus = AppServices.Localizer.T("TerminalDisconnected");
+
+    public bool IsTerminalConnected
+    {
+        get => isTerminalConnected;
+        private set => SetProperty(ref isTerminalConnected, value);
+    }
+
+    public string TerminalSessionStatus
+    {
+        get => terminalSessionStatus;
+        private set => SetProperty(ref terminalSessionStatus, value);
+    }
+
     [ObservableProperty]
     private string sftpOutput = "";
 
@@ -147,6 +164,30 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string monitorProcesses = "";
+
+    private string monitorSystemDetails = "";
+
+    private string monitorStorageDetails = "";
+
+    private string monitorNetworkDetails = "";
+
+    public string MonitorSystemDetails
+    {
+        get => monitorSystemDetails;
+        private set => SetProperty(ref monitorSystemDetails, value);
+    }
+
+    public string MonitorStorageDetails
+    {
+        get => monitorStorageDetails;
+        private set => SetProperty(ref monitorStorageDetails, value);
+    }
+
+    public string MonitorNetworkDetails
+    {
+        get => monitorNetworkDetails;
+        private set => SetProperty(ref monitorNetworkDetails, value);
+    }
 
     [ObservableProperty]
     private string monitorLoad = "";
@@ -196,6 +237,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public string SelectedServerAddress => SelectedServer?.IpAddressDisplay ?? SelectedServer?.Host ?? "";
     public string SelectedServerOs => SelectedServer?.OsName ?? "Ubuntu 22.04";
     public string OnlineText => L.T(SelectedServer?.IsOnline == true ? "Online" : "Offline");
+    public string SelectedCommandFavoriteAction => L.T(SelectedSavedCommand?.IsFavorite == true
+        ? "RemoveFromFavorites"
+        : "AddToFavorites");
     public int ServerCount => Servers.Count;
     public bool HasFilteredServers => FilteredServers.Count > 0;
     public bool HasRemoteFiles => RemoteFiles.Count > 0;
@@ -209,6 +253,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public MainViewModel()
     {
+        _terminalSsh.ShellOutputReceived += TerminalSsh_ShellOutputReceived;
         _monitoringTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(30)
@@ -218,6 +263,58 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _monitoringTimer.Start();
 
         _ = InitializeAsync();
+    }
+
+    private void TerminalSsh_ShellOutputReceived(object? sender, string output)
+    {
+        Application.Current.Dispatcher.BeginInvoke(() => AppendTerminalOutput(output));
+    }
+
+    private void AppendTerminalOutput(string output)
+    {
+        const int maxTerminalCharacters = 500_000;
+        var builder = new StringBuilder(TerminalOutput, TerminalOutput.Length + output.Length);
+
+        foreach (var character in output)
+        {
+            if (character == '\r')
+            {
+                var lastLineBreak = builder.Length - 1;
+                while (lastLineBreak >= 0 && builder[lastLineBreak] != '\n')
+                {
+                    lastLineBreak--;
+                }
+
+                builder.Length = lastLineBreak + 1;
+                continue;
+            }
+
+            if (character == '\b')
+            {
+                if (builder.Length > 0 && builder[^1] != '\n')
+                {
+                    builder.Length--;
+                }
+
+                continue;
+            }
+
+            if (character == '\n')
+            {
+                builder.Append(Environment.NewLine);
+                continue;
+            }
+
+            builder.Append(character);
+        }
+
+        TerminalOutput = builder.ToString();
+
+        if (TerminalOutput.Length > maxTerminalCharacters)
+        {
+            TerminalOutput = L.T("TerminalOutputTrimmed") + Environment.NewLine +
+                TerminalOutput[^maxTerminalCharacters..];
+        }
     }
 
     private async Task InitializeAsync()
@@ -283,6 +380,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         IsFilesLoading = false;
         IsLogLoading = false;
         _terminalSsh.DisconnectShell();
+        IsTerminalConnected = false;
+        TerminalSessionStatus = L.T("TerminalDisconnected");
         SelectedRemoteFile = null;
         RemoteFiles.Clear();
         LogContent = "";
@@ -309,6 +408,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     partial void OnSelectedSavedCommandChanged(SavedCommand? value)
     {
         NotifySelectedSavedCommandCommands();
+        OnPropertyChanged(nameof(SelectedCommandFavoriteAction));
 
         if (value is null)
         {
@@ -756,6 +856,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             MonitorDiskUsage = L.T("MonitoringLoading");
             MonitorUptimeShort = L.T("MonitoringLoading");
             MonitorProcesses = L.T("MonitoringLoading");
+            MonitorSystemDetails = L.T("MonitoringLoading");
+            MonitorStorageDetails = L.T("MonitoringLoading");
+            MonitorNetworkDetails = L.T("MonitoringLoading");
 
             var monitoringCommand =
                 "echo __CPU__; " +
@@ -780,6 +883,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 "rx1=$(echo \"$net1\" | awk '{print $1}'); tx1=$(echo \"$net1\" | awk '{print $2}'); rx2=$(echo \"$net2\" | awk '{print $1}'); tx2=$(echo \"$net2\" | awk '{print $2}'); " +
                 "awk -v rx1=\"$rx1\" -v tx1=\"$tx1\" -v rx2=\"$rx2\" -v tx2=\"$tx2\" 'BEGIN {rx=(rx2-rx1)*8/1000000; tx=(tx2-tx1)*8/1000000; total=rx+tx; pct=int(total); if (pct > 100) pct=100; printf \"RX %.1f Mbps / TX %.1f Mbps\\nPERCENT:%d\\n\", rx, tx, pct}'; " +
                 "echo __UPTIME__; uptime -p; " +
+                "echo __SYSTEM_DETAILS__; printf 'Hostname: '; hostname; uname -srmo; " +
+                "printf 'CPU cores: '; (nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo n/a); " +
+                "awk -F: '/model name/ {gsub(/^[ \\t]+/, \"\", $2); print \"CPU: \" $2; exit}' /proc/cpuinfo; " +
+                "echo __STORAGE_DETAILS__; df -hT / | tail -n 1; " +
+                "echo __NETWORK_DETAILS__; (ip -brief address show up 2>/dev/null || hostname -I 2>/dev/null || true); " +
                 "echo __PROCESSES__; ps -eo pid,comm,%cpu,%mem --sort=-%cpu | head -12";
 
             var result = await _ssh.RunCommandAsync(server, monitoringCommand, cancellationToken);
@@ -799,6 +907,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 MonitorDiskUsage = output;
                 MonitorUptimeShort = output;
                 MonitorProcesses = output;
+                MonitorSystemDetails = output;
+                MonitorStorageDetails = output;
+                MonitorNetworkDetails = output;
                 MonitorCpuPercent = 0;
                 MonitorLoadPercent = 0;
                 MonitorNetworkPercent = 0;
@@ -828,6 +939,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             MonitorDiskUsage = RemovePercentLine(diskSection);
             MonitorNetwork = RemovePercentLine(networkSection);
             MonitorUptimeShort = ExtractMonitoringSection(output, "UPTIME");
+            MonitorSystemDetails = ExtractMonitoringSection(output, "SYSTEM_DETAILS");
+            MonitorStorageDetails = ExtractMonitoringSection(output, "STORAGE_DETAILS");
+            MonitorNetworkDetails = ExtractMonitoringSection(output, "NETWORK_DETAILS");
             MonitorProcesses = ExtractMonitoringSection(output, "PROCESSES");
 
             AppendMetricHistory();
@@ -1038,7 +1152,23 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
 
-        await RunServerCommandAsync(SelectedSavedCommand.Command);
+        TerminalCommand = SelectedSavedCommand.Command;
+        await SendTerminalCommandAsync();
+    }
+
+    [RelayCommand]
+    private async Task RunFavoriteCommandAsync(SavedCommand? command)
+    {
+        if (command is null)
+        {
+            SshOutput = L.T("ChooseSavedCommand");
+            return;
+        }
+
+        SelectedSavedCommand = command;
+        CloseOverlayPanelsCore();
+        TerminalCommand = command.Command;
+        await SendTerminalCommandAsync();
     }
 
     [RelayCommand]
@@ -1075,7 +1205,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand(CanExecute = nameof(CanSendTerminalCommand))]
     private async Task SendTerminalCommandAsync()
     {
-        if (SelectedServer is null)
+        var server = SelectedServer;
+
+        if (server is null)
         {
             TerminalOutput += $"\n{L.T("ChooseServerFirst")}\n";
             return;
@@ -1096,27 +1228,127 @@ public partial class MainViewModel : ObservableObject, IDisposable
             }
         }
 
-        var command = TerminalCommand;
+        var input = TerminalCommand;
+        var version = serverSelectionVersion;
+        TerminalCommand = "";
 
         try
         {
-            _terminalSsh.ConnectShell(SelectedServer);
-            var result = await Task.Run(() => _terminalSsh.SendShellCommand(command));
-            var output = string.IsNullOrWhiteSpace(result.Output) ? result.Message : result.Output;
-            TerminalOutput += $"\nroot@{SelectedServer.Name}:~# {command}\n{output}\n";
-            TerminalCommand = "";
+            if (!_terminalSsh.IsShellConnected)
+            {
+                TerminalSessionStatus = L.T("TerminalConnecting");
+                AppendTerminalOutput($"{Environment.NewLine}{L.Format("TerminalConnectingTo", server.Name)}{Environment.NewLine}");
+                await Task.Run(() => _terminalSsh.ConnectShell(server));
+
+                if (!IsCurrentServer(server, version))
+                {
+                    _terminalSsh.DisconnectShell();
+                    return;
+                }
+
+                IsTerminalConnected = true;
+                TerminalSessionStatus = L.T("TerminalInteractiveReady");
+            }
+
+            var result = _terminalSsh.SendShellInput(input);
+            if (!result.Succeeded)
+            {
+                AppendTerminalOutput($"{Environment.NewLine}{result.Message}{Environment.NewLine}");
+            }
+
             await LogActivityAsync(
                 L.T("Terminal"),
-                SelectedServer.Name,
-                result.Succeeded ? command : result.Message,
+                server.Name,
+                result.Succeeded ? L.T("TerminalInputSent") : result.Message,
                 result.Succeeded ? "info" : "error");
         }
         catch (Exception ex)
         {
-            SelectedServer.IsOnline = false;
-            TerminalOutput += $"\n{L.Format("TerminalError", ex.Message)}\n";
-            await LogActivityAsync(L.T("Terminal"), SelectedServer.Name, ex.Message, "error");
+            server.IsOnline = false;
+            IsTerminalConnected = false;
+            TerminalSessionStatus = L.T("TerminalDisconnected");
+            AppendTerminalOutput($"{Environment.NewLine}{L.Format("TerminalError", ex.Message)}{Environment.NewLine}");
+            await LogActivityAsync(L.T("Terminal"), server.Name, ex.Message, "error");
         }
+    }
+
+    [RelayCommand]
+    private void InterruptTerminalCommand()
+    {
+        var result = _terminalSsh.SendShellControl(0x03);
+        if (!result.Succeeded)
+        {
+            AppendTerminalOutput($"{Environment.NewLine}{result.Message}{Environment.NewLine}");
+            IsTerminalConnected = false;
+            TerminalSessionStatus = L.T("TerminalDisconnected");
+        }
+    }
+
+    [RelayCommand]
+    private void DisconnectTerminal()
+    {
+        _terminalSsh.DisconnectShell();
+        IsTerminalConnected = false;
+        TerminalSessionStatus = L.T("TerminalDisconnected");
+        AppendTerminalOutput($"{Environment.NewLine}{L.T("TerminalDisconnectedMessage")}{Environment.NewLine}");
+    }
+
+    [RelayCommand]
+    private void OpenSystemTerminal()
+    {
+        if (SelectedServer is null)
+        {
+            return;
+        }
+
+        var arguments = new List<string>
+        {
+            "ssh",
+            "-p",
+            SelectedServer.Port.ToString()
+        };
+
+        if (!string.IsNullOrWhiteSpace(SelectedServer.PrivateKeyPath))
+        {
+            arguments.Add("-i");
+            arguments.Add(SelectedServer.PrivateKeyPath);
+        }
+
+        arguments.Add($"{SelectedServer.Username}@{SelectedServer.Host}");
+
+        try
+        {
+            StartTerminalProcess("wt.exe", arguments);
+            TerminalSessionStatus = L.T("SystemTerminalOpened");
+        }
+        catch
+        {
+            try
+            {
+                StartTerminalProcess("cmd.exe", ["/k", .. arguments]);
+                TerminalSessionStatus = L.T("SystemTerminalOpened");
+            }
+            catch (Exception ex)
+            {
+                TerminalSessionStatus = L.Format("SystemTerminalError", ex.Message);
+            }
+        }
+    }
+
+    private static void StartTerminalProcess(string fileName, IEnumerable<string> arguments)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            UseShellExecute = true
+        };
+
+        foreach (var argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        Process.Start(startInfo);
     }
 
 
@@ -1558,6 +1790,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private async Task LoadSavedCommandsAsync()
     {
+        var selectedId = SelectedSavedCommand?.Id;
         SavedCommands.Clear();
         FavoriteCommands.Clear();
 
@@ -1578,6 +1811,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 FavoriteCommands.Add(command);
             }
         }
+
+        SelectedSavedCommand = selectedId.HasValue
+            ? SavedCommands.FirstOrDefault(x => x.Id == selectedId.Value)
+            : SelectedSavedCommand;
     }
 
     private async Task LoadActivityLogsAsync()
@@ -1939,6 +2176,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         serverSelectionCancellation.Dispose();
         commandCancellation?.Cancel();
         commandCancellation?.Dispose();
+        _terminalSsh.ShellOutputReceived -= TerminalSsh_ShellOutputReceived;
         _terminalSsh.Dispose();
     }
 }

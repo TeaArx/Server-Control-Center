@@ -1,4 +1,5 @@
 using Renci.SshNet;
+using Renci.SshNet.Common;
 using ServerControlCenter.Models;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +12,6 @@ public sealed class SshService : IDisposable
 {
     private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(30);
-    private static readonly TimeSpan ShellReadTimeout = TimeSpan.FromSeconds(8);
     private static readonly Regex AnsiRegex = new(@"\x1B\[[0-?]*[ -/]*[@-~]", RegexOptions.Compiled);
     private static readonly Regex OscRegex = new(@"\x1B\].*?(?:\x07|\x1B\\)", RegexOptions.Compiled | RegexOptions.Singleline);
     private static readonly Regex OtherEscapeRegex = new(@"\x1B[@-_]", RegexOptions.Compiled);
@@ -20,6 +20,10 @@ public sealed class SshService : IDisposable
     private SshClient? client;
     private ShellStream? shell;
     private string? shellServerKey;
+
+    public event EventHandler<string>? ShellOutputReceived;
+
+    public bool IsShellConnected => client?.IsConnected == true && shell != null;
 
     public void ConnectShell(ServerProfile server)
     {
@@ -33,15 +37,21 @@ public sealed class SshService : IDisposable
         DisconnectShell();
         client = CreateClient(server);
         client.Connect();
-        shell = client.CreateShellStream("dumb", 120, 32, 1200, 800, 4096);
+        shell = client.CreateShellStream("dumb", 160, 40, 1600, 1000, 8192);
         shellServerKey = serverKey;
         _ = ReadAvailableShellOutput(TimeSpan.FromMilliseconds(600));
-        shell.WriteLine("export TERM=dumb; unset PROMPT_COMMAND; PS1=; stty -echo 2>/dev/null");
+        shell.WriteLine("export TERM=dumb; unset PROMPT_COMMAND");
         _ = ReadAvailableShellOutput(TimeSpan.FromMilliseconds(600));
+        shell.DataReceived += Shell_DataReceived;
     }
 
     public void DisconnectShell()
     {
+        if (shell != null)
+        {
+            shell.DataReceived -= Shell_DataReceived;
+        }
+
         shell?.Dispose();
         shell = null;
 
@@ -55,22 +65,52 @@ public sealed class SshService : IDisposable
         shellServerKey = null;
     }
 
-    public OperationResult SendShellCommand(string command)
+    public OperationResult SendShellInput(string input, bool appendNewLine = true)
     {
-        if (shell == null)
+        if (!IsShellConnected || shell == null)
         {
             return OperationResult.Failure(AppServices.Localizer.T("NoConnection"));
         }
 
-        if (string.IsNullOrWhiteSpace(command))
+        if (string.IsNullOrEmpty(input) && appendNewLine)
         {
-            return OperationResult.Failure(AppServices.Localizer.T("EnterCommand"));
+            shell.WriteLine(string.Empty);
+            shell.Flush();
+            return OperationResult.Success(AppServices.Localizer.T("TerminalInputSent"));
         }
 
-        shell.WriteLine(command);
-        var rawOutput = ReadAvailableShellOutput(ShellReadTimeout);
-        var output = CleanTerminalOutput(rawOutput, command);
-        return OperationResult.Success(output, output);
+        if (appendNewLine)
+        {
+            shell.WriteLine(input);
+        }
+        else
+        {
+            shell.Write(input);
+        }
+
+        shell.Flush();
+        return OperationResult.Success(AppServices.Localizer.T("TerminalInputSent"));
+    }
+
+    public OperationResult SendShellControl(byte controlCode)
+    {
+        if (!IsShellConnected || shell == null)
+        {
+            return OperationResult.Failure(AppServices.Localizer.T("NoConnection"));
+        }
+
+        shell.Write([controlCode], 0, 1);
+        shell.Flush();
+        return OperationResult.Success(AppServices.Localizer.T("TerminalInputSent"));
+    }
+
+    private void Shell_DataReceived(object? sender, ShellDataEventArgs e)
+    {
+        var output = SanitizeTerminalChunk(Encoding.UTF8.GetString(e.Data));
+        if (!string.IsNullOrEmpty(output))
+        {
+            ShellOutputReceived?.Invoke(this, output);
+        }
     }
 
     public async Task<OperationResult> TestConnectionAsync(
@@ -512,6 +552,14 @@ public sealed class SshService : IDisposable
             .ToList();
 
         return string.Join(Environment.NewLine, lines);
+    }
+
+    private static string SanitizeTerminalChunk(string output)
+    {
+        var cleaned = OscRegex.Replace(output, string.Empty);
+        cleaned = AnsiRegex.Replace(cleaned, string.Empty);
+        cleaned = OtherEscapeRegex.Replace(cleaned, string.Empty);
+        return cleaned.Replace("\r\n", "\n");
     }
 
     private static void ValidateRemotePath(string path)
