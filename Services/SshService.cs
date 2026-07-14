@@ -1,4 +1,4 @@
-﻿using Renci.SshNet;
+using Renci.SshNet;
 using ServerControlCenter.Models;
 using System.Diagnostics;
 using System.IO;
@@ -31,14 +31,11 @@ public sealed class SshService : IDisposable
         }
 
         DisconnectShell();
-
         client = CreateClient(server);
         client.Connect();
-
         shell = client.CreateShellStream("dumb", 120, 32, 1200, 800, 4096);
         shellServerKey = serverKey;
         _ = ReadAvailableShellOutput(TimeSpan.FromMilliseconds(600));
-
         shell.WriteLine("export TERM=dumb; unset PROMPT_COMMAND; PS1=; stty -echo 2>/dev/null");
         _ = ReadAvailableShellOutput(TimeSpan.FromMilliseconds(600));
     }
@@ -58,299 +55,256 @@ public sealed class SshService : IDisposable
         shellServerKey = null;
     }
 
-    public string SendShellCommand(string command)
+    public OperationResult SendShellCommand(string command)
     {
         if (shell == null)
         {
-            return "Нет подключения";
+            return OperationResult.Failure(AppServices.Localizer.T("NoConnection"));
         }
 
         if (string.IsNullOrWhiteSpace(command))
         {
-            return string.Empty;
+            return OperationResult.Failure(AppServices.Localizer.T("EnterCommand"));
         }
 
         shell.WriteLine(command);
-
         var rawOutput = ReadAvailableShellOutput(ShellReadTimeout);
-        return CleanTerminalOutput(rawOutput, command);
+        var output = CleanTerminalOutput(rawOutput, command);
+        return OperationResult.Success(output, output);
     }
 
-    public Task<string> TestConnectionAsync(ServerProfile server)
+    public async Task<OperationResult> TestConnectionAsync(
+        ServerProfile server,
+        CancellationToken cancellationToken = default)
     {
-        return RunSafeAsync(server, client =>
+        try
         {
-            client.Connect();
-
-            return client.IsConnected
-                ? "Подключение успешно."
-                : "Не удалось подключиться.";
-        });
+            using var sshClient = CreateClient(server);
+            await sshClient.ConnectAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            var succeeded = sshClient.IsConnected;
+            var message = AppServices.Localizer.T(succeeded ? "ConnectionSuccessful" : "ConnectionFailed");
+            return succeeded ? OperationResult.Success(message) : OperationResult.Failure(message);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return OperationResult.Failure(AppServices.Localizer.Format("SshError", ex.Message));
+        }
     }
 
-    public Task<string> RunCommandAsync(ServerProfile server, string command)
+    public async Task<OperationResult> RunCommandAsync(
+        ServerProfile server,
+        string command,
+        CancellationToken cancellationToken = default)
     {
-        return RunSafeAsync(server, client =>
+        if (string.IsNullOrWhiteSpace(command))
         {
-            if (string.IsNullOrWhiteSpace(command))
-            {
-                return string.Empty;
-            }
+            return OperationResult.Failure(AppServices.Localizer.T("EnterCommand"));
+        }
 
-            client.Connect();
-
-            using var sshCommand = client.CreateCommand(command);
+        try
+        {
+            using var sshClient = CreateClient(server);
+            await sshClient.ConnectAsync(cancellationToken);
+            using var sshCommand = sshClient.CreateCommand(command);
             sshCommand.CommandTimeout = CommandTimeout;
+            await sshCommand.ExecuteAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            var output = sshCommand.Execute();
+            var standardOutput = sshCommand.Result?.TrimEnd();
+            var standardError = sshCommand.Error?.TrimEnd();
+            var output = string.Join(
+                Environment.NewLine,
+                new[] { standardOutput, standardError }.Where(value => !string.IsNullOrWhiteSpace(value)));
+            var exitCode = sshCommand.ExitStatus;
 
-            if (!string.IsNullOrWhiteSpace(sshCommand.Error))
+            if (exitCode != 0)
             {
-                return sshCommand.Error;
+                return OperationResult.Failure(
+                    AppServices.Localizer.Format("CommandExitCode", exitCode ?? -1),
+                    output,
+                    exitCode);
             }
 
-            if (sshCommand.ExitStatus != 0 && string.IsNullOrWhiteSpace(output))
+            return OperationResult.Success(AppServices.Localizer.T("CommandCompleted"), output, exitCode);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return OperationResult.Failure(AppServices.Localizer.Format("SshError", ex.Message));
+        }
+    }
+    public Task<OperationResult<string>> ReadTextFileAsync(
+        ServerProfile server,
+        string remotePath,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(remotePath);
+            sftp.Connect();
+            var attributes = sftp.GetAttributes(remotePath);
+
+            if (attributes.IsDirectory)
             {
-                return $"Command exited with code {sshCommand.ExitStatus}.";
+                return OperationResult<string>.Failure(Localized(
+                    "File read error: selected path is a folder.",
+                    "Ошибка чтения файла: выбран путь к папке."));
             }
 
-            return output;
-        });
+            using var stream = new MemoryStream();
+            sftp.DownloadFile(remotePath, stream);
+            var content = Encoding.UTF8.GetString(stream.ToArray());
+            return OperationResult<string>.Success(content, AppServices.Localizer.T("FileLoaded"), content);
+        }, "File read error", "Ошибка чтения файла", cancellationToken);
     }
 
-    private static Task<string> RunSafeAsync(ServerProfile server, Func<SshClient, string> action)
+    public Task<OperationResult> SaveTextFileAsync(
+        ServerProfile server,
+        string remotePath,
+        string content,
+        CancellationToken cancellationToken = default)
     {
-        return Task.Run(() =>
+        return RunSftpAsync(server, sftp =>
         {
-            try
-            {
-                using var client = CreateClient(server);
-                return action(client);
-            }
-            catch (Exception ex)
-            {
-                return $"SSH error: {ex.Message}";
-            }
-        });
-    }
-
-    private static SshClient CreateClient(ServerProfile server)
-    {
-        var sshClient = new SshClient(CreateConnectionInfo(server))
-        {
-            KeepAliveInterval = TimeSpan.FromSeconds(30)
-        };
-
-        return sshClient;
-    }
-
-    public Task<string> ReadTextFileAsync(ServerProfile server, string remotePath)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(remotePath);
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-
-                var attributes = sftp.GetAttributes(remotePath);
-                if (attributes.IsDirectory)
-                {
-                    return AppServices.Localizer.LanguageCode == "ru"
-                        ? "Ошибка чтения файла: выбран путь к папке."
-                        : "File read error: selected path is a folder.";
-                }
-
-                using var stream = new MemoryStream();
-                sftp.DownloadFile(remotePath, stream);
-
-                return Encoding.UTF8.GetString(stream.ToArray());
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru"
-                    ? $"Ошибка чтения файла: {ex.Message}"
-                    : $"File read error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<string> SaveTextFileAsync(ServerProfile server, string remotePath, string content)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(remotePath);
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-
-                if (sftp.Exists(remotePath))
-                {
-                    var backupPath = $"{remotePath}.bak-{DateTime.Now:yyyyMMddHHmmss}";
-
-                    using var backupStream = new MemoryStream();
-                    sftp.DownloadFile(remotePath, backupStream);
-                    backupStream.Position = 0;
-                    sftp.UploadFile(backupStream, backupPath, true);
-                }
-
-                using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-                sftp.UploadFile(contentStream, remotePath, true);
-
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Файл сохранён: {remotePath}" : $"File saved: {remotePath}";
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка сохранения файла: {ex.Message}" : $"File save error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<string> DownloadFileAsync(ServerProfile server, string remotePath, string localPath)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(remotePath);
-                ValidateLocalPath(localPath);
-
-                var directory = Path.GetDirectoryName(localPath);
-                if (!string.IsNullOrWhiteSpace(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-
-                using var fileStream = File.Create(localPath);
-                sftp.DownloadFile(remotePath, fileStream);
-
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Файл скачан: {localPath}" : $"File downloaded: {localPath}";
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка скачивания: {ex.Message}" : $"Download error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<string> UploadFileAsync(ServerProfile server, string localPath, string remotePath)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(remotePath);
-                ValidateLocalPath(localPath);
-
-                if (!File.Exists(localPath))
-                {
-                    return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка загрузки: локальный файл не найден: {localPath}" : $"Upload error: local file not found: {localPath}";
-                }
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-
-                using var fileStream = File.OpenRead(localPath);
-                sftp.UploadFile(fileStream, remotePath, true);
-
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Файл загружен: {remotePath}" : $"File uploaded: {remotePath}";
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка загрузки: {ex.Message}" : $"Upload error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<string> CreateRemoteDirectoryAsync(ServerProfile server, string remotePath)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(remotePath);
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-                sftp.CreateDirectory(remotePath);
-
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Папка создана: {remotePath}" : $"Folder created: {remotePath}";
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка создания папки: {ex.Message}" : $"Create folder error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<string> RenameRemoteItemAsync(ServerProfile server, string oldPath, string newPath)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(oldPath);
-                ValidateRemotePath(newPath);
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-                sftp.RenameFile(oldPath, newPath);
-
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Переименовано: {newPath}" : $"Renamed: {newPath}";
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка переименования: {ex.Message}" : $"Rename error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<string> DeleteRemoteItemAsync(ServerProfile server, string remotePath, bool isDirectory)
-    {
-        return Task.Run(() =>
-        {
-            try
-            {
-                ValidateRemotePath(remotePath);
-
-                using var sftp = CreateSftpClient(server);
-                sftp.Connect();
-
-                if (isDirectory)
-                {
-                    DeleteDirectoryRecursive(sftp, remotePath);
-                }
-                else
-                {
-                    sftp.DeleteFile(remotePath);
-                }
-
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Удалено: {remotePath}" : $"Deleted: {remotePath}";
-            }
-            catch (Exception ex)
-            {
-                return AppServices.Localizer.LanguageCode == "ru" ? $"Ошибка удаления: {ex.Message}" : $"Delete error: {ex.Message}";
-            }
-        });
-    }
-
-    public Task<List<RemoteFileItem>> GetFilesAsync(ServerProfile server, string path)
-    {
-        return Task.Run(() =>
-        {
-            ValidateRemotePath(path);
-
-            using var sftp = CreateSftpClient(server);
+            ValidateRemotePath(remotePath);
             sftp.Connect();
 
-            return sftp
+            if (sftp.Exists(remotePath))
+            {
+                var backupPath = $"{remotePath}.bak-{DateTime.Now:yyyyMMddHHmmss}";
+                using var backupStream = new MemoryStream();
+                sftp.DownloadFile(remotePath, backupStream);
+                backupStream.Position = 0;
+                sftp.UploadFile(backupStream, backupPath, true);
+            }
+
+            using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+            sftp.UploadFile(contentStream, remotePath, true);
+            return OperationResult.Success(Localized($"File saved: {remotePath}", $"Файл сохранён: {remotePath}"));
+        }, "File save error", "Ошибка сохранения файла", cancellationToken);
+    }
+
+    public Task<OperationResult> DownloadFileAsync(
+        ServerProfile server,
+        string remotePath,
+        string localPath,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(remotePath);
+            ValidateLocalPath(localPath);
+            var directory = Path.GetDirectoryName(localPath);
+
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            sftp.Connect();
+            using var fileStream = File.Create(localPath);
+            sftp.DownloadFile(remotePath, fileStream);
+            return OperationResult.Success(Localized($"File downloaded: {localPath}", $"Файл скачан: {localPath}"));
+        }, "Download error", "Ошибка скачивания", cancellationToken);
+    }
+
+    public Task<OperationResult> UploadFileAsync(
+        ServerProfile server,
+        string localPath,
+        string remotePath,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(remotePath);
+            ValidateLocalPath(localPath);
+
+            if (!File.Exists(localPath))
+            {
+                return OperationResult.Failure(Localized(
+                    $"Upload error: local file not found: {localPath}",
+                    $"Ошибка загрузки: локальный файл не найден: {localPath}"));
+            }
+
+            sftp.Connect();
+            using var fileStream = File.OpenRead(localPath);
+            sftp.UploadFile(fileStream, remotePath, true);
+            return OperationResult.Success(Localized($"File uploaded: {remotePath}", $"Файл загружен: {remotePath}"));
+        }, "Upload error", "Ошибка загрузки", cancellationToken);
+    }
+
+    public Task<OperationResult> CreateRemoteDirectoryAsync(
+        ServerProfile server,
+        string remotePath,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(remotePath);
+            sftp.Connect();
+            sftp.CreateDirectory(remotePath);
+            return OperationResult.Success(Localized($"Folder created: {remotePath}", $"Папка создана: {remotePath}"));
+        }, "Create folder error", "Ошибка создания папки", cancellationToken);
+    }
+
+    public Task<OperationResult> RenameRemoteItemAsync(
+        ServerProfile server,
+        string oldPath,
+        string newPath,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(oldPath);
+            ValidateRemotePath(newPath);
+            sftp.Connect();
+            sftp.RenameFile(oldPath, newPath);
+            return OperationResult.Success(Localized($"Renamed: {newPath}", $"Переименовано: {newPath}"));
+        }, "Rename error", "Ошибка переименования", cancellationToken);
+    }
+
+    public Task<OperationResult> DeleteRemoteItemAsync(
+        ServerProfile server,
+        string remotePath,
+        bool isDirectory,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(remotePath);
+            sftp.Connect();
+
+            if (isDirectory)
+            {
+                DeleteDirectoryRecursive(sftp, remotePath);
+            }
+            else
+            {
+                sftp.DeleteFile(remotePath);
+            }
+
+            return OperationResult.Success(Localized($"Deleted: {remotePath}", $"Удалено: {remotePath}"));
+        }, "Delete error", "Ошибка удаления", cancellationToken);
+    }
+
+    public Task<OperationResult<IReadOnlyList<RemoteFileItem>>> GetFilesAsync(
+        ServerProfile server,
+        string path,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(path);
+            sftp.Connect();
+            IReadOnlyList<RemoteFileItem> files = sftp
                 .ListDirectory(path)
                 .Where(x => x.Name != "." && x.Name != "..")
                 .Select(x => new RemoteFileItem
@@ -364,7 +318,69 @@ public sealed class SshService : IDisposable
                 .OrderByDescending(x => x.IsDirectory)
                 .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-        });
+
+            return OperationResult<IReadOnlyList<RemoteFileItem>>.Success(
+                files,
+                AppServices.Localizer.Format("RemoteFilesLoaded", files.Count));
+        }, "SFTP error", "Ошибка SFTP", cancellationToken);
+    }
+
+    private static Task<OperationResult> RunSftpAsync(
+        ServerProfile server,
+        Func<SftpClient, OperationResult> action,
+        string englishErrorPrefix,
+        string russianErrorPrefix,
+        CancellationToken cancellationToken)
+    {
+        return Task.Run<OperationResult>(() =>
+        {
+            try
+            {
+                using var sftp = CreateSftpClient(server);
+                using var cancellationRegistration = cancellationToken.Register(sftp.Dispose);
+                cancellationToken.ThrowIfCancellationRequested();
+                var result = action(sftp);
+                cancellationToken.ThrowIfCancellationRequested();
+                return result;
+            }
+            catch (ObjectDisposedException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult.Failure($"{Localized(englishErrorPrefix, russianErrorPrefix)}: {ex.Message}");
+            }
+        }, cancellationToken);
+    }
+
+    private static Task<OperationResult<T>> RunSftpAsync<T>(
+        ServerProfile server,
+        Func<SftpClient, OperationResult<T>> action,
+        string englishErrorPrefix,
+        string russianErrorPrefix,
+        CancellationToken cancellationToken)
+    {
+        return Task.Run<OperationResult<T>>(() =>
+        {
+            try
+            {
+                using var sftp = CreateSftpClient(server);
+                using var cancellationRegistration = cancellationToken.Register(sftp.Dispose);
+                cancellationToken.ThrowIfCancellationRequested();
+                var result = action(sftp);
+                cancellationToken.ThrowIfCancellationRequested();
+                return result;
+            }
+            catch (ObjectDisposedException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<T>.Failure($"{Localized(englishErrorPrefix, russianErrorPrefix)}: {ex.Message}");
+            }
+        }, cancellationToken);
     }
 
     private static void DeleteDirectoryRecursive(SftpClient sftp, string remotePath)
@@ -384,13 +400,15 @@ public sealed class SshService : IDisposable
         sftp.DeleteDirectory(remotePath);
     }
 
-    private static SftpClient CreateSftpClient(ServerProfile server)
+    private static SshClient CreateClient(ServerProfile server) => new(CreateConnectionInfo(server))
     {
-        return new SftpClient(CreateConnectionInfo(server))
-        {
-            OperationTimeout = CommandTimeout
-        };
-    }
+        KeepAliveInterval = TimeSpan.FromSeconds(30)
+    };
+
+    private static SftpClient CreateSftpClient(ServerProfile server) => new(CreateConnectionInfo(server))
+    {
+        OperationTimeout = CommandTimeout
+    };
 
     private static ConnectionInfo CreateConnectionInfo(ServerProfile server)
     {
@@ -415,13 +433,14 @@ public sealed class SshService : IDisposable
         {
             if (!File.Exists(server.PrivateKeyPath))
             {
-                throw new InvalidOperationException(AppServices.Localizer.LanguageCode == "ru" ? $"SSH-ключ не найден: {server.PrivateKeyPath}" : $"SSH key not found: {server.PrivateKeyPath}");
+                throw new InvalidOperationException(Localized(
+                    $"SSH key not found: {server.PrivateKeyPath}",
+                    $"SSH-ключ не найден: {server.PrivateKeyPath}"));
             }
 
             authMethod = new PrivateKeyAuthenticationMethod(
                 server.Username,
-                new PrivateKeyFile(server.PrivateKeyPath)
-            );
+                new PrivateKeyFile(server.PrivateKeyPath));
         }
         else
         {
@@ -435,27 +454,18 @@ public sealed class SshService : IDisposable
             authMethod = new PasswordAuthenticationMethod(server.Username, password);
         }
 
-        return new ConnectionInfo(
-            server.Host,
-            server.Port,
-            server.Username,
-            authMethod
-        )
+        return new ConnectionInfo(server.Host, server.Port, server.Username, authMethod)
         {
             Timeout = ConnectTimeout
         };
     }
 
-    private static string CreateServerKey(ServerProfile server)
-    {
-        return string.Join(
-            '|',
-            server.Host.Trim(),
-            server.Port.ToString(),
-            server.Username.Trim(),
-            server.PrivateKeyPath?.Trim() ?? "password"
-        );
-    }
+    private static string CreateServerKey(ServerProfile server) => string.Join(
+        '|',
+        server.Host.Trim(),
+        server.Port.ToString(),
+        server.Username.Trim(),
+        server.PrivateKeyPath?.Trim() ?? "password");
 
     private string ReadAvailableShellOutput(TimeSpan timeout)
     {
@@ -520,8 +530,8 @@ public sealed class SshService : IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        DisconnectShell();
-    }
+    private static string Localized(string english, string russian) =>
+        AppServices.Localizer.LanguageCode == "ru" ? russian : english;
+
+    public void Dispose() => DisconnectShell();
 }

@@ -24,6 +24,7 @@ packages/
 
 # Publish
 publish/
+/artifacts/
 
 # Test
 TestResults/

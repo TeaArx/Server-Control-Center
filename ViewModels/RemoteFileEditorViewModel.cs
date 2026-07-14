@@ -1,15 +1,16 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ServerControlCenter.Models;
 using ServerControlCenter.Services;
 
 namespace ServerControlCenter.ViewModels;
 
-public partial class RemoteFileEditorViewModel : ObservableObject
+public partial class RemoteFileEditorViewModel : ObservableObject, IDisposable
 {
     private readonly ServerProfile server;
     private readonly SshService ssh;
     private readonly LocalizationService localizer = AppServices.Localizer;
+    private CancellationTokenSource? operationCancellation;
 
     public string RemotePath { get; }
 
@@ -21,6 +22,7 @@ public partial class RemoteFileEditorViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CancelCommand))]
     private bool isBusy;
 
     [ObservableProperty]
@@ -41,28 +43,33 @@ public partial class RemoteFileEditorViewModel : ObservableObject
             return;
         }
 
+        using var cancellation = BeginOperation();
+
         try
         {
             IsBusy = true;
             HasLoadedSuccessfully = false;
             StatusMessage = localizer.T("FileLoading");
+            var result = await ssh.ReadTextFileAsync(server, RemotePath, cancellation.Token);
 
-            var loadedContent = await ssh.ReadTextFileAsync(server, RemotePath);
-
-            if (loadedContent.StartsWith("Ошибка чтения файла:", StringComparison.OrdinalIgnoreCase) ||
-                loadedContent.StartsWith("File read error:", StringComparison.OrdinalIgnoreCase))
+            if (!result.Succeeded || result.Value is null)
             {
-                StatusMessage = loadedContent;
+                StatusMessage = result.Message;
                 return;
             }
 
-            Content = loadedContent;
+            Content = result.Value;
             HasLoadedSuccessfully = true;
-            StatusMessage = localizer.T("FileLoaded");
+            StatusMessage = result.Message;
+        }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = localizer.T("OperationCancelled");
         }
         finally
         {
             IsBusy = false;
+            EndOperation(cancellation);
         }
     }
 
@@ -75,21 +82,50 @@ public partial class RemoteFileEditorViewModel : ObservableObject
             return;
         }
 
+        using var cancellation = BeginOperation();
+
         try
         {
             IsBusy = true;
             StatusMessage = localizer.T("FileSaving");
-
-            StatusMessage = await ssh.SaveTextFileAsync(server, RemotePath, Content);
+            var result = await ssh.SaveTextFileAsync(server, RemotePath, Content, cancellation.Token);
+            StatusMessage = result.Message;
+        }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = localizer.T("OperationCancelled");
         }
         finally
         {
             IsBusy = false;
+            EndOperation(cancellation);
         }
     }
 
-    private bool CanSave()
+    [RelayCommand(CanExecute = nameof(IsBusy))]
+    private void Cancel() => operationCancellation?.Cancel();
+
+    private bool CanSave() => !IsBusy && HasLoadedSuccessfully;
+
+    private CancellationTokenSource BeginOperation()
     {
-        return !IsBusy && HasLoadedSuccessfully;
+        operationCancellation?.Cancel();
+        operationCancellation?.Dispose();
+        operationCancellation = new CancellationTokenSource();
+        return operationCancellation;
+    }
+
+    private void EndOperation(CancellationTokenSource cancellation)
+    {
+        if (ReferenceEquals(operationCancellation, cancellation))
+        {
+            operationCancellation = null;
+        }
+    }
+
+    public void Dispose()
+    {
+        operationCancellation?.Cancel();
+        operationCancellation?.Dispose();
     }
 }

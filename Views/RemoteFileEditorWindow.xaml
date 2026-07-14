@@ -5,8 +5,9 @@
         Title="{Binding [WindowFileEditorTitle], Source={x:Static services:AppServices.Localizer}}"
         Height="650"
         Width="920"
-        MinWidth="760"
-        MinHeight="520"
+        MinWidth="560"
+        MinHeight="420"
+        Icon="/Assets/server-control-center.ico"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource AppBackgroundBrush}">
 

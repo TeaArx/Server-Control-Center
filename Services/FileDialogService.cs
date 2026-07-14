@@ -14,9 +14,13 @@ public class FileDialogService
             : null;
     }
 
-    public string? PickSaveFile()
+    public string? PickSaveFile(string? defaultFileName = null)
     {
-        var dialog = new SaveFileDialog();
+        var dialog = new SaveFileDialog
+        {
+            FileName = defaultFileName ?? "",
+            Filter = "All files (*.*)|*.*"
+        };
 
         return dialog.ShowDialog() == true
             ? dialog.FileName

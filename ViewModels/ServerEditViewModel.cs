@@ -96,7 +96,8 @@ public partial class ServerEditViewModel : ObservableObject
 
         var tempServer = CreateServerFromFields();
 
-        StatusMessage = await _ssh.TestConnectionAsync(tempServer);
+        var result = await _ssh.TestConnectionAsync(tempServer);
+        StatusMessage = result.Message;
     }
 
     [RelayCommand]

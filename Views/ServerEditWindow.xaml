@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:services="clr-namespace:ServerControlCenter.Services"
         Title="{Binding WindowTitle}"
-        Height="700"
-        Width="620"
-        MinWidth="560"
-        MinHeight="680"
+        Height="660"
+        Width="600"
+        MinWidth="480"
+        MinHeight="520"
+        Icon="/Assets/server-control-center.ico"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource AppBackgroundBrush}">
 
@@ -22,10 +23,14 @@
             <TextBlock Text="{Binding [ProfileStoredLocally], Source={x:Static services:AppServices.Localizer}}" Style="{StaticResource SmallMutedTextStyle}" Margin="0 4 0 0"/>
         </StackPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource PagePanelStyle}">
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+        <Border Style="{StaticResource PagePanelStyle}"
+                Margin="0 0 6 0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="112"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -102,6 +107,7 @@
                          VerticalScrollBarVisibility="Auto"/>
             </Grid>
         </Border>
+        </ScrollViewer>
 
         <Grid Grid.Row="2" Margin="0 14 0 0">
             <Grid.ColumnDefinitions>

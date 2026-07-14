@@ -9,6 +9,8 @@ public class DashboardGroup : INotifyPropertyChanged
 
     public string Name { get; set; } = "";
 
+    public string DisplayName { get; set; } = "";
+
     public int Count { get; set; }
 
     public bool IsSelected
