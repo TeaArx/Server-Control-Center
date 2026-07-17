@@ -15,7 +15,7 @@ namespace ServerControlCenter.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.28");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
             modelBuilder.Entity("ServerControlCenter.Models.ActivityLogEntry", b =>
                 {
@@ -43,6 +43,9 @@ namespace ServerControlCenter.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_ActivityLogs_CreatedAt");
 
                     b.ToTable("ActivityLogs");
                 });
@@ -149,6 +152,9 @@ namespace ServerControlCenter.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Host", "Port", "Username")
+                        .HasDatabaseName("IX_Servers_Connection");
 
                     b.ToTable("Servers");
                 });

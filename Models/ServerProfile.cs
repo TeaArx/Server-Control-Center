@@ -47,13 +47,16 @@ public class ServerProfile : INotifyPropertyChanged
     }
 
     [NotMapped]
+    public bool HasUnreadablePassword { get; set; }
+
+    [NotMapped]
     public string DisplayAddress => string.IsNullOrWhiteSpace(IpAddressDisplay)
         ? Host
         : IpAddressDisplay;
 
     [NotMapped]
     public string DisplayOs => string.IsNullOrWhiteSpace(OsName)
-        ? "Ubuntu 22.04"
+        ? "Unknown Linux"
         : OsName;
 
     [NotMapped]

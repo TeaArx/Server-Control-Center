@@ -6,13 +6,19 @@ namespace ServerControlCenter.IntegrationTests;
 
 public sealed class SshSftpIntegrationTests : IDisposable
 {
-    private readonly SshService ssh = new();
+    private readonly string knownHostsPath = Path.Combine(Path.GetTempPath(), $"scc-known-hosts-{Guid.NewGuid():N}.json");
+    private readonly SshService ssh;
     private readonly string host = Environment.GetEnvironmentVariable("SCC_SSH_HOST") ?? "127.0.0.1";
     private readonly int port = int.TryParse(Environment.GetEnvironmentVariable("SCC_SSH_PORT"), out var parsedPort)
         ? parsedPort
         : 2222;
     private readonly string username = Environment.GetEnvironmentVariable("SCC_SSH_USER") ?? "codex";
     private readonly string password = Environment.GetEnvironmentVariable("SCC_SSH_PASSWORD") ?? "codex-test-password";
+
+    public SshSftpIntegrationTests()
+    {
+        ssh = new SshService(new KnownHostStore(knownHostsPath));
+    }
 
     [Fact]
     public async Task ConnectsWithPassword()
@@ -129,5 +135,13 @@ public sealed class SshSftpIntegrationTests : IDisposable
 
     private static void AssertSucceeded(OperationResult result) => Assert.True(result.Succeeded, result.Message);
 
-    public void Dispose() => ssh.Dispose();
+    public void Dispose()
+    {
+        ssh.Dispose();
+
+        if (File.Exists(knownHostsPath))
+        {
+            File.Delete(knownHostsPath);
+        }
+    }
 }

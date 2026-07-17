@@ -31,14 +31,20 @@ public static class SecretProtector
 
     public static string? Unprotect(string? value)
     {
+        var result = TryUnprotect(value);
+        return result.Status == SecretProtectionStatus.Available ? result.Value : null;
+    }
+
+    public static SecretProtectionResult TryUnprotect(string? value)
+    {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return null;
+            return new(SecretProtectionStatus.Missing, null);
         }
 
         if (!IsProtected(value))
         {
-            return value;
+            return new(SecretProtectionStatus.Available, value);
         }
 
         try
@@ -50,11 +56,11 @@ public static class SecretProtector
                 scope: DataProtectionScope.CurrentUser
             );
 
-            return Encoding.UTF8.GetString(plainBytes);
+            return new(SecretProtectionStatus.Available, Encoding.UTF8.GetString(plainBytes));
         }
         catch (Exception ex) when (ex is FormatException or CryptographicException)
         {
-            return null;
+            return new(SecretProtectionStatus.Unreadable, null);
         }
     }
 
@@ -63,3 +69,12 @@ public static class SecretProtector
         return value.StartsWith(Prefix, StringComparison.Ordinal);
     }
 }
+
+public enum SecretProtectionStatus
+{
+    Missing,
+    Available,
+    Unreadable
+}
+
+public sealed record SecretProtectionResult(SecretProtectionStatus Status, string? Value);

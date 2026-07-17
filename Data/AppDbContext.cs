@@ -6,6 +6,15 @@ namespace ServerControlCenter.Data;
 
 public class AppDbContext : DbContext
 {
+    public AppDbContext()
+    {
+    }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
+    {
+    }
+
     public static string DatabasePath
     {
         get
@@ -37,6 +46,19 @@ public class AppDbContext : DbContext
         {
             optionsBuilder.UseSqlite($"Data Source={DatabasePath}");
         }
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ServerProfile>()
+            .HasIndex(x => new { x.Host, x.Port, x.Username })
+            .HasDatabaseName("IX_Servers_Connection");
+
+        modelBuilder.Entity<ActivityLogEntry>()
+            .HasIndex(x => x.CreatedAt)
+            .HasDatabaseName("IX_ActivityLogs_CreatedAt");
+
+        base.OnModelCreating(modelBuilder);
     }
 }
 

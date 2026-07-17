@@ -1,0 +1,186 @@
+<UserControl x:Class="ServerControlCenter.Views.Features.MonitoringSummaryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:ServerControlCenter.Controls"
+             xmlns:services="clr-namespace:ServerControlCenter.Services"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
+    <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="0.72*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
+                Style="{StaticResource MetricCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource IconBadgeStyle}"
+                            Margin="0 0 10 0">
+                        <iconPacks:PackIconMaterial Kind="Chip"
+                                                    Width="17"
+                                                    Height="17"
+                                                    Foreground="{StaticResource AccentBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="CPU"
+                               Style="{StaticResource SectionTitleTextStyle}"/>
+                </StackPanel>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding MonitorCpuPercent, StringFormat={}{0:0}%}"
+                           FontSize="28"
+                           Margin="0 6 10 0"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding MonitorCpu}"
+                           Style="{StaticResource SmallMutedTextStyle}"
+                           TextTrimming="CharacterEllipsis"/>
+                <controls:SparklineChart Grid.Column="1"
+                                         Grid.RowSpan="3"
+                                         Values="{Binding CpuHistory}"
+                                         Stroke="{StaticResource AccentBrush}"
+                                         Fill="{StaticResource AccentChartFillBrush}"
+                                         ShowGrid="False"
+                                         Height="76"
+                                         VerticalAlignment="Bottom"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="2"
+                Style="{StaticResource MetricCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource IconBadgeStyle}"
+                            Background="#1C1441"
+                            BorderBrush="#3E2673"
+                            Margin="0 0 10 0">
+                        <iconPacks:PackIconMaterial Kind="Memory"
+                                                    Width="17"
+                                                    Height="17"
+                                                    Foreground="{StaticResource PurpleBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="RAM"
+                               Style="{StaticResource SectionTitleTextStyle}"/>
+                </StackPanel>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding MonitorRamPercent, StringFormat={}{0:0}%}"
+                           FontSize="28"
+                           Margin="0 6 10 0"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding MonitorRam}"
+                           Style="{StaticResource SmallMutedTextStyle}"
+                           TextTrimming="CharacterEllipsis"/>
+                <controls:SparklineChart Grid.Column="1"
+                                         Grid.RowSpan="3"
+                                         Values="{Binding RamHistory}"
+                                         Stroke="{StaticResource PurpleBrush}"
+                                         Fill="{StaticResource PurpleChartFillBrush}"
+                                         ShowGrid="False"
+                                         Height="76"
+                                         VerticalAlignment="Bottom"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="4"
+                Style="{StaticResource MetricCardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource IconBadgeStyle}"
+                            Background="#0C3629"
+                            BorderBrush="#1F6049"
+                            Margin="0 0 10 0">
+                        <iconPacks:PackIconMaterial Kind="Harddisk"
+                                                    Width="17"
+                                                    Height="17"
+                                                    Foreground="{StaticResource SuccessBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="DISK"
+                               Style="{StaticResource SectionTitleTextStyle}"/>
+                </StackPanel>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding MonitorDiskPercent, StringFormat={}{0:0}%}"
+                           FontSize="28"
+                           Margin="0 6 10 0"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding MonitorDiskUsage}"
+                           Style="{StaticResource SmallMutedTextStyle}"
+                           TextTrimming="CharacterEllipsis"
+                           ToolTip="{Binding MonitorDiskUsage}"/>
+                <controls:SparklineChart Grid.Column="1"
+                                         Grid.RowSpan="3"
+                                         Values="{Binding DiskHistory}"
+                                         Stroke="{StaticResource SuccessBrush}"
+                                         Fill="{StaticResource SuccessChartFillBrush}"
+                                         ShowGrid="False"
+                                         Height="76"
+                                         VerticalAlignment="Bottom"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Column="6"
+                Style="{StaticResource MetricCardStyle}"
+                Padding="14 12">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource IconBadgeStyle}"
+                            Margin="0 0 10 0">
+                        <iconPacks:PackIconMaterial Kind="ClockOutline"
+                                                    Width="17"
+                                                    Height="17"
+                                                    Foreground="{StaticResource AccentBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{Binding [Uptime], Source={x:Static services:AppServices.Localizer}}"
+                               Style="{StaticResource SectionTitleTextStyle}"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+                <TextBlock Text="{Binding MonitorUptimeShort}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Margin="0 12 0 7"
+                           TextWrapping="NoWrap"
+                           TextTrimming="CharacterEllipsis"
+                           ToolTip="{Binding MonitorUptimeShort}"/>
+                <TextBlock Text="{Binding MonitoringStatus}"
+                           Style="{StaticResource SmallMutedTextStyle}"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

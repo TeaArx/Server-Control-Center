@@ -1,6 +1,6 @@
 services:
   ssh:
-    image: lscr.io/linuxserver/openssh-server:latest
+    image: lscr.io/linuxserver/openssh-server:version-10.3_p1-r0
     environment:
       PUID: "1000"
       PGID: "1000"
