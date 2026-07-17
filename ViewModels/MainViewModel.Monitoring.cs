@@ -70,7 +70,7 @@ public partial class MainViewModel
                 "echo __NETWORK__; " +
                 "rx1=$(echo \"$net1\" | awk '{print $1}'); tx1=$(echo \"$net1\" | awk '{print $2}'); rx2=$(echo \"$net2\" | awk '{print $1}'); tx2=$(echo \"$net2\" | awk '{print $2}'); " +
                 "awk -v rx1=\"$rx1\" -v tx1=\"$tx1\" -v rx2=\"$rx2\" -v tx2=\"$tx2\" 'BEGIN {rx=(rx2-rx1)*8/1000000; tx=(tx2-tx1)*8/1000000; total=rx+tx; pct=int(total); if (pct > 100) pct=100; printf \"RX %.1f Mbps / TX %.1f Mbps\\nPERCENT:%d\\n\", rx, tx, pct}'; " +
-                "echo __UPTIME__; uptime -p; " +
+                "echo __UPTIME__; awk '{print int($1)}' /proc/uptime; " +
                 "echo __SYSTEM_DETAILS__; printf 'Hostname: '; hostname; uname -srmo; " +
                 "printf 'CPU cores: '; (nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo n/a); " +
                 "awk -F: '/model name/ {gsub(/^[ \\t]+/, \"\", $2); print \"CPU: \" $2; exit}' /proc/cpuinfo; " +
@@ -126,7 +126,7 @@ public partial class MainViewModel
             MonitorRam = RemovePercentLine(ramSection);
             MonitorDiskUsage = RemovePercentLine(diskSection);
             MonitorNetwork = RemovePercentLine(networkSection);
-            MonitorUptimeShort = ExtractMonitoringSection(output, "UPTIME");
+            MonitorUptimeShort = FormatUptime(ExtractMonitoringSection(output, "UPTIME"));
             MonitorSystemDetails = ExtractMonitoringSection(output, "SYSTEM_DETAILS");
             MonitorStorageDetails = ExtractMonitoringSection(output, "STORAGE_DETAILS");
             MonitorNetworkDetails = ExtractMonitoringSection(output, "NETWORK_DETAILS");
@@ -384,6 +384,29 @@ public partial class MainViewModel
     private static string NormalizeLogLevel(string value)
     {
         return value.Equals("warning", StringComparison.OrdinalIgnoreCase) ? "warn" : value.ToLowerInvariant();
+    }
+
+    private string FormatUptime(string rawSeconds)
+    {
+        if (!long.TryParse(rawSeconds.Trim(), out var totalSeconds) || totalSeconds < 0)
+        {
+            return rawSeconds;
+        }
+
+        var duration = TimeSpan.FromSeconds(totalSeconds);
+        var weeks = duration.Days / 7;
+        var days = duration.Days % 7;
+        var isRussian = string.Equals(L.LanguageCode, "ru", StringComparison.OrdinalIgnoreCase);
+        var parts = new List<string>(3);
+
+        if (weeks > 0) parts.Add(isRussian ? $"{weeks} нед." : $"{weeks}w");
+        if (days > 0) parts.Add(isRussian ? $"{days} д." : $"{days}d");
+        if (duration.Hours > 0) parts.Add(isRussian ? $"{duration.Hours} ч." : $"{duration.Hours}h");
+        if (duration.Minutes > 0 && parts.Count < 3) parts.Add(isRussian ? $"{duration.Minutes} мин." : $"{duration.Minutes}m");
+
+        return parts.Count == 0
+            ? (isRussian ? "< 1 мин." : "< 1m")
+            : string.Join(" ", parts.Take(3));
     }
 
     private async Task RefreshMonitoringFromTimerAsync()

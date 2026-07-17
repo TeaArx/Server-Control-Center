@@ -2,6 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:features="clr-namespace:ServerControlCenter.Views.Features"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:services="clr-namespace:ServerControlCenter.Services"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Server Control Center"
         Width="1320"
@@ -33,9 +35,6 @@
             <Setter Property="MinWidth" Value="46"/>
             <Setter Property="MinHeight" Value="41"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
@@ -97,10 +96,20 @@
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center"
                                 Margin="14 0">
-                        <Image Source="Assets/server-control-center.png"
-                               Width="20"
-                               Height="20"
-                               Margin="0 0 10 0"/>
+                        <Border Width="24"
+                                Height="24"
+                                CornerRadius="6"
+                                Background="{StaticResource AccentSoftBrush}"
+                                BorderBrush="{StaticResource AccentBrush}"
+                                BorderThickness="1"
+                                Margin="0 0 10 0">
+                            <iconPacks:PackIconMaterial Kind="ServerNetwork"
+                                                        Width="15"
+                                                        Height="15"
+                                                        Foreground="{StaticResource AccentBrush}"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"/>
+                        </Border>
                         <TextBlock Text="Server Control Center"
                                    FontSize="12.5"
                                    FontWeight="SemiBold"/>
@@ -114,19 +123,36 @@
                     <StackPanel Grid.Column="1"
                                 Orientation="Horizontal"
                                 Margin="0 0 4 0">
-                        <Button Content="—"
-                                Style="{StaticResource CaptionButtonStyle}"
-                                ToolTip="Свернуть"
-                                Click="MinimizeButton_Click"/>
+                        <Button Style="{StaticResource CaptionButtonStyle}"
+                                ToolTip="{Binding [Minimize], Source={x:Static services:AppServices.Localizer}}"
+                                Click="MinimizeButton_Click">
+                            <Path Width="12" Height="12"
+                                  Data="M 1,7.5 L 11,7.5"
+                                  Stroke="{StaticResource TextBrush}"
+                                  StrokeThickness="1.4" Stretch="None"
+                                  SnapsToDevicePixels="True"/>
+                        </Button>
                         <Button x:Name="MaximizeButton"
-                                Content="□"
                                 Style="{StaticResource CaptionButtonStyle}"
-                                ToolTip="Развернуть"
-                                Click="MaximizeButton_Click"/>
-                        <Button Content="×"
-                                Style="{StaticResource CloseCaptionButtonStyle}"
-                                ToolTip="Закрыть"
-                                Click="CloseButton_Click"/>
+                                ToolTip="{Binding [Maximize], Source={x:Static services:AppServices.Localizer}}"
+                                Click="MaximizeButton_Click">
+                            <Path x:Name="MaximizeGlyph" Width="12" Height="12"
+                                  Data="M 2,2 L 10,2 L 10,10 L 2,10 Z"
+                                  Stroke="{StaticResource TextBrush}"
+                                  StrokeThickness="1.35" Stretch="None"
+                                  SnapsToDevicePixels="True"/>
+                        </Button>
+                        <Button Style="{StaticResource CloseCaptionButtonStyle}"
+                                ToolTip="{Binding [Close], Source={x:Static services:AppServices.Localizer}}"
+                                Click="CloseButton_Click">
+                            <Path Width="13" Height="13"
+                                  Data="M 2,2 L 11,11 M 11,2 L 2,11"
+                                  Stroke="{StaticResource TextBrush}"
+                                  StrokeThickness="1.65"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  Stretch="None" SnapsToDevicePixels="True"/>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>

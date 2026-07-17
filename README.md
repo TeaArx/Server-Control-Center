@@ -31,8 +31,9 @@ Server Control Center — Windows-приложение на WPF для повс�
 - Встроенное редактирование удалённых текстовых файлов с резервным копированием перед сохранением.
 - Журнал действий приложения.
 - Настройки языка, мониторинга, папки SFTP и пути к журналу.
-- Русский и английский интерфейс.
-- Поддержка Per-Monitor V2 DPI и длинных путей Windows.
+- Русский и английский интерфейс, включая компактное локализованное отображение аптайма.
+- Проверка обновлений через GitHub Releases, загрузка установщика и проверка SHA-256 перед запуском.
+- Векторные иконки интерфейса и поддержка Per-Monitor V2 DPI и длинных путей Windows.
 
 ### Технологии
 
@@ -88,6 +89,15 @@ dotnet publish ServerControlCenter.csproj --configuration Release --runtime win-
 
 Некоторые данные мониторинга зависят от стандартных Linux-утилит на удалённой системе. У пользователя SSH должны быть права на выполнение нужных команд и доступ к выбранным файлам и журналам.
 
+### Горячие клавиши
+
+| Сочетание | Действие |
+|---|---|
+| `Ctrl+N` | Добавить сервер |
+| `Ctrl+K` или `Ctrl+F` | Перейти к поиску серверов |
+| `F5` или `Ctrl+R` | Обновить мониторинг выбранного сервера |
+| `Esc` | Закрыть открытую панель настроек, избранного или журнала действий |
+
 ### Данные и безопасность
 
 База данных хранится локально:
@@ -136,6 +146,7 @@ Server-Control-Center/
 ├── Views/Features/                 Функциональные UserControl-модули
 ├── Views/                          Дополнительные WPF-окна
 ├── tests/
+│   ├── ServerControlCenter.UnitTests/
 │   └── ServerControlCenter.IntegrationTests/
 ├── App.xaml                        Глобальные ресурсы и стили
 ├── MainWindow.xaml                 Основной интерфейс
@@ -192,8 +203,9 @@ The project is under active development. The latest development code is availabl
 - Built-in remote text file editor with backup creation before saving.
 - Application activity log.
 - Settings for language, monitoring, default SFTP directory, and default log path.
-- Russian and English user interface.
-- Per-Monitor V2 DPI awareness and Windows long-path support.
+- Russian and English user interface, including compact localized uptime formatting.
+- Update checks through GitHub Releases, installer download, and SHA-256 verification before launch.
+- Vector UI icons, Per-Monitor V2 DPI awareness, and Windows long-path support.
 
 ### Technology stack
 
@@ -249,6 +261,15 @@ The .NET 10 Desktop Runtime must be installed to run a framework-dependent build
 
 Some monitoring data depends on standard Linux utilities installed on the remote system. The SSH user must have permission to run the required commands and access the selected files and logs.
 
+### Keyboard shortcuts
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+N` | Add a server |
+| `Ctrl+K` or `Ctrl+F` | Focus server search |
+| `F5` or `Ctrl+R` | Refresh monitoring for the selected server |
+| `Esc` | Close the open settings, favorites, or activity panel |
+
 ### Data and security
 
 The database is stored locally at:
@@ -293,6 +314,7 @@ Server-Control-Center/
 ├── ViewModels/                     Presentation logic and commands
 ├── Views/                          Additional WPF windows
 ├── tests/
+│   ├── ServerControlCenter.UnitTests/
 │   └── ServerControlCenter.IntegrationTests/
 ├── App.xaml                        Global resources and styles
 ├── MainWindow.xaml                 Main user interface
@@ -303,7 +325,8 @@ Server-Control-Center/
 ### Architecture
 
 - WPF views use data binding to ViewModels.
-- `MainViewModel` coordinates servers, commands, monitoring, logs, and SFTP operations.
+- `MainViewModel` is the root composition; feature logic is split across Servers, Monitoring, Commands, Terminal, and RemoteFiles partial modules.
+- `MainWindow` composes feature `UserControl` modules, while feature-specific UI handlers remain with their views.
 - `SshService` handles the SSH shell, command execution, and SFTP operations.
 - `DashboardDataService` manages settings, the local profile, and activity records.
 - `AppDbContext` persists local data in SQLite.

@@ -277,16 +277,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0"
-                            BorderThickness="0"
-                            Background="Transparent"
+                            Style="{StaticResource IconButtonStyle}"
                             HorizontalAlignment="Left"
                             Command="{Binding AddServerCommand}"
                             ToolTip="{Binding [AddServer], Source={x:Static services:AppServices.Localizer}}">
-                        <StackPanel Orientation="Horizontal">
-                            <iconPacks:PackIconMaterial Kind="Plus"
-                                                        Style="{StaticResource PackIconStyle}"
-                                                        Margin="0 0 0 0"/>
-                        </StackPanel>
+                        <iconPacks:PackIconMaterial Kind="Plus"
+                                                    Style="{StaticResource PackIconStyle}"/>
                     </Button>
                     <Button Grid.Column="1"
                             Style="{StaticResource IconButtonStyle}"
