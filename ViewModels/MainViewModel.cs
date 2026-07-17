@@ -23,6 +23,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly SavedCommandService _commandService;
     private readonly DashboardDataService _dashboardData;
     private readonly FileDialogService _fileDialog;
+    private readonly UpdateService _updateService;
     private readonly DispatcherTimer _monitoringTimer;
     private readonly List<double> cpuHistory = new();
     private readonly List<double> ramHistory = new();
@@ -31,6 +32,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly LocalizationService localizer = AppServices.Localizer;
 
     private CancellationTokenSource serverSelectionCancellation = new();
+    private readonly CancellationTokenSource updateCancellation = new();
     private CancellationTokenSource? commandCancellation;
     private int serverSelectionVersion;
 
@@ -87,6 +89,22 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private string settingsStatusMessage = "";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
+    [NotifyCanExecuteChangedFor(nameof(InstallUpdateCommand))]
+    private UpdateInfo? availableUpdate;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CheckForUpdatesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(InstallUpdateCommand))]
+    private bool isUpdateBusy;
+
+    [ObservableProperty]
+    private string updateStatusText = "";
+
+    [ObservableProperty]
+    private double updateProgress;
 
 
     [ObservableProperty]
@@ -230,6 +248,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public LocalizationService L => localizer;
     public IReadOnlyList<LanguageOption> LanguageOptions => localizer.Languages;
+    public bool IsUpdateAvailable => AvailableUpdate is not null;
+    public string CurrentVersionText => _updateService.CurrentVersion.ToString(3);
     public string SelectedServerTitle => SelectedServer?.Name ?? L.T("NoServerSelected");
     public string SelectedServerSubtitle => SelectedServer is null
         ? L.T("ChooseServer")
@@ -257,7 +277,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SshService? terminalSsh = null,
         SavedCommandService? commandService = null,
         DashboardDataService? dashboardData = null,
-        FileDialogService? fileDialog = null)
+        FileDialogService? fileDialog = null,
+        UpdateService? updateService = null)
     {
         _storage = storage ?? new ServerStorageService();
         _ssh = ssh ?? new SshService();
@@ -265,6 +286,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _commandService = commandService ?? new SavedCommandService();
         _dashboardData = dashboardData ?? new DashboardDataService();
         _fileDialog = fileDialog ?? new FileDialogService();
+        _updateService = updateService ?? new UpdateService();
+        UpdateStatusText = UpdateText($"Version {CurrentVersionText}", $"Версия {CurrentVersionText}");
         _terminalSsh.ShellOutputReceived += TerminalSsh_ShellOutputReceived;
         _monitoringTimer = new DispatcherTimer
         {
@@ -352,6 +375,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             await LoadActivityLogsAsync();
 
             SelectedServer ??= FilteredServers.FirstOrDefault();
+            await CheckForUpdatesCoreAsync(true);
         }
         catch (Exception ex)
         {
@@ -528,6 +552,74 @@ public partial class MainViewModel : ObservableObject, IDisposable
         await LoadSavedCommandsAsync();
     }
 
+
+    private bool CanCheckForUpdates() => !IsUpdateBusy;
+    private bool CanInstallUpdate() => !IsUpdateBusy && AvailableUpdate is not null;
+
+    [RelayCommand(CanExecute = nameof(CanCheckForUpdates))]
+    private Task CheckForUpdatesAsync() => CheckForUpdatesCoreAsync(false);
+
+    private async Task CheckForUpdatesCoreAsync(bool silent)
+    {
+        if (IsUpdateBusy) return;
+        IsUpdateBusy = true;
+        UpdateProgress = 0;
+        if (!silent) UpdateStatusText = UpdateText("Checking GitHub Releases...", "Проверяем GitHub Releases...");
+        try
+        {
+            AvailableUpdate = await _updateService.CheckForUpdateAsync(updateCancellation.Token);
+            UpdateStatusText = AvailableUpdate is null
+                ? UpdateText($"Version {CurrentVersionText} is up to date", $"Версия {CurrentVersionText} актуальна")
+                : UpdateText($"Version {AvailableUpdate.Version.ToString(3)} is ready", $"Доступна версия {AvailableUpdate.Version.ToString(3)}");
+        }
+        catch (OperationCanceledException) when (updateCancellation.IsCancellationRequested) { }
+        catch (Exception ex)
+        {
+            UpdateStatusText = UpdateText($"Could not check for updates: {ex.Message}", $"Не удалось проверить обновления: {ex.Message}");
+        }
+        finally { IsUpdateBusy = false; }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanInstallUpdate))]
+    private async Task InstallUpdateAsync()
+    {
+        if (AvailableUpdate is null) return;
+        var version = AvailableUpdate.Version.ToString(3);
+        var confirmed = ConfirmActionRequested?.Invoke(UpdateText(
+            $"Download and install Server Control Center {version}? The app will restart.",
+            $"Скачать и установить Server Control Center {version}? Приложение будет перезапущено.")) ?? false;
+        if (!confirmed) return;
+
+        IsUpdateBusy = true;
+        var progress = new Progress<double>(value =>
+        {
+            UpdateProgress = value;
+            UpdateStatusText = UpdateText($"Downloading update: {value:0}%", $"Скачиваем обновление: {value:0}%");
+        });
+        try
+        {
+            var installerPath = await _updateService.DownloadAndVerifyAsync(AvailableUpdate, progress, updateCancellation.Token);
+            UpdateStatusText = UpdateText("Starting installer...", "Запускаем установщик...");
+            UpdateService.StartInstaller(installerPath);
+            Application.Current.Shutdown();
+        }
+        catch (OperationCanceledException) when (updateCancellation.IsCancellationRequested) { }
+        catch (Exception ex)
+        {
+            UpdateStatusText = UpdateText($"Update failed: {ex.Message}", $"Не удалось обновить приложение: {ex.Message}");
+            IsUpdateBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenReleasePage()
+    {
+        if (AvailableUpdate is not null)
+            Process.Start(new ProcessStartInfo { FileName = AvailableUpdate.ReleasePageUrl.ToString(), UseShellExecute = true });
+    }
+
+    private string UpdateText(string english, string russian) =>
+        string.Equals(L.LanguageCode, "ru", StringComparison.OrdinalIgnoreCase) ? russian : english;
 
     [RelayCommand]
     private void OpenSettingsPanel()
@@ -772,6 +864,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         serverSelectionCancellation.Dispose();
         commandCancellation?.Cancel();
         commandCancellation?.Dispose();
+        updateCancellation.Cancel();
+        updateCancellation.Dispose();
         _terminalSsh.ShellOutputReceived -= TerminalSsh_ShellOutputReceived;
         _terminalSsh.Dispose();
     }

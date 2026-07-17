@@ -9,7 +9,7 @@
             BorderBrush="{StaticResource BorderBrushSoft}"
             BorderThickness="0 0 0 1"
             Padding="18 0"
-            Background="#070E15">
+            Background="#101820">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -87,7 +87,7 @@
                                             Margin="12 0 0 0"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Center"/>
-                <Border Background="#101B28"
+                <Border Background="#182430"
                         BorderBrush="{StaticResource BorderBrushSoft}"
                         BorderThickness="1"
                         CornerRadius="4"
@@ -126,6 +126,23 @@
             <StackPanel Grid.Column="5"
                         Orientation="Horizontal"
                         VerticalAlignment="Center">
+                <Button Style="{StaticResource IconButtonStyle}"
+                        ToolTip="{Binding UpdateStatusText}"
+                        Command="{Binding CheckForUpdatesCommand}"
+                        Margin="0 0 8 0">
+                    <Grid>
+                        <iconPacks:PackIconMaterial Kind="Update"
+                                                    Style="{StaticResource PackIconStyle}"/>
+                        <Ellipse Width="7" Height="7"
+                                 Fill="{StaticResource AccentBrush}"
+                                 Stroke="{StaticResource PanelBackgroundBrush}"
+                                 StrokeThickness="1"
+                                 HorizontalAlignment="Right"
+                                 VerticalAlignment="Top"
+                                 Margin="0 -3 -4 0"
+                                 Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVisibility}}"/>
+                    </Grid>
+                </Button>
                 <Button Style="{StaticResource IconButtonStyle}"
                         ToolTip="{Binding [Activity], Source={x:Static services:AppServices.Localizer}}"
                         Command="{Binding OpenActivityPanelCommand}"

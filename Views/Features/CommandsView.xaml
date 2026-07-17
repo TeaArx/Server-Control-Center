@@ -14,7 +14,7 @@
                 BorderBrush="{StaticResource BorderBrushSoft}"
                 BorderThickness="1"
                 CornerRadius="7"
-                Background="#08131D">
+                Background="#101A22">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -46,7 +46,7 @@
                                         <TextBlock Text="{Binding Title}"
                                                    FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <Border Background="#173044"
+                                        <Border Background="#1A3738"
                                                 CornerRadius="4"
                                                 Margin="8 0 0 0"
                                                 Padding="6 1">

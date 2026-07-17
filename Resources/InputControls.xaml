@@ -16,7 +16,7 @@
         <Setter Property="Cursor"
                 Value="Hand"/>
         <Setter Property="Background"
-                Value="#101B28"/>
+                Value="#182430"/>
         <Setter Property="BorderBrush"
                 Value="{StaticResource BorderBrushStrong}"/>
         <Setter Property="BorderThickness"
@@ -59,7 +59,7 @@
                                     Value="{StaticResource ButtonHoverBrush}"/>
                             <Setter TargetName="ButtonChrome"
                                     Property="BorderBrush"
-                                    Value="#3C5A76"/>
+                                    Value="#486172"/>
                         </Trigger>
                         <Trigger Property="IsPressed"
                                  Value="True">
@@ -124,7 +124,7 @@
                                  Value="True">
                             <Setter TargetName="PrimaryChrome"
                                     Property="Background"
-                                    Value="#0B65D8"/>
+                                    Value="#31BFAF"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused"
                                  Value="True">
@@ -211,7 +211,7 @@
         <Setter Property="Padding"
                 Value="9 5"/>
         <Setter Property="Background"
-                Value="#08131D"/>
+                Value="#101A22"/>
         <Setter Property="BorderBrush"
                 Value="{StaticResource BorderBrushStrong}"/>
         <Setter Property="BorderThickness"
@@ -283,7 +283,7 @@
         <Setter Property="Padding"
                 Value="10 5"/>
         <Setter Property="Background"
-                Value="#08131D"/>
+                Value="#101A22"/>
         <Setter Property="BorderBrush"
                 Value="{StaticResource BorderBrushStrong}"/>
         <Setter Property="BorderThickness"
@@ -362,7 +362,7 @@
                                                     Value="{StaticResource ButtonHoverBrush}"/>
                                             <Setter TargetName="ComboChrome"
                                                     Property="BorderBrush"
-                                                    Value="#3C5A76"/>
+                                                    Value="#486172"/>
                                         </Trigger>
 
                                         <Trigger Property="IsChecked"
@@ -592,7 +592,7 @@
         <Setter Property="OverridesDefaultStyle"
                 Value="True"/>
         <Setter Property="Background"
-                Value="#385067"/>
+                Value="#415969"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
@@ -604,7 +604,7 @@
                                  Value="True">
                             <Setter TargetName="ThumbChrome"
                                     Property="Background"
-                                    Value="#4B6884"/>
+                                    Value="#567083"/>
                         </Trigger>
                         <Trigger Property="IsDragging"
                                  Value="True">
@@ -622,9 +622,9 @@
         <Setter Property="OverridesDefaultStyle"
                 Value="True"/>
         <Setter Property="Background"
-                Value="#07111A"/>
+                Value="#101820"/>
         <Setter Property="Foreground"
-                Value="#385067"/>
+                Value="#415969"/>
         <Setter Property="Width"
                 Value="10"/>
         <Setter Property="MinWidth"
@@ -668,7 +668,7 @@
                         <Trigger Property="IsMouseOver"
                                  Value="True">
                             <Setter Property="Foreground"
-                                    Value="#4B6884"/>
+                                    Value="#567083"/>
                         </Trigger>
                         <Trigger Property="IsEnabled"
                                  Value="False">

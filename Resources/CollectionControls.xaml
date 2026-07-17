@@ -81,7 +81,7 @@
                         <Border Grid.Row="0"
                                 BorderBrush="{StaticResource BorderBrushSoft}"
                                 BorderThickness="0 0 0 1"
-                                Background="#0B141E"
+                                Background="#121B24"
                                 Padding="8 6">
                             <TabPanel x:Name="HeaderPanel"
                                       IsItemsHost="True"
@@ -196,7 +196,7 @@
 
     <Style TargetType="DataGridColumnHeader">
         <Setter Property="Background"
-                Value="#0F1A26"/>
+                Value="#17232D"/>
         <Setter Property="BorderBrush"
                 Value="{StaticResource BorderBrushSoft}"/>
         <Setter Property="BorderThickness"

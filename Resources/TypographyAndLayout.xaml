@@ -172,7 +172,7 @@
         <Setter Property="Background"
                 Value="{StaticResource AccentSoftBrush}"/>
         <Setter Property="BorderBrush"
-                Value="#164A8A"/>
+                Value="#2C6661"/>
         <Setter Property="BorderThickness"
                 Value="1"/>
         <Setter Property="SnapsToDevicePixels"
@@ -207,8 +207,8 @@
                         </Grid.RowDefinitions>
 
                         <Border Grid.Row="0"
-                                Background="#07111B"
-                                BorderBrush="#102235"
+                                Background="#101820"
+                                BorderBrush="#283847"
                                 BorderThickness="0 0 0 1"
                                 Padding="10 0">
                             <TabPanel IsItemsHost="True"

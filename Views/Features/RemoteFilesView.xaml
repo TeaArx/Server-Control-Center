@@ -47,7 +47,7 @@
                     </StackPanel>
                 </Button>
                 <Border Grid.Column="4"
-                        Background="#08131D"
+                        Background="#101A22"
                         BorderBrush="{StaticResource BorderBrushStrong}"
                         BorderThickness="1"
                         CornerRadius="7"
@@ -245,7 +245,7 @@
                                             Width="30"
                                             Height="30"
                                             CornerRadius="8"
-                                            Background="#162434"
+                                            Background="#1B2834"
                                             HorizontalAlignment="Left">
                                         <iconPacks:PackIconMaterial x:Name="FileIcon"
                                                                     Kind="FileDocumentOutline"

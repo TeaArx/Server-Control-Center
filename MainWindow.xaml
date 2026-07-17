@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:features="clr-namespace:ServerControlCenter.Views.Features"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Server Control Center"
         Width="1320"
         Height="840"
@@ -9,65 +10,173 @@
         MinHeight="600"
         Icon="Assets/server-control-center.ico"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="CanResize"
         Background="{StaticResource AppBackgroundBrush}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType">
 
-    <Grid Background="{StaticResource AppBackgroundBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="248"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="62"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="42"
+                            ResizeBorderThickness="7"
+                            CornerRadius="10"
+                            GlassFrameThickness="0"
+                            UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
 
-        <features:ServersSidebarView Grid.RowSpan="2" Grid.Column="0"/>
+    <Window.Resources>
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="41"/>
+            <Setter Property="MinWidth" Value="46"/>
+            <Setter Property="MinHeight" Value="41"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="7"
+                                Margin="3">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ButtonHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource ButtonPressedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CloseCaptionButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource CaptionButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#B94D58"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
-        <features:DashboardHeaderView x:Name="DashboardHeader" Grid.Column="1" Grid.Row="0"/>
-
-        <Grid Grid.Column="1"
-              Grid.Row="1"
-              Margin="14">
+    <Border x:Name="WindowBorder"
+            Background="{StaticResource AppBackgroundBrush}"
+            BorderBrush="{StaticResource BorderBrushStrong}"
+            BorderThickness="1"
+            CornerRadius="10">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="124"/>
-                <RowDefinition Height="12"/>
-                <RowDefinition Height="0.9*"/>
-                <RowDefinition Height="8"/>
-                <RowDefinition Height="1.25*"/>
+                <RowDefinition Height="42"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <features:MonitoringSummaryView Grid.Row="0"/>
+            <Border Grid.Row="0"
+                    Background="#121B23"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="0 0 0 1"
+                    CornerRadius="10 10 0 0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="14 0">
+                        <Image Source="Assets/server-control-center.png"
+                               Width="20"
+                               Height="20"
+                               Margin="0 0 10 0"/>
+                        <TextBlock Text="Server Control Center"
+                                   FontSize="12.5"
+                                   FontWeight="SemiBold"/>
+                        <Border Width="5"
+                                Height="5"
+                                CornerRadius="3"
+                                Background="{StaticResource AccentBrush}"
+                                Margin="10 1 0 0"
+                                Opacity="0.8"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Margin="0 0 4 0">
+                        <Button Content="—"
+                                Style="{StaticResource CaptionButtonStyle}"
+                                ToolTip="Свернуть"
+                                Click="MinimizeButton_Click"/>
+                        <Button x:Name="MaximizeButton"
+                                Content="□"
+                                Style="{StaticResource CaptionButtonStyle}"
+                                ToolTip="Развернуть"
+                                Click="MaximizeButton_Click"/>
+                        <Button Content="×"
+                                Style="{StaticResource CloseCaptionButtonStyle}"
+                                ToolTip="Закрыть"
+                                Click="CloseButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <features:TerminalView Grid.Row="2"/>
+            <Grid Grid.Row="1" Background="{StaticResource AppBackgroundBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="248"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="62"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <GridSplitter Grid.Row="3"
-                          Height="8"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Center"
-                          Background="Transparent"
-                          ShowsPreview="True"
-                          ResizeDirection="Rows">
-                <GridSplitter.Template>
-                    <ControlTemplate TargetType="{x:Type GridSplitter}">
-                        <Border Background="Transparent"
-                                Padding="0 3">
-                            <Border Height="2"
-                                    CornerRadius="1"
-                                    Background="{StaticResource BorderBrushStrong}"
-                                    Opacity="0.8"/>
-                        </Border>
-                    </ControlTemplate>
-                </GridSplitter.Template>
-            </GridSplitter>
-            <features:OperationsView Grid.Row="4"/>
+                <features:ServersSidebarView Grid.RowSpan="2" Grid.Column="0"/>
+                <features:DashboardHeaderView x:Name="DashboardHeader" Grid.Column="1" Grid.Row="0"/>
 
+                <Grid Grid.Column="1" Grid.Row="1" Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="124"/>
+                        <RowDefinition Height="14"/>
+                        <RowDefinition Height="0.9*"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="1.25*"/>
+                    </Grid.RowDefinitions>
+                    <features:MonitoringSummaryView Grid.Row="0"/>
+                    <features:TerminalView Grid.Row="2"/>
+                    <GridSplitter Grid.Row="3"
+                                  Height="10"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Center"
+                                  Background="Transparent"
+                                  ShowsPreview="True"
+                                  ResizeDirection="Rows">
+                        <GridSplitter.Template>
+                            <ControlTemplate TargetType="{x:Type GridSplitter}">
+                                <Border Background="Transparent" Padding="0 4">
+                                    <Border Height="2"
+                                            CornerRadius="1"
+                                            Background="{StaticResource BorderBrushStrong}"
+                                            Opacity="0.55"/>
+                                </Border>
+                            </ControlTemplate>
+                        </GridSplitter.Template>
+                    </GridSplitter>
+                    <features:OperationsView Grid.Row="4"/>
+                </Grid>
+
+                <features:OverlayHostView Grid.ColumnSpan="2" Grid.RowSpan="2"/>
+            </Grid>
         </Grid>
-
-        <features:OverlayHostView Grid.ColumnSpan="2" Grid.RowSpan="2"/>
-    </Grid>
-
+    </Border>
 </Window>

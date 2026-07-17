@@ -21,6 +21,7 @@ public partial class MainWindow : Window
         DataContext = viewModel;
         PreviewKeyDown += MainWindow_PreviewKeyDown;
         SourceInitialized += (_, _) => ApplyWindowFrameTheme();
+        StateChanged += (_, _) => UpdateWindowChrome();
         Closed += (_, _) => viewModel.Dispose();
     }
 
@@ -75,6 +76,44 @@ public partial class MainWindow : Window
         return result == MessageBoxResult.Yes;
     }
 
+    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2)
+        {
+            ToggleMaximize();
+            return;
+        }
+
+        if (WindowState == WindowState.Maximized)
+        {
+            var cursorPosition = e.GetPosition(this);
+            var widthRatio = cursorPosition.X / ActualWidth;
+            WindowState = WindowState.Normal;
+            Left = cursorPosition.X - (RestoreBounds.Width * widthRatio);
+            Top = Math.Max(0, cursorPosition.Y - 20);
+        }
+
+        DragMove();
+    }
+
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void MaximizeButton_Click(object sender, RoutedEventArgs e) => ToggleMaximize();
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void ToggleMaximize() =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void UpdateWindowChrome()
+    {
+        var maximized = WindowState == WindowState.Maximized;
+        WindowBorder.CornerRadius = maximized ? new CornerRadius(0) : new CornerRadius(10);
+        WindowBorder.BorderThickness = maximized ? new Thickness(0) : new Thickness(1);
+        MaximizeButton.Content = maximized ? "❐" : "□";
+        MaximizeButton.ToolTip = maximized ? "Восстановить" : "Развернуть";
+    }
+
     private void ApplyWindowFrameTheme()
     {
         try
@@ -83,12 +122,14 @@ public partial class MainWindow : Window
             var dark = 1;
             DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
 
-            var captionColor = ColorToBgr(0x05, 0x0B, 0x11);
-            var borderColor = ColorToBgr(0x20, 0x31, 0x42);
-            var textColor = ColorToBgr(0xF2, 0xF7, 0xFC);
+            var captionColor = ColorToBgr(0x12, 0x1B, 0x23);
+            var borderColor = ColorToBgr(0x35, 0x4A, 0x5D);
+            var textColor = ColorToBgr(0xED, 0xF2, 0xF6);
             DwmSetWindowAttribute(handle, 35, ref captionColor, sizeof(int));
             DwmSetWindowAttribute(handle, 34, ref borderColor, sizeof(int));
             DwmSetWindowAttribute(handle, 36, ref textColor, sizeof(int));
+            var cornerPreference = 2;
+            DwmSetWindowAttribute(handle, 33, ref cornerPreference, sizeof(int));
         }
         catch
         {
