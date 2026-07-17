@@ -126,13 +126,37 @@
             <StackPanel Grid.Column="5"
                         Orientation="Horizontal"
                         VerticalAlignment="Center">
-                <Button Style="{StaticResource IconButtonStyle}"
-                        ToolTip="{Binding UpdateStatusText}"
-                        Command="{Binding CheckForUpdatesCommand}"
+                <Button ToolTip="{Binding UpdateStatusText}"
                         Margin="0 0 8 0">
+                    <Button.Style>
+                        <Style TargetType="Button"
+                               BasedOn="{StaticResource IconButtonStyle}">
+                            <Setter Property="Command"
+                                    Value="{Binding CheckForUpdatesCommand}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUpdateAvailable}"
+                                             Value="True">
+                                    <Setter Property="Command"
+                                            Value="{Binding InstallUpdateCommand}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <Grid>
-                        <iconPacks:PackIconMaterial Kind="Update"
-                                                    Style="{StaticResource PackIconStyle}"/>
+                        <iconPacks:PackIconMaterial>
+                            <iconPacks:PackIconMaterial.Style>
+                                <Style TargetType="iconPacks:PackIconMaterial"
+                                       BasedOn="{StaticResource PackIconStyle}">
+                                    <Setter Property="Kind" Value="Update"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsUpdateAvailable}"
+                                                     Value="True">
+                                            <Setter Property="Kind" Value="Download"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </iconPacks:PackIconMaterial.Style>
+                        </iconPacks:PackIconMaterial>
                         <Ellipse Width="7" Height="7"
                                  Fill="{StaticResource AccentBrush}"
                                  Stroke="{StaticResource PanelBackgroundBrush}"
