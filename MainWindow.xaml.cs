@@ -14,6 +14,9 @@ namespace ServerControlCenter;
 
 public partial class MainWindow : Window
 {
+    private readonly List<string> terminalHistory = [];
+    private int terminalHistoryIndex;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -59,6 +62,55 @@ public partial class MainWindow : Window
 
     private void TerminalCommandTextBox_KeyDown(object sender, KeyEventArgs e)
     {
+        if (sender is not TextBox input || DataContext is not MainViewModel vm)
+        {
+            return;
+        }
+
+        var control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+        var shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+
+        if (control && e.Key == Key.C && input.SelectionLength == 0)
+        {
+            InterruptTerminal(vm);
+            e.Handled = true;
+            return;
+        }
+
+        if (control && shift && e.Key == Key.V)
+        {
+            input.Paste();
+            e.Handled = true;
+            return;
+        }
+
+        if (control && e.Key == Key.L)
+        {
+            vm.ClearTerminalCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Up && terminalHistory.Count > 0)
+        {
+            terminalHistoryIndex = Math.Max(0, terminalHistoryIndex - 1);
+            vm.TerminalCommand = terminalHistory[terminalHistoryIndex];
+            input.CaretIndex = input.Text.Length;
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Down && terminalHistory.Count > 0)
+        {
+            terminalHistoryIndex = Math.Min(terminalHistory.Count, terminalHistoryIndex + 1);
+            vm.TerminalCommand = terminalHistoryIndex == terminalHistory.Count
+                ? string.Empty
+                : terminalHistory[terminalHistoryIndex];
+            input.CaretIndex = input.Text.Length;
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key != Key.Enter)
         {
             return;
@@ -66,10 +118,88 @@ public partial class MainWindow : Window
 
         e.Handled = true;
 
-        if (DataContext is MainViewModel vm &&
-            vm.SendTerminalCommandCommand.CanExecute(null))
+        if (!string.IsNullOrWhiteSpace(vm.TerminalCommand) &&
+            (terminalHistory.Count == 0 || terminalHistory[^1] != vm.TerminalCommand))
+        {
+            terminalHistory.Add(vm.TerminalCommand);
+            terminalHistoryIndex = terminalHistory.Count;
+        }
+
+        if (vm.SendTerminalCommandCommand.CanExecute(null))
         {
             vm.SendTerminalCommandCommand.Execute(null);
+        }
+    }
+
+    private void TerminalOutputTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender is not TextBox output || DataContext is not MainViewModel vm)
+        {
+            return;
+        }
+
+        var control = (Keyboard.Modifiers & ModifierKeys.Control) != 0;
+        var shift = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
+
+        if (control && e.Key == Key.C)
+        {
+            if (output.SelectionLength > 0)
+            {
+                output.Copy();
+            }
+            else
+            {
+                InterruptTerminal(vm);
+            }
+
+            e.Handled = true;
+            return;
+        }
+
+        if (control && shift && e.Key == Key.V)
+        {
+            TerminalInputTextBox.Focus();
+            TerminalInputTextBox.Paste();
+            e.Handled = true;
+            return;
+        }
+
+        if (control && e.Key == Key.L)
+        {
+            vm.ClearTerminalCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Enter)
+        {
+            TerminalInputTextBox.Focus();
+            e.Handled = true;
+        }
+    }
+
+    private void TerminalOutputTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        TerminalInputTextBox.Focus();
+        var insertionPoint = TerminalInputTextBox.SelectionStart;
+        TerminalInputTextBox.SelectedText = e.Text;
+        TerminalInputTextBox.CaretIndex = insertionPoint + e.Text.Length;
+        e.Handled = true;
+    }
+
+    private static void InterruptTerminal(MainViewModel viewModel)
+    {
+        if (viewModel.InterruptTerminalCommandCommand.CanExecute(null))
+        {
+            viewModel.InterruptTerminalCommandCommand.Execute(null);
+        }
+    }
+
+    private void TerminalOutputTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (sender is TextBox textBox)
+        {
+            textBox.ScrollToEnd();
         }
     }
 
