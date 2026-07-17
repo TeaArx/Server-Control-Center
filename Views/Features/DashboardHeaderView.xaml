@@ -1,0 +1,146 @@
+<UserControl x:Class="ServerControlCenter.Views.Features.DashboardHeaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:ServerControlCenter.Controls"
+             xmlns:services="clr-namespace:ServerControlCenter.Services"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
+    <Border Grid.Column="1"
+            Grid.Row="0"
+            BorderBrush="{StaticResource BorderBrushSoft}"
+            BorderThickness="0 0 0 1"
+            Padding="18 0"
+            Background="#070E15">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid VerticalAlignment="Center"
+                  Margin="0 0 18 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Ellipse Width="7"
+                         Height="7"
+                         Margin="0 0 12 0">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Fill"
+                                    Value="#8CA0B2"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
+                                             Value="True">
+                                    <Setter Property="Fill"
+                                            Value="{StaticResource SuccessBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="{Binding SelectedServerTitle}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"/>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0 3 0 0">
+                        <TextBlock Text="{Binding SelectedServerSubtitle}"
+                                   Style="{StaticResource TinyMutedTextStyle}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="&#x2022;"
+                                   Foreground="{StaticResource MutedTextBrush}"
+                                   Margin="8 0"/>
+                        <TextBlock Text="{Binding OnlineText}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource TinyMutedTextStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedServer.IsOnline}"
+                                                     Value="True">
+                                            <Setter Property="Foreground"
+                                                    Value="{StaticResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Column="1"
+                  Width="200"
+                  VerticalAlignment="Center"
+                  Margin="0 0 16 0">
+                <TextBox x:Name="ServerSearchBox"
+                         Text="{Binding ServerSearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Padding="34 5 78 5"
+                         ToolTip="{Binding [SearchServers], Source={x:Static services:AppServices.Localizer}}"/>
+                <iconPacks:PackIconMaterial Kind="Magnify"
+                                            Width="16"
+                                            Height="16"
+                                            Foreground="{StaticResource MutedTextBrush}"
+                                            Margin="12 0 0 0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"/>
+                <Border Background="#101B28"
+                        BorderBrush="{StaticResource BorderBrushSoft}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Padding="5 1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Margin="0 0 6 0">
+                    <TextBlock Text="Ctrl+K"
+                               Style="{StaticResource TinyMutedTextStyle}"/>
+                </Border>
+            </Grid>
+            <Button Grid.Column="2"
+                    Style="{StaticResource IconButtonStyle}"
+                    ToolTip="{Binding [TestSsh], Source={x:Static services:AppServices.Localizer}}"
+                    Command="{Binding TestConnectionCommand}"
+                    Margin="0 0 8 0">
+                <iconPacks:PackIconMaterial Kind="CheckNetworkOutline"
+                                            Style="{StaticResource PackIconStyle}"/>
+            </Button>
+            <Button Grid.Column="3"
+                    Style="{StaticResource IconButtonStyle}"
+                    ToolTip="{Binding [Edit], Source={x:Static services:AppServices.Localizer}}"
+                    Command="{Binding EditServerCommand}"
+                    Margin="0 0 8 0">
+                <iconPacks:PackIconMaterial Kind="Pencil"
+                                            Style="{StaticResource PackIconStyle}"/>
+            </Button>
+            <Button Grid.Column="4"
+                    Style="{StaticResource IconButtonStyle}"
+                    ToolTip="{Binding [CheckAllServers], Source={x:Static services:AppServices.Localizer}}"
+                    Command="{Binding CheckAllServersCommand}"
+                    Margin="0 0 8 0">
+                <iconPacks:PackIconMaterial Kind="Refresh"
+                                            Style="{StaticResource PackIconStyle}"/>
+            </Button>
+            <StackPanel Grid.Column="5"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <Button Style="{StaticResource IconButtonStyle}"
+                        ToolTip="{Binding [Activity], Source={x:Static services:AppServices.Localizer}}"
+                        Command="{Binding OpenActivityPanelCommand}"
+                        Margin="0 0 8 0">
+                    <iconPacks:PackIconMaterial Kind="Bell"
+                                                Style="{StaticResource PackIconStyle}"/>
+                </Button>
+                <Button Style="{StaticResource IconButtonStyle}"
+                        ToolTip="{Binding [Settings], Source={x:Static services:AppServices.Localizer}}"
+                        Command="{Binding OpenSettingsPanelCommand}"
+                        Margin="0 0 8 0">
+                    <iconPacks:PackIconMaterial Kind="Cog"
+                                                Style="{StaticResource PackIconStyle}"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

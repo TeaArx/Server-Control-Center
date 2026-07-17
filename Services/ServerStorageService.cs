@@ -6,9 +6,16 @@ namespace ServerControlCenter.Services;
 
 public class ServerStorageService
 {
+    private readonly IAppDbContextFactory contextFactory;
+
+    public ServerStorageService(IAppDbContextFactory? contextFactory = null)
+    {
+        this.contextFactory = contextFactory ?? AppDbContextFactory.Shared;
+    }
+
     public async Task<List<ServerProfile>> GetAllAsync()
     {
-        using var db = new AppDbContext();
+        using var db = contextFactory.CreateDbContext();
 
         var servers = await db.Servers
             .AsTracking()
@@ -34,7 +41,9 @@ public class ServerStorageService
 
         foreach (var server in servers)
         {
-            server.Password = SecretProtector.Unprotect(server.Password);
+            var secret = SecretProtector.TryUnprotect(server.Password);
+            server.Password = secret.Status == SecretProtectionStatus.Available ? secret.Value : null;
+            server.HasUnreadablePassword = secret.Status == SecretProtectionStatus.Unreadable;
             server.IsOnline = false;
         }
 
@@ -43,7 +52,7 @@ public class ServerStorageService
 
     public async Task AddAsync(ServerProfile server)
     {
-        using var db = new AppDbContext();
+        using var db = contextFactory.CreateDbContext();
 
         var storageCopy = CreateStorageCopy(server);
         db.Servers.Add(storageCopy);
@@ -54,7 +63,7 @@ public class ServerStorageService
 
     public async Task DeleteAsync(ServerProfile server)
     {
-        using var db = new AppDbContext();
+        using var db = contextFactory.CreateDbContext();
 
         await db.Servers
             .Where(x => x.Id == server.Id)
@@ -63,7 +72,7 @@ public class ServerStorageService
 
     public async Task UpdateAsync(ServerProfile server)
     {
-        using var db = new AppDbContext();
+        using var db = contextFactory.CreateDbContext();
 
         db.Servers.Update(CreateStorageCopy(server));
         await db.SaveChangesAsync();

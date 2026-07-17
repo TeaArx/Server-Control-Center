@@ -1,0 +1,70 @@
+<UserControl x:Class="ServerControlCenter.Views.Features.OperationsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:ServerControlCenter.Controls"
+             xmlns:services="clr-namespace:ServerControlCenter.Services"
+             xmlns:features="clr-namespace:ServerControlCenter.Views.Features"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
+    <Border Grid.Row="4"
+            Style="{StaticResource PagePanelStyle}"
+            Padding="0">
+
+        <TabControl x:Name="OperationsTabControl"
+                    Style="{StaticResource ModernTabControlStyle}"
+                    ItemContainerStyle="{StaticResource ModernTabItemStyle}"
+                    SelectionChanged="OperationsTabControl_SelectionChanged"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0">
+
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="Folder"
+                                                    Style="{StaticResource PackIconStyle}"
+                                                    Margin="0 0 8 0"/>
+                        <TextBlock Text="{Binding [Files], Source={x:Static services:AppServices.Localizer}}"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <features:RemoteFilesView/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="FileDocumentOutline"
+                                                    Style="{StaticResource PackIconStyle}"
+                                                    Margin="0 0 8 0"/>
+                        <TextBlock Text="{Binding [Logs], Source={x:Static services:AppServices.Localizer}}"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <features:LogsView/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="Console"
+                                                    Style="{StaticResource PackIconStyle}"
+                                                    Margin="0 0 8 0"/>
+                        <TextBlock Text="{Binding [Commands], Source={x:Static services:AppServices.Localizer}}"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <features:CommandsView/>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="MonitorDashboard"
+                                                    Style="{StaticResource PackIconStyle}"
+                                                    Margin="0 0 8 0"/>
+                        <TextBlock Text="{Binding [ServerInspector], Source={x:Static services:AppServices.Localizer}}"/>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <features:ServerInspectorView/>
+            </TabItem>
+        </TabControl>
+    </Border>
+</UserControl>

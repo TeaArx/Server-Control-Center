@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerControlCenter.IntegrationTests", "tests\ServerControlCenter.IntegrationTests\ServerControlCenter.IntegrationTests.csproj", "{C1CF5349-8F6F-49FA-B0A7-427DA34C9A5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerControlCenter.UnitTests", "tests\ServerControlCenter.UnitTests\ServerControlCenter.UnitTests.csproj", "{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,11 +45,24 @@ Global
 		{C1CF5349-8F6F-49FA-B0A7-427DA34C9A5F}.Release|x64.Build.0 = Release|Any CPU
 		{C1CF5349-8F6F-49FA-B0A7-427DA34C9A5F}.Release|x86.ActiveCfg = Release|Any CPU
 		{C1CF5349-8F6F-49FA-B0A7-427DA34C9A5F}.Release|x86.Build.0 = Release|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Release|x64.Build.0 = Release|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C1CF5349-8F6F-49FA-B0A7-427DA34C9A5F} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{4D90622E-C9DB-4C08-8E6C-FD7B771EFA9B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

@@ -15,6 +15,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Require tag commit to be on main
+        shell: pwsh
+        run: |
+          git fetch origin main --no-tags
+          git merge-base --is-ancestor $env:GITHUB_SHA origin/main
+          if ($LASTEXITCODE -ne 0) {
+            throw "Release tag must point to a commit contained in main."
+          }
 
       - name: Validate tag and get version
         id: version
@@ -31,10 +42,16 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Restore dependencies
-        run: dotnet restore ServerControlCenter.csproj --runtime win-x64
+        run: dotnet restore ServerControlCenter.sln --locked-mode
+
+      - name: Run release gate tests
+        run: dotnet test tests/ServerControlCenter.UnitTests/ServerControlCenter.UnitTests.csproj --configuration Release --no-restore
+
+      - name: Restore win-x64 publish dependencies
+        run: dotnet restore ServerControlCenter.csproj --runtime win-x64 --locked-mode
 
       - name: Publish self-contained application
         shell: pwsh
@@ -59,11 +76,64 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup --yes --no-progress
 
+      - name: Prepare signing certificate
+        id: signing
+        shell: pwsh
+        env:
+          SIGNING_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_BASE64 }}
+          SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SIGNING_CERTIFICATE_BASE64) -or
+              [string]::IsNullOrWhiteSpace($env:SIGNING_CERTIFICATE_PASSWORD)) {
+            "available=false" >> $env:GITHUB_OUTPUT
+            Write-Output "::warning title=Unsigned release::Code-signing secrets are not configured. The application and installer will be published unsigned."
+            exit 0
+          }
+          [IO.File]::WriteAllBytes("$env:RUNNER_TEMP\scc-signing.pfx", [Convert]::FromBase64String($env:SIGNING_CERTIFICATE_BASE64))
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+          if ($null -eq $signTool) {
+            throw "signtool.exe was not found on the release runner."
+          }
+          "SIGNTOOL_PATH=$($signTool.FullName)" >> $env:GITHUB_ENV
+          "available=true" >> $env:GITHUB_OUTPUT
+
+      - name: Sign application
+        if: steps.signing.outputs.available == 'true'
+        shell: pwsh
+        env:
+          SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          & $env:SIGNTOOL_PATH sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com `
+            /f "$env:RUNNER_TEMP\scc-signing.pfx" /p "$env:SIGNING_CERTIFICATE_PASSWORD" `
+            artifacts/publish/ServerControlCenter.exe
+
       - name: Build installer
         shell: pwsh
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: iscc "/DMyAppVersion=$env:VERSION" installer/ServerControlCenter.iss
+
+      - name: Sign installer
+        if: steps.signing.outputs.available == 'true'
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          $installer = "artifacts/installer/Server-Control-Center-Setup-$env:VERSION.exe"
+          & $env:SIGNTOOL_PATH sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com `
+            /f "$env:RUNNER_TEMP\scc-signing.pfx" /p "$env:SIGNING_CERTIFICATE_PASSWORD" $installer
+
+      - name: Create installer checksum
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $installer = "artifacts/installer/Server-Control-Center-Setup-$env:VERSION.exe"
+          $hash = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $(Split-Path $installer -Leaf)" | Set-Content "$installer.sha256" -Encoding ascii
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -71,4 +141,6 @@ jobs:
           name: Server Control Center ${{ github.ref_name }}
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: artifacts/installer/Server-Control-Center-Setup-${{ steps.version.outputs.version }}.exe
+          files: |
+            artifacts/installer/Server-Control-Center-Setup-${{ steps.version.outputs.version }}.exe
+            artifacts/installer/Server-Control-Center-Setup-${{ steps.version.outputs.version }}.exe.sha256

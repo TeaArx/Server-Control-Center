@@ -5,11 +5,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace ServerControlCenter.Services;
 
 public sealed class SshService : IDisposable
 {
+    public const long MaxEditableTextFileBytes = 2 * 1024 * 1024;
+
     private static readonly TimeSpan ConnectTimeout = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromSeconds(30);
     private static readonly Regex AnsiRegex = new(@"\x1B\[[0-?]*[ -/]*[@-~]", RegexOptions.Compiled);
@@ -20,6 +23,12 @@ public sealed class SshService : IDisposable
     private SshClient? client;
     private ShellStream? shell;
     private string? shellServerKey;
+    private readonly IKnownHostStore knownHosts;
+
+    public SshService(IKnownHostStore? knownHosts = null)
+    {
+        this.knownHosts = knownHosts ?? KnownHostStore.Shared;
+    }
 
     public event EventHandler<string>? ShellOutputReceived;
 
@@ -199,6 +208,13 @@ public sealed class SshService : IDisposable
                     "Ошибка чтения файла: выбран путь к папке."));
             }
 
+            if (attributes.Size > MaxEditableTextFileBytes)
+            {
+                return OperationResult<string>.Failure(Localized(
+                    $"File is too large for the text editor ({attributes.Size:N0} bytes; limit {MaxEditableTextFileBytes:N0}).",
+                    $"Файл слишком большой для текстового редактора ({attributes.Size:N0} байт; лимит {MaxEditableTextFileBytes:N0})."));
+            }
+
             using var stream = new MemoryStream();
             sftp.DownloadFile(remotePath, stream);
             var content = Encoding.UTF8.GetString(stream.ToArray());
@@ -217,17 +233,8 @@ public sealed class SshService : IDisposable
             ValidateRemotePath(remotePath);
             sftp.Connect();
 
-            if (sftp.Exists(remotePath))
-            {
-                var backupPath = $"{remotePath}.bak-{DateTime.Now:yyyyMMddHHmmss}";
-                using var backupStream = new MemoryStream();
-                sftp.DownloadFile(remotePath, backupStream);
-                backupStream.Position = 0;
-                sftp.UploadFile(backupStream, backupPath, true);
-            }
-
             using var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-            sftp.UploadFile(contentStream, remotePath, true);
+            ReplaceRemoteFileSafely(sftp, remotePath, contentStream, createBackup: true, cancellationToken);
             return OperationResult.Success(Localized($"File saved: {remotePath}", $"Файл сохранён: {remotePath}"));
         }, "File save error", "Ошибка сохранения файла", cancellationToken);
     }
@@ -250,8 +257,27 @@ public sealed class SshService : IDisposable
             }
 
             sftp.Connect();
-            using var fileStream = File.Create(localPath);
-            sftp.DownloadFile(remotePath, fileStream);
+            var temporaryPath = localPath + $".scc-tmp-{Guid.NewGuid():N}";
+
+            try
+            {
+                using (var fileStream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    sftp.DownloadFile(remotePath, fileStream, downloaded => cancellationToken.ThrowIfCancellationRequested());
+                    fileStream.Flush(flushToDisk: true);
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                File.Move(temporaryPath, localPath, overwrite: true);
+            }
+            finally
+            {
+                if (File.Exists(temporaryPath))
+                {
+                    File.Delete(temporaryPath);
+                }
+            }
+
             return OperationResult.Success(Localized($"File downloaded: {localPath}", $"Файл скачан: {localPath}"));
         }, "Download error", "Ошибка скачивания", cancellationToken);
     }
@@ -276,7 +302,7 @@ public sealed class SshService : IDisposable
 
             sftp.Connect();
             using var fileStream = File.OpenRead(localPath);
-            sftp.UploadFile(fileStream, remotePath, true);
+            ReplaceRemoteFileSafely(sftp, remotePath, fileStream, createBackup: true, cancellationToken);
             return OperationResult.Success(Localized($"File uploaded: {remotePath}", $"Файл загружен: {remotePath}"));
         }, "Upload error", "Ошибка загрузки", cancellationToken);
     }
@@ -289,6 +315,7 @@ public sealed class SshService : IDisposable
         return RunSftpAsync(server, sftp =>
         {
             ValidateRemotePath(remotePath);
+            EnsureRemotePathCanBeMutated(remotePath, "create");
             sftp.Connect();
             sftp.CreateDirectory(remotePath);
             return OperationResult.Success(Localized($"Folder created: {remotePath}", $"Папка создана: {remotePath}"));
@@ -305,6 +332,8 @@ public sealed class SshService : IDisposable
         {
             ValidateRemotePath(oldPath);
             ValidateRemotePath(newPath);
+            EnsureRemotePathCanBeMutated(oldPath, "rename");
+            EnsureRemotePathCanBeMutated(newPath, "rename to");
             sftp.Connect();
             sftp.RenameFile(oldPath, newPath);
             return OperationResult.Success(Localized($"Renamed: {newPath}", $"Переименовано: {newPath}"));
@@ -320,6 +349,7 @@ public sealed class SshService : IDisposable
         return RunSftpAsync(server, sftp =>
         {
             ValidateRemotePath(remotePath);
+            EnsureRemotePathCanBeMutated(remotePath, "delete");
             sftp.Connect();
 
             if (isDirectory)
@@ -333,6 +363,26 @@ public sealed class SshService : IDisposable
 
             return OperationResult.Success(Localized($"Deleted: {remotePath}", $"Удалено: {remotePath}"));
         }, "Delete error", "Ошибка удаления", cancellationToken);
+    }
+
+    public Task<OperationResult<RemoteDeletePreview>> PreviewDeleteRemoteItemAsync(
+        ServerProfile server,
+        string remotePath,
+        CancellationToken cancellationToken = default)
+    {
+        return RunSftpAsync(server, sftp =>
+        {
+            ValidateRemotePath(remotePath);
+            EnsureRemotePathCanBeMutated(remotePath, "delete");
+            sftp.Connect();
+            var attributes = sftp.GetAttributes(remotePath);
+            var preview = attributes.IsDirectory
+                ? BuildDeletePreview(sftp, remotePath, cancellationToken)
+                : new RemoteDeletePreview(remotePath, 1, 0, attributes.Size);
+            return OperationResult<RemoteDeletePreview>.Success(
+                preview,
+                Localized("Delete preview created.", "Предпросмотр удаления готов."));
+        }, "Delete preview error", "Ошибка предпросмотра удаления", cancellationToken);
     }
 
     public Task<OperationResult<IReadOnlyList<RemoteFileItem>>> GetFilesAsync(
@@ -365,7 +415,7 @@ public sealed class SshService : IDisposable
         }, "SFTP error", "Ошибка SFTP", cancellationToken);
     }
 
-    private static Task<OperationResult> RunSftpAsync(
+    private Task<OperationResult> RunSftpAsync(
         ServerProfile server,
         Func<SftpClient, OperationResult> action,
         string englishErrorPrefix,
@@ -394,7 +444,7 @@ public sealed class SshService : IDisposable
         }, cancellationToken);
     }
 
-    private static Task<OperationResult<T>> RunSftpAsync<T>(
+    private Task<OperationResult<T>> RunSftpAsync<T>(
         ServerProfile server,
         Func<SftpClient, OperationResult<T>> action,
         string englishErrorPrefix,
@@ -427,7 +477,7 @@ public sealed class SshService : IDisposable
     {
         foreach (var item in sftp.ListDirectory(remotePath).Where(x => x.Name != "." && x.Name != ".."))
         {
-            if (item.IsDirectory)
+            if (item.IsDirectory && !item.IsSymbolicLink)
             {
                 DeleteDirectoryRecursive(sftp, item.FullName);
             }
@@ -440,15 +490,67 @@ public sealed class SshService : IDisposable
         sftp.DeleteDirectory(remotePath);
     }
 
-    private static SshClient CreateClient(ServerProfile server) => new(CreateConnectionInfo(server))
+    private static RemoteDeletePreview BuildDeletePreview(
+        SftpClient sftp,
+        string remotePath,
+        CancellationToken cancellationToken)
     {
-        KeepAliveInterval = TimeSpan.FromSeconds(30)
-    };
+        var fileCount = 0;
+        var directoryCount = 1;
+        long totalBytes = 0;
+        var pending = new Stack<string>();
+        pending.Push(remotePath);
 
-    private static SftpClient CreateSftpClient(ServerProfile server) => new(CreateConnectionInfo(server))
+        while (pending.Count > 0)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            foreach (var item in sftp.ListDirectory(pending.Pop()).Where(x => x.Name != "." && x.Name != ".."))
+            {
+                if (item.IsDirectory && !item.IsSymbolicLink)
+                {
+                    directoryCount++;
+                    pending.Push(item.FullName);
+                }
+                else
+                {
+                    fileCount++;
+                    totalBytes += item.Attributes.Size;
+                }
+            }
+        }
+
+        return new RemoteDeletePreview(remotePath, fileCount, directoryCount, totalBytes);
+    }
+
+    private SshClient CreateClient(ServerProfile server)
     {
-        OperationTimeout = CommandTimeout
-    };
+        var sshClient = new SshClient(CreateConnectionInfo(server))
+        {
+            KeepAliveInterval = TimeSpan.FromSeconds(30)
+        };
+        ConfigureHostKeyValidation(sshClient, server);
+        return sshClient;
+    }
+
+    private SftpClient CreateSftpClient(ServerProfile server)
+    {
+        var sftpClient = new SftpClient(CreateConnectionInfo(server))
+        {
+            OperationTimeout = CommandTimeout
+        };
+        ConfigureHostKeyValidation(sftpClient, server);
+        return sftpClient;
+    }
+
+    private void ConfigureHostKeyValidation(BaseClient clientToConfigure, ServerProfile server)
+    {
+        clientToConfigure.HostKeyReceived += (_, args) =>
+        {
+            var fingerprint = "SHA256:" + Convert.ToBase64String(SHA256.HashData(args.HostKey)).TrimEnd('=');
+            args.CanTrust = knownHosts.VerifyOrTrust(server.Host, server.Port, fingerprint) != HostKeyVerificationResult.Changed;
+        };
+    }
 
     private static ConnectionInfo CreateConnectionInfo(ServerProfile server)
     {
@@ -567,6 +669,120 @@ public sealed class SshService : IDisposable
         if (string.IsNullOrWhiteSpace(path))
         {
             throw new ArgumentException(AppServices.Localizer.T("EnterPaths"), nameof(path));
+        }
+
+        _ = ApplicationRules.NormalizeRemotePath(path);
+    }
+
+    private static void EnsureRemotePathCanBeMutated(string remotePath, string operation)
+    {
+        if (ApplicationRules.IsProtectedRemotePath(remotePath))
+        {
+            throw new InvalidOperationException($"Refusing to {operation} protected remote path: {remotePath}");
+        }
+    }
+
+    private static void ReplaceRemoteFileSafely(
+        SftpClient sftp,
+        string remotePath,
+        Stream content,
+        bool createBackup,
+        CancellationToken cancellationToken)
+    {
+        EnsureRemotePathCanBeMutated(remotePath, "overwrite");
+        var temporaryPath = $"{remotePath}.scc-tmp-{Guid.NewGuid():N}";
+        var backupPath = $"{remotePath}.bak-{DateTime.UtcNow:yyyyMMddHHmmssfff}-{Guid.NewGuid():N}";
+        var originalExists = sftp.Exists(remotePath);
+        string? localBackupPath = null;
+
+        try
+        {
+            sftp.UploadFile(content, temporaryPath, canOverride: false, uploaded =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            });
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (originalExists)
+            {
+                if (createBackup)
+                {
+                    localBackupPath = Path.Combine(Path.GetTempPath(), $"scc-backup-{Guid.NewGuid():N}.tmp");
+
+                    using (var backupStream = new FileStream(
+                               localBackupPath,
+                               FileMode.CreateNew,
+                               FileAccess.ReadWrite,
+                               FileShare.None,
+                               bufferSize: 81920,
+                               FileOptions.DeleteOnClose))
+                    {
+                        sftp.DownloadFile(remotePath, backupStream, downloaded => cancellationToken.ThrowIfCancellationRequested());
+                        backupStream.Position = 0;
+                        sftp.UploadFile(backupStream, backupPath, canOverride: false, uploaded => cancellationToken.ThrowIfCancellationRequested());
+
+                        sftp.DeleteFile(remotePath);
+
+                        try
+                        {
+                            sftp.RenameFile(temporaryPath, remotePath);
+                            RotateRemoteBackups(sftp, remotePath, keep: 5);
+                        }
+                        catch
+                        {
+                            backupStream.Position = 0;
+
+                            if (!sftp.Exists(remotePath))
+                            {
+                                sftp.UploadFile(backupStream, remotePath, canOverride: false);
+                            }
+
+                            throw;
+                        }
+                    }
+
+                    return;
+                }
+
+                sftp.DeleteFile(remotePath);
+            }
+
+            try
+            {
+                sftp.RenameFile(temporaryPath, remotePath);
+                RotateRemoteBackups(sftp, remotePath, keep: 5);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        finally
+        {
+            if (sftp.IsConnected && sftp.Exists(temporaryPath))
+            {
+                sftp.DeleteFile(temporaryPath);
+            }
+
+            if (localBackupPath is not null && File.Exists(localBackupPath))
+            {
+                File.Delete(localBackupPath);
+            }
+        }
+    }
+
+    private static void RotateRemoteBackups(SftpClient sftp, string remotePath, int keep)
+    {
+        var parentPath = ApplicationRules.GetRemoteParentPath(remotePath);
+        var fileName = remotePath[(remotePath.LastIndexOf('/') + 1)..];
+        var backupPrefix = fileName + ".bak-";
+
+        foreach (var backup in sftp.ListDirectory(parentPath)
+                     .Where(x => !x.IsDirectory && x.Name.StartsWith(backupPrefix, StringComparison.Ordinal))
+                     .OrderByDescending(x => x.Attributes.LastWriteTimeUtc)
+                     .Skip(keep))
+        {
+            sftp.DeleteFile(backup.FullName);
         }
     }
 

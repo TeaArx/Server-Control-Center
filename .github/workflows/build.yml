@@ -3,10 +3,12 @@ name: Build
 on:
   pull_request:
     branches:
+      - dev
       - main
   push:
     branches:
       - dev
+      - main
 
 permissions:
   contents: read
@@ -26,10 +28,21 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Restore dependencies
-        run: dotnet restore ServerControlCenter.sln
+        run: dotnet restore ServerControlCenter.sln --locked-mode
 
       - name: Build solution
         run: dotnet build ServerControlCenter.sln --configuration Release --no-restore
+
+      - name: Run unit and migration tests
+        run: dotnet test tests/ServerControlCenter.UnitTests/ServerControlCenter.UnitTests.csproj --configuration Release --no-build --logger "trx;LogFileName=unit-tests.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-test-results
+          path: tests/ServerControlCenter.UnitTests/TestResults/*.trx
+          if-no-files-found: error

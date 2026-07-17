@@ -38,7 +38,7 @@ Server Control Center — Windows-приложение на WPF для повс�
 
 | Область | Технология |
 |---|---|
-| Платформа | .NET 8, WPF |
+| Платформа | .NET 10 LTS, WPF |
 | Архитектура интерфейса | MVVM, CommunityToolkit.Mvvm |
 | SSH и SFTP | SSH.NET |
 | Локальное хранилище | SQLite, Entity Framework Core |
@@ -51,7 +51,7 @@ Server Control Center — Windows-приложение на WPF для повс�
 Для запуска и разработки:
 
 - Windows с поддержкой WPF;
-- .NET 8 SDK;
+- .NET 10 SDK;
 - доступ к Linux-серверу по SSH;
 - учётная запись с паролем или поддерживаемым приватным SSH-ключом.
 
@@ -76,7 +76,7 @@ dotnet build ServerControlCenter.sln --configuration Release
 dotnet publish ServerControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
 ```
 
-Для запуска опубликованной framework-dependent версии на компьютере должен быть установлен .NET 8 Desktop Runtime.
+Для запуска опубликованной framework-dependent версии на компьютере должен быть установлен .NET 10 Desktop Runtime. Релизный workflow создаёт self-contained сборку.
 
 ### Использование
 
@@ -96,7 +96,9 @@ dotnet publish ServerControlCenter.csproj --configuration Release --runtime win-
 %LOCALAPPDATA%\ServerControlCenter\server_control_center.db
 ```
 
-В ней находятся профили серверов, сохранённые команды, настройки, профиль пользователя и журнал действий. Код проекта предусматривает защиту паролей через Windows DPAPI в контексте текущего пользователя. Путь к приватному ключу сохраняется в профиле, а сам ключ в базу данных не копируется.
+В ней находятся профили серверов, сохранённые команды, настройки, профиль пользователя и журнал действий. Пароли защищаются Windows DPAPI в контексте текущего пользователя. Путь к приватному ключу сохраняется в профиле, а сам ключ в базу данных не копируется. Перед миграцией база автоматически резервируется, а при ошибке восстанавливается.
+
+SSH host keys проверяются по TOFU (trust on first use). Первый fingerprint сохраняется в `%LOCALAPPDATA%\ServerControlCenter\known_hosts.json`; изменение ключа блокирует подключение до явного удаления доверенной записи. Удалённые системные корни защищены от удаления, рекурсивное удаление показывает предварительный объём операции, а загрузка и редактирование используют временный файл, резервную копию и восстановление при сбое.
 
 Рекомендации:
 
@@ -129,7 +131,9 @@ Server-Control-Center/
 ├── Migrations/                     Миграции базы данных
 ├── Models/                         Модели данных и состояния UI
 ├── Services/                       SSH, SFTP, данные, локализация и правила
+├── Resources/                      Тематические словари ресурсов WPF
 ├── ViewModels/                     Логика представления и команды
+├── Views/Features/                 Функциональные UserControl-модули
 ├── Views/                          Дополнительные WPF-окна
 ├── tests/
 │   └── ServerControlCenter.IntegrationTests/
@@ -142,7 +146,9 @@ Server-Control-Center/
 ### Архитектура
 
 - Представления WPF используют привязки к ViewModel.
-- `MainViewModel` координирует серверы, команды, мониторинг, журналы и SFTP-операции.
+- `MainViewModel` является корневой композицией; функциональная логика разделена на
+  Servers, Monitoring, Commands, Terminal и RemoteFiles partial-модули.
+- `MainWindow` компонует feature `UserControl`, а UI-обработчики принадлежат своему модулю.
 - `SshService` отвечает за SSH shell, выполнение команд и операции SFTP.
 - `DashboardDataService` работает с настройками, профилем и журналом действий.
 - `AppDbContext` хранит локальные данные в SQLite.
@@ -193,7 +199,7 @@ The project is under active development. The latest development code is availabl
 
 | Area | Technology |
 |---|---|
-| Platform | .NET 8, WPF |
+| Platform | .NET 10 LTS, WPF |
 | UI architecture | MVVM, CommunityToolkit.Mvvm |
 | SSH and SFTP | SSH.NET |
 | Local storage | SQLite, Entity Framework Core |
@@ -206,7 +212,7 @@ The project is under active development. The latest development code is availabl
 For development and regular use:
 
 - Windows with WPF support;
-- .NET 8 SDK;
+- .NET 10 SDK;
 - network access to a Linux server over SSH;
 - an account with a password or a supported private SSH key.
 
@@ -231,7 +237,7 @@ dotnet build ServerControlCenter.sln --configuration Release
 dotnet publish ServerControlCenter.csproj --configuration Release --runtime win-x64 --self-contained false --output publish
 ```
 
-The .NET 8 Desktop Runtime must be installed on a target machine to run this framework-dependent build.
+The .NET 10 Desktop Runtime must be installed to run a framework-dependent build. The release workflow produces a self-contained build.
 
 ### Usage
 

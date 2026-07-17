@@ -1,0 +1,163 @@
+<UserControl x:Class="ServerControlCenter.Views.Features.ServerInspectorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:ServerControlCenter.Controls"
+             xmlns:services="clr-namespace:ServerControlCenter.Services"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks">
+    <Grid Margin="12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.1*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="1.4*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Column="0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <Border Style="{StaticResource SoftCardBorderStyle}"
+                        Margin="0 0 0 10">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding [ServerProfileSummary], Source={x:Static services:AppServices.Localizer}}"
+                                           Style="{StaticResource TinyMutedTextStyle}"/>
+                                <TextBlock Text="{Binding SelectedServerTitle}"
+                                           Style="{StaticResource TitleTextStyle}"
+                                           Margin="0 3 0 0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource CompactButtonStyle}"
+                                    Command="{Binding RefreshMonitoringCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPacks:PackIconMaterial Kind="Refresh" Style="{StaticResource PackIconStyle}" Margin="0 0 6 0"/>
+                                    <TextBlock Text="{Binding [Refresh], Source={x:Static services:AppServices.Localizer}}"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        <TextBlock Text="{Binding [ConnectionAddress], Source={x:Static services:AppServices.Localizer}}"
+                                   Style="{StaticResource TinyMutedTextStyle}" Margin="0 12 0 2"/>
+                        <TextBlock Text="{Binding SelectedServerSubtitle}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding [OperatingSystem], Source={x:Static services:AppServices.Localizer}}"
+                                   Style="{StaticResource TinyMutedTextStyle}" Margin="0 9 0 2"/>
+                        <TextBlock Text="{Binding SelectedServerOs}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding MonitoringStatus}"
+                                   Style="{StaticResource SmallMutedTextStyle}"
+                                   Margin="0 10 0 0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SoftCardBorderStyle}" Margin="0 0 0 10">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [SystemInformation], Source={x:Static services:AppServices.Localizer}}"
+                                   Style="{StaticResource SectionTitleTextStyle}"
+                                   Margin="0 0 0 8"/>
+                        <TextBlock Text="{Binding MonitorSystemDetails}" Style="{StaticResource SmallMutedTextStyle}" FontFamily="Consolas" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding [StorageDetails], Source={x:Static services:AppServices.Localizer}}" FontWeight="SemiBold" Margin="0 12 0 3"/>
+                        <TextBlock Text="{Binding MonitorStorageDetails}" Style="{StaticResource SmallMutedTextStyle}" FontFamily="Consolas" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding [NetworkInterfaces], Source={x:Static services:AppServices.Localizer}}" FontWeight="SemiBold" Margin="0 12 0 3"/>
+                        <TextBlock Text="{Binding MonitorNetworkDetails}" Style="{StaticResource SmallMutedTextStyle}" FontFamily="Consolas" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding [Uptime], Source={x:Static services:AppServices.Localizer}}" FontWeight="SemiBold" Margin="0 12 0 3"/>
+                        <TextBlock Text="{Binding MonitorUptimeShort}" Style="{StaticResource SmallMutedTextStyle}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource SoftCardBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding [TopProcesses], Source={x:Static services:AppServices.Localizer}}"
+                                   Style="{StaticResource SectionTitleTextStyle}"/>
+                        <TextBlock Text="{Binding MonitorProcesses}"
+                                   Style="{StaticResource SmallMutedTextStyle}"
+                                   Margin="0 8 0 0" TextWrapping="NoWrap" FontFamily="Consolas"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Column="2"
+                Style="{StaticResource SoftCardBorderStyle}"
+                Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="44"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0"
+                        BorderBrush="{StaticResource BorderBrushSoft}"
+                        BorderThickness="0 0 0 1"
+                        Padding="12 0">
+                    <Grid>
+                        <TextBlock Text="{Binding [RecentLogs], Source={x:Static services:AppServices.Localizer}}"
+                                   Style="{StaticResource SectionTitleTextStyle}"/>
+                        <Button Content="{Binding [ViewAll], Source={x:Static services:AppServices.Localizer}}"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                Foreground="{StaticResource AccentBrush}"
+                                HorizontalAlignment="Right"
+                                ToolTip="{Binding [ActivityLog], Source={x:Static services:AppServices.Localizer}}"
+                                Command="{Binding OpenActivityPanelCommand}"
+                                Padding="4 0"/>
+                    </Grid>
+                </Border>
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding RecentLogs}"
+                         Margin="8"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="9 7"
+                                    CornerRadius="6"
+                                    Background="{StaticResource TableRowBrush}"
+                                    BorderBrush="{StaticResource BorderBrushSoft}"
+                                    BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="58"/>
+                                        <ColumnDefinition Width="72"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Ellipse Grid.Column="0"
+                                             Width="8"
+                                             Height="8"
+                                             Margin="0 5 10 0">
+                                        <Ellipse.Style>
+                                            <Style TargetType="Ellipse">
+                                                <Setter Property="Fill"
+                                                        Value="{StaticResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Level}"
+                                                                 Value="warn">
+                                                        <Setter Property="Fill"
+                                                                Value="{StaticResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Level}"
+                                                                 Value="error">
+                                                        <Setter Property="Fill"
+                                                                Value="{StaticResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Ellipse.Style>
+                                    </Ellipse>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Time}"
+                                               Style="{StaticResource SmallMutedTextStyle}"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Service}"
+                                               Style="{StaticResource SmallMutedTextStyle}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding Message}"
+                                               Style="{StaticResource SmallMutedTextStyle}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
