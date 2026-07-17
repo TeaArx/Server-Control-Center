@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using ServerControlCenter.Services;
 using ServerControlCenter.ViewModels;
 
@@ -40,6 +41,19 @@ public partial class MainWindow : Window
             (Keyboard.Modifiers & ModifierKeys.Control) != 0)
         {
             vm.AddServerCommand.Execute(null);
+            e.Handled = true;
+            return;
+        }
+
+        if (DataContext is MainViewModel refreshViewModel &&
+            (e.Key == Key.F5 ||
+             (e.Key == Key.R && (Keyboard.Modifiers & ModifierKeys.Control) != 0)))
+        {
+            if (refreshViewModel.RefreshMonitoringCommand.CanExecute(null))
+            {
+                refreshViewModel.RefreshMonitoringCommand.Execute(null);
+            }
+
             e.Handled = true;
             return;
         }
@@ -110,8 +124,10 @@ public partial class MainWindow : Window
         var maximized = WindowState == WindowState.Maximized;
         WindowBorder.CornerRadius = maximized ? new CornerRadius(0) : new CornerRadius(10);
         WindowBorder.BorderThickness = maximized ? new Thickness(0) : new Thickness(1);
-        MaximizeButton.Content = maximized ? "❐" : "□";
-        MaximizeButton.ToolTip = maximized ? "Восстановить" : "Развернуть";
+        MaximizeGlyph.Data = Geometry.Parse(maximized
+            ? "M 4,2 L 11,2 L 11,9 L 9,9 M 2,4 L 9,4 L 9,11 L 2,11 Z"
+            : "M 2,2 L 10,2 L 10,10 L 2,10 Z");
+        MaximizeButton.ToolTip = AppServices.Localizer.T(maximized ? "Restore" : "Maximize");
     }
 
     private void ApplyWindowFrameTheme()

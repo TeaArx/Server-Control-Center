@@ -90,21 +90,47 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string settingsStatusMessage = "";
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsUpdateAvailable))]
-    [NotifyCanExecuteChangedFor(nameof(InstallUpdateCommand))]
     private UpdateInfo? availableUpdate;
-
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(CheckForUpdatesCommand))]
-    [NotifyCanExecuteChangedFor(nameof(InstallUpdateCommand))]
     private bool isUpdateBusy;
-
-    [ObservableProperty]
     private string updateStatusText = "";
-
-    [ObservableProperty]
     private double updateProgress;
+
+    public UpdateInfo? AvailableUpdate
+    {
+        get => availableUpdate;
+        private set
+        {
+            if (!SetProperty(ref availableUpdate, value)) return;
+            OnPropertyChanged(nameof(IsUpdateAvailable));
+            InstallUpdateCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    public bool IsUpdateBusy
+    {
+        get => isUpdateBusy;
+        private set
+        {
+            if (!SetProperty(ref isUpdateBusy, value)) return;
+            CheckForUpdatesCommand.NotifyCanExecuteChanged();
+            InstallUpdateCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    public string UpdateStatusText
+    {
+        get => updateStatusText;
+        private set => SetProperty(ref updateStatusText, value);
+    }
+
+    public double UpdateProgress
+    {
+        get => updateProgress;
+        private set => SetProperty(ref updateProgress, value);
+    }
+
+    public IAsyncRelayCommand CheckForUpdatesCommand { get; }
+    public IAsyncRelayCommand InstallUpdateCommand { get; }
 
 
     [ObservableProperty]
@@ -287,6 +313,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _dashboardData = dashboardData ?? new DashboardDataService();
         _fileDialog = fileDialog ?? new FileDialogService();
         _updateService = updateService ?? new UpdateService();
+        CheckForUpdatesCommand = new AsyncRelayCommand(CheckForUpdatesAsync, CanCheckForUpdates);
+        InstallUpdateCommand = new AsyncRelayCommand(InstallUpdateAsync, CanInstallUpdate);
         UpdateStatusText = UpdateText($"Version {CurrentVersionText}", $"Версия {CurrentVersionText}");
         _terminalSsh.ShellOutputReceived += TerminalSsh_ShellOutputReceived;
         _monitoringTimer = new DispatcherTimer
@@ -556,7 +584,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private bool CanCheckForUpdates() => !IsUpdateBusy;
     private bool CanInstallUpdate() => !IsUpdateBusy && AvailableUpdate is not null;
 
-    [RelayCommand(CanExecute = nameof(CanCheckForUpdates))]
     private Task CheckForUpdatesAsync() => CheckForUpdatesCoreAsync(false);
 
     private async Task CheckForUpdatesCoreAsync(bool silent)
@@ -580,7 +607,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         finally { IsUpdateBusy = false; }
     }
 
-    [RelayCommand(CanExecute = nameof(CanInstallUpdate))]
     private async Task InstallUpdateAsync()
     {
         if (AvailableUpdate is null) return;
